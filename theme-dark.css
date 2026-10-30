@@ -1,0 +1,2980 @@
+/* ==========================================================================
+   砚笺 YanJian · 砚（深色 / 夜灯砚石）
+   --------------------------------------------------------------------------
+   独立设计的深色模式：不是把纸色反相，而是换了一个场景——夜里砚台的石面
+   （暖墨底 #26241F）、灯下的纸边（暖米白文字 #DAD5C8）、灯照下的青
+   （亮靛 #82A7CC）。功能色全部提亮到"灯照态"。
+   作用域：:root[data-theme-mode="dark"]（官方 reset.scss 13–19 行机制）
+   由 theme.css 首行 @import 载入；也可单独作为 dark-only 主题的补充样式。
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] {
+    color-scheme: dark;
+
+    /* 主色 · 灯下靛青 / 灯下赭金 */
+    --b3-theme-primary: #82A7CC;
+    --b3-theme-primary-light: rgba(130, 167, 204, .72);
+    --b3-theme-primary-lighter: rgba(130, 167, 204, .48);
+    --b3-theme-primary-lightest: rgba(130, 167, 204, .16);
+    --b3-theme-secondary: #D9A44A;
+    --b3-theme-background: #26241F;
+    --b3-theme-background-light: rgba(250, 247, 241, .10);
+    --b3-theme-surface: #2D2B25;
+    --b3-theme-surface-light: rgba(43, 42, 37, .92);
+    --b3-theme-surface-lighter: #3B3831;
+    --b3-theme-error: #E07B6D;
+    --b3-theme-success: #85B98C;
+
+    /* 文字颜色 · 灯下纸色，非纯白（防光晕） */
+    --b3-theme-on-primary: #14202C;
+    --b3-theme-on-secondary: #1C1710;
+    --b3-theme-on-background: #DAD5C8;
+    --b3-theme-on-surface: #A29C8D;
+    --b3-theme-on-surface-light: #B3AD9F;
+    --b3-theme-on-surface-lighter: #55514A;
+    --b3-theme-on-error: #1C120E;
+
+    /* 字体：与浅色同栈（拉丁在前，CJK 在后）。
+       C14：CJK 里 Microsoft YaHei 排在 Source Han Sans SC 之前——理由同浅色：
+       后者在某些机器只有 Medium 单字面，会让 400/500、600/700 塌成两级。
+       两文件必须逐字一致，否则深浅字重阶梯不同。 */
+    --b3-font-family-emoji-reset: "Emojis Additional", "Emojis Reset";
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans CJK SC", "Microsoft YaHei", "Source Han Sans SC", arial, sans-serif, emojis;
+    --b3-font-family: var(--b3-font-family-default);
+    --b3-font-family-protyle: var(--b3-font-family);
+    --b3-font-family-code: var(--b3-font-family-emoji-reset), "JetBrainsMono-Regular", "JetBrains Mono", "Cascadia Code", Consolas, mononoki, "Liberation Mono", var(--b3-font-family), monospace;
+    --b3-font-family-graph: arial;
+    --b3-font-family-emoji: "Emojis Additional", emojis;
+    --b3-font-family-math: KaTeX_Math;
+    --b3-font-family-kbd: var(--b3-font-family-protyle);
+    --b3-font-size: 14px;
+
+    /* 背景 · 夜案深处 */
+    --b3-body-background: #1E1C18;
+    --b3-body-background-hl-opacity: 0.10;
+    --b3-body-background-hl: 40, 30%, 62%;
+    --b3-body-background-gradient: none;
+    --b3-layout-space: 4px;
+    --b3-layout-space-margin: -4px;
+
+    /* 顶部工具栏 */
+    --b3-toolbar-color: var(--b3-theme-on-surface-light);
+    --b3-toolbar-hover: rgba(250, 247, 241, .08);
+    --b3-toolbar-left-mac: 74px;
+
+    /* 线条 · 砚沿 */
+    --b3-border-color: #3A372F;
+    --b3-border-radius: 4px;
+    --b3-border-radius-s: 2px;
+    --b3-border-radius-b: 8px;
+
+    /* 滚动条 */
+    --b3-scroll-color: rgba(250, 247, 241, .16);
+
+    /* 列表 */
+    --b3-list-hover: rgba(250, 247, 241, .07);
+    --b3-list-icon-hover: rgba(250, 247, 241, .10);
+
+    /* 列表脑图 */
+    --b3-mindmap-line-color: var(--b3-border-color);
+    --b3-mindmap-line-width: 1.5;
+    --b3-mindmap-line-hover-color: initial;
+    --b3-mindmap-line-hover-width: auto;
+    --b3-mindmap-line-selected-color: initial;
+    --b3-mindmap-line-selected-width: auto;
+    --b3-mindmap-relation-color: var(--b3-theme-primary);
+    --b3-mindmap-relation-width: 1.5;
+    --b3-mindmap-relation-hover-color: initial;
+    --b3-mindmap-relation-hover-width: auto;
+    --b3-mindmap-relation-selected-color: initial;
+    --b3-mindmap-relation-selected-width: auto;
+    --b3-mindmap-summary-color: var(--b3-border-color);
+    --b3-mindmap-summary-width: 1.5;
+    --b3-mindmap-summary-hover-color: initial;
+    --b3-mindmap-summary-hover-width: auto;
+    --b3-mindmap-summary-selected-color: initial;
+    --b3-mindmap-summary-selected-width: auto;
+
+    /* 菜单
+       F11（2026-10-28，账本 menu:dark-canvas）：原菜单底 = --b3-theme-background
+       (#26241F = rgb(38,36,31))，对演示画布 (--b3-theme-surface #2D2B25 =
+       rgb(45,43,37)) 只差 7/255——深色浮层读作「和背景同一张纸」，比浅色
+       （纸 #FAF7F1 → 画布 #F1EDE3 有明确跳变）弱一档。改为「上抬一层」：
+       菜单底取纸与砚之间的中间档 #3C3930 (rgb(60,57,48))—— D4 由 #3A372F 再提一档达 Δ≥12，
+       对画布 Δ = 13/12/10（三通道，最小 10、均值 11.7），对砚底 Δ = 20/19/16；
+       白字 --b3-theme-on-background(#DAD5C8) 对 #3C3930 = 7.875:1（#3A372F 时 8.11）（静止态
+       10.58 → 8.11，仍远高于 4.5），菜单项 on-background 文字不塌。
+       选中/悬停底是 10%/7% 纸色叠层，随底色同步抬亮，语义不变。 */
+    /* D4（2026-10-29）：#3A372F 对画布 Δ13/12/10 均值 11.67 差 F11 目标 12 一口气；
+       提到 #3C3930 → Δ15/14/11 均值 13.3。连锁复算：on-background 7.875、
+       accelerator #BEB8AA 对新底 5.838 / 对当前悬停项底 4.915（最坏 ≥4.5）、
+       子菜单描边合成 3.302 —— 全部保持达标。 */
+    --b3-menu-background: #3C3930;
+    --b3-menu-icon-color: rgba(218, 213, 200, .66);
+
+    /* 提示 */
+    --b3-tooltips-background: #141310;
+    --b3-tooltips-color: #DAD5C8;
+    --b3-tooltips-second-color: #8E887B;
+    --b3-tooltips-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+
+    /* 为空提示 */
+    --b3-empty-color: var(--b3-theme-on-surface);
+
+    /* 遮罩 */
+    --b3-mask-background: rgba(10, 9, 8, .5);
+
+    /* 功能卡 · 灯照态 */
+    --b3-card-error-color: #EFAEA3;
+    --b3-card-error-background: #46302B;
+    --b3-card-warning-color: #E8C48A;
+    --b3-card-warning-background: #4A3D26;
+    --b3-card-info-color: #A6C5E4;
+    --b3-card-info-background: #2B3948;
+    --b3-card-success-color: #A9D2AE;
+    --b3-card-success-background: #2E3A2E;
+
+    /* 自定义文字色 */
+    --b3-font-color1: var(--b3-card-error-color);
+    --b3-font-color2: var(--b3-card-warning-color);
+    --b3-font-color3: var(--b3-card-info-color);
+    --b3-font-color4: var(--b3-card-success-color);
+    --b3-font-color5: var(--b3-theme-on-surface);
+    --b3-font-color6: var(--b3-theme-primary);
+    --b3-font-color7: var(--b3-theme-secondary);
+    --b3-font-color8: var(--b3-theme-error);
+    --b3-font-color9: #A98FD1;
+    --b3-font-color10: #8FBE96;
+    --b3-font-color11: #A9D2AE;
+    --b3-font-color12: #E8C48A;
+    --b3-font-color13: var(--b3-theme-background);
+    --b3-font-background1: var(--b3-card-error-background);
+    --b3-font-background2: var(--b3-card-warning-background);
+    --b3-font-background3: var(--b3-card-info-background);
+    --b3-font-background4: var(--b3-card-success-background);
+    --b3-font-background5: #3B3831;
+    --b3-font-background6: #2B3948;
+    --b3-font-background7: #4A3D26;
+    --b3-font-background8: #46302B;
+    --b3-font-background9: #3A3048;
+    --b3-font-background10: #2E3A2E;
+    --b3-font-background11: #33402F;
+    --b3-font-background12: #47411F;
+    --b3-font-background13: var(--b3-theme-on-background);
+
+    /* 动画效果 · 落墨 */
+    --b3-transition: all .18s cubic-bezier(.2, 0, 0, 1) 0ms;
+    --b3-width-transition: width .18s cubic-bezier(.2, 0, 0, 1) 0ms;
+    --b3-color-transition: color .18s cubic-bezier(.2, 0, 0, 1) 0ms;
+    --b3-background-transition: background-color .1s cubic-bezier(.2, 0, 0, 1) 0ms;
+
+    /* 高亮 */
+    --b3-highlight-color: #26241F;
+    --b3-highlight-background: #E8D48A;
+    --b3-highlight-current-background: #5A5340;
+
+    /* 下拉菜单箭头 */
+    --b3-select-background: url("data:image/svg+xml;utf8,<svg fill='rgba(179, 173, 159, 0.9)' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat right 2px center var(--b3-menu-background);
+
+    /* switch */
+    --b3-switch-background: #3B3831;
+    --b3-switch-border: #A29C8D;
+    --b3-switch-hover: rgba(250, 247, 241, .10);
+    --b3-switch-checked: #14202C;
+    --b3-switch-checked-background: var(--b3-theme-primary);
+    --b3-switch-checked-hover: rgba(130, 167, 204, .24);
+    --b3-switch-checked-hover2: rgba(250, 247, 241, .08);
+
+    /* 阴影 · 夜里深度靠砚沿反光而非投影 */
+    --b3-dock-shadow-color: rgba(0, 0, 0, .55);
+    --b3-point-shadow: inset 0 .5px .5px .5px rgba(250, 247, 241, .08), 0 3px 8px rgba(0, 0, 0, .3);
+    --b3-dialog-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+    --b3-button-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    --b3-button-active-shadow: 0 2px 4px rgba(0, 0, 0, .5);
+
+    /* 图表颜色 · 灯照态 */
+    --b3-graph-p-point: #A29C8D;
+    --b3-graph-heading-point: #A98FD1;
+    --b3-graph-math-point: #8FBE96;
+    --b3-graph-code-point: #D9A44A;
+    --b3-graph-table-point: #82A7CC;
+    --b3-graph-list-point: #E07B6D;
+    --b3-graph-todo-point: #E8C48A;
+    --b3-graph-olist-point: #D9A44A;
+    --b3-graph-listitem-point: #8FBE96;
+    --b3-graph-bq-point: #A98FD1;
+    --b3-graph-callout-point: #85B98C;
+    --b3-graph-super-point: #82A7CC;
+    --b3-graph-doc-point: #DAD5C8;
+    --b3-graph-tag-point: #E8D48A;
+    --b3-graph-asset-point: #8FBE96;
+    --b3-graph-line: rgba(218, 213, 200, .42);
+    --b3-graph-ref-line: #E07B6D;
+    --b3-graph-tag-line: #D9A44A;
+    --b3-graph-tag-tag-line: #E8D48A;
+    --b3-graph-asset-line: #8FBE96;
+    --b3-graph-hl-point: #E8C48A;
+    --b3-graph-hl-line: #E07B6D;
+
+    /* 代码块 */
+    --b3-protyle-code-background: rgba(250, 247, 241, .07);
+
+    /* 行内元素 */
+    --b3-protyle-inline-strong-color: inherit;
+    --b3-protyle-inline-em-color: inherit;
+    --b3-protyle-inline-u-color: inherit;
+    --b3-protyle-inline-s-color: inherit;
+    --b3-protyle-inline-link-color: #82A7CC;
+    /* 任务书机器校验要求的别名；真实生效名为官方 --b3-protyle-inline-link-color */
+    --b3-protyle-inline-link: #82A7CC;
+    --b3-protyle-inline-mark-background: #E8D48A;
+    --b3-protyle-inline-mark-color: #26241F;
+    /* F5（2026-10-28，Z6-N17）：tag 由 60% 半透明改实色。半透明值在深色卡面
+       上做 alpha 合成，实测 4.4971（两位小数 4.50，差 0.003 属合成精度）；
+       实色 #A29C8F 零容差 ≥4.5，色相仍是"纸墨暖灰"，与浅色 tag 同族。 */
+    --b3-protyle-inline-tag-color: #A29C8F;
+    /* R2-05：块引用需连同自身底色达 4.5。原 #A98FD1 在 12% 底上 4.58（刚过）、
+       hover 20% 底只有 4.00。改 #B39BDB：12% 底 5.16、16% 底 4.76、裸砚 6.37。 */
+    --b3-protyle-inline-blockref-color: #B39BDB;
+    --b3-protyle-inline-fileref-color: #8FBE96;
+
+    /* PDF */
+    --b3-pdf-selection: #33402F;
+    --b3-pdf-selection-dark: #779170;
+    --sidebar-width: 200px;
+    --b3-pdf-offset: 0;
+    --b3-pdf-background1-light: #E07B6D;
+    --b3-pdf-background1-dark: #E07B6D;
+    --b3-pdf-background2-light: #D9A44A;
+    --b3-pdf-background2-dark: #D9A44A;
+    --b3-pdf-background3-light: #E8D48A;
+    --b3-pdf-background3-dark: #E8D48A;
+    --b3-pdf-background4-light: #8FBE96;
+    --b3-pdf-background4-dark: #8FBE96;
+    --b3-pdf-background5-light: #D99AA4;
+    --b3-pdf-background5-dark: #D99AA4;
+    --b3-pdf-background6-light: #82A7CC;
+    --b3-pdf-background6-dark: #82A7CC;
+    --b3-pdf-background7-light: #A98FD1;
+    --b3-pdf-background7-dark: #A98FD1;
+    --b3-pdf-dark: #1E1C18;
+
+    /* callout */
+    --b3-callout-note: var(--b3-theme-primary);
+    --b3-callout-tip: var(--b3-theme-success);
+    --b3-callout-caution: var(--b3-theme-error);
+    --b3-callout-important: var(--b3-protyle-inline-blockref-color);
+    --b3-callout-warning: #D9A44A;
+
+    /* 表格 */
+    --b3-table-even-background: rgba(250, 247, 241, .04);
+
+    /* 数据库 */
+    --b3-av-gallery-shadow: rgba(0, 0, 0, .3) 0 2px 4px 0, var(--b3-border-color) 0 0 0 1px;
+
+    /* 嵌入块 / 引述块 / 父块 */
+    --b3-embed-background: transparent;
+    --b3-bq-background: transparent;
+    --b3-parent-background: var(--b3-theme-background);
+
+    /* 其他官方变量 */
+    --b3-icon-star-fill: currentColor;
+
+    /* ======================================================================
+       第二层：--yj-* 扩展 token（深色独立取值）
+       ====================================================================== */
+
+    --yj-space-1: 4px;
+    --yj-space-2: 8px;
+    --yj-space-3: 12px;
+    --yj-space-4: 16px;
+    --yj-space-6: 24px;
+    --yj-space-8: 32px;
+
+    --yj-ease-out: cubic-bezier(.2, 0, 0, 1);
+    --yj-ease-in: cubic-bezier(.4, 0, 1, 1);
+    --yj-ease-spring: cubic-bezier(.34, 1.3, .64, 1);
+    --yj-dur-micro: 100ms;
+    --yj-dur-base: 180ms;
+    --yj-dur-enter: 240ms;
+    --yj-dur-spring: 260ms;
+    --yj-dur-pulse: 400ms;
+    /* R3-06：落点线"停留后再淡出"的保持时长，单独 token 化
+       （原本 1.5s 是字面量，用户覆写时长契约时不会跟随） */
+    --yj-dur-hold: 1.5s;
+
+    --yj-shadow-card: 0 1px 2px rgba(0, 0, 0, .24), 0 4px 12px rgba(0, 0, 0, .3);
+
+    /* F4（2026-10-28）：输入框焦点外圈光晕（与浅色 theme.css:324 同语义、不同
+       色值）。必须在本文件内重新声明：focus-dark.html 这类只链 theme-dark.css
+       的页面拿不到浅色 :root 的 token。α .34 对砚底合成 (69,81,90)=1.90:1、
+       对面板 1.74:1，图上可见 3px 淡靛带（外缘 4px）。 */
+    --b3-focus-halo: color-mix(in srgb, var(--b3-theme-primary) 34%, transparent);
+    /* G04/DARK-11：深色选区底色由主色派生（原硬编码 rgba(130,167,204,.32)，
+       覆写主色后不跟随）。@supports 不成立时回退到字面量（同值）。 */
+    --yj-selection-bg: rgba(130, 167, 204, .32);
+
+    --yj-measure: calc(var(--b3-font-size-editor, 16px) * 46);
+
+    /* 状态栏文字（深色 on-surface 在夜案底上 6.22:1，直接用） */
+    --yj-status-color: var(--b3-theme-on-surface);
+
+    /* C7：辅助小标签与浅色共用同一语义档位（on-surface-light 在 #3B3831 上 5.23） */
+    --yj-meta-label: var(--b3-theme-on-surface-light);
+
+    --yj-focus-ring: 0 0 0 2px var(--b3-theme-background), 0 0 0 4px var(--b3-theme-primary);
+    --yj-focus-ring-inset: inset 0 0 0 2px var(--b3-theme-primary);
+
+    /* 块间距分级（与浅色同值，DESIGN 5.1） */
+    /* C17：与浅色同步——flex 列内相邻 margin 不折叠，块间距离 = 两者之和，
+       故取 4/20/4/8 使实测回到契约的 8/24/8/12（原为两倍）。 */
+    --yj-block-gap: var(--yj-space-1);
+    --yj-heading-gap-before: calc(var(--yj-space-4) + var(--yj-space-1));
+    --yj-heading-gap-after: var(--yj-space-1);
+    --yj-container-gap: var(--yj-space-2);
+}
+
+/* 分语言字体栈（深色共用同一套中文优先栈）。
+   C14：与浅色 zh-CN 同序（Microsoft YaHei 在 Source Han Sans SC 前）。 */
+:root[data-theme-mode="dark"]:lang(zh-CN) {
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans CJK SC", "Microsoft YaHei", "Source Han Sans SC", arial, sans-serif, emojis;
+}
+
+:root[data-theme-mode="dark"]:lang(zh-TW) {
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang TC", "Noto Sans CJK TC", "Source Han Sans TC", "Microsoft JhengHei", arial, sans-serif, emojis;
+}
+
+:root[data-theme-mode="dark"]:lang(ja) {
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "Hiragino Sans", "Noto Sans CJK JP", "Yu Gothic UI", arial, sans-serif, emojis;
+}
+
+/* ==========================================================================
+   1. 基础
+   ========================================================================== */
+
+/* Z2-01：选区必须「纸字压靛青带」，不能反过来。
+   原写法 background: primary-lighter(.48) + color: background(#26241F)
+   是「墨字压亮带」——实测选区内像素 带(82,99,114)/字(38,36,31) = **2.50:1**，
+   低于 4.5 近一半；而深色选区带比纸面亮 2.50 倍，与「夜砚/灯下」叙事相反，
+   与浅色 6.70:1 相差 2.7 倍。现改为：
+   - 带宽收到 32%（合成 (67,78,86)，带/纸 1.818，与浅色 1.815 几乎相同）；
+   - 文字用 on-background(#DAD5C8) 而不是 background——实测 **5.82:1**，
+     与浅色 6.70 相差 1.15 倍，同一档位。
+   浅色侧维持「on-background 压 38% 靛青」，两模式因此是同一套语义：
+   都是「正文墨色压在比纸略深的靛青带上」。 */
+/* G04/DARK-11：选区底色走 token（默认字面量，支持 color-mix 时由主色派生） */
+@supports (background-color: color-mix(in srgb, currentColor 50%, transparent)) {
+    :root[data-theme-mode="dark"] {
+        --yj-selection-bg: color-mix(in srgb, var(--b3-theme-primary) 32%, transparent);
+    }
+}
+
+:root[data-theme-mode="dark"] ::selection {
+    background-color: var(--yj-selection-bg);
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] body {
+    background-color: var(--b3-body-background);
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] a {
+    color: var(--b3-theme-primary);
+    text-decoration-color: var(--b3-theme-primary-light);
+}
+
+/* R1-13：深色文件必须有等价的焦点环。
+   本文件可单独加载，缺失焦点规则会让"只装深色"的用户完全失去键盘可达性提示。
+   与浅色同清单、同 token（--yj-focus-ring）。
+   D9（2026-10-29 用户指令，与浅色 theme.css 同步）：.b3-menu__item /
+   .b3-menu__action 已从本清单剔除——.b3-menu 全家不出外扩环，焦点指示走
+   与悬停一致的底色通道（见「菜单 / 浮层」节）；.b3-menu__action 保留官方
+   base.css 的 1px inset outline 作焦点指示（内向描边，非外扩环）。 */
+:root[data-theme-mode="dark"] .b3-button:focus-visible,
+:root[data-theme-mode="dark"] .b3-list-item:focus-visible,
+:root[data-theme-mode="dark"] .b3-list-item__action:focus-visible,
+:root[data-theme-mode="dark"] .b3-list-item__icon:focus-visible,
+:root[data-theme-mode="dark"] .b3-list-item__toggle:focus-visible,
+:root[data-theme-mode="dark"] .b3-chip:focus-visible,
+:root[data-theme-mode="dark"] .b3-card:focus-visible,
+:root[data-theme-mode="dark"] .b3-switch:focus-visible,
+:root[data-theme-mode="dark"] .block__icon:focus-visible,
+:root[data-theme-mode="dark"] .toolbar__item:focus-visible,
+:root[data-theme-mode="dark"] .toolbar__button:focus-visible,
+:root[data-theme-mode="dark"] .dock__item:focus-visible,
+:root[data-theme-mode="dark"] .layout-tab-bar .item:focus-visible,
+:root[data-theme-mode="dark"] .protyle-breadcrumb__item:focus-visible,
+:root[data-theme-mode="dark"] .protyle-breadcrumb__arrow--interactive:focus-visible,
+:root[data-theme-mode="dark"] .protyle-breadcrumb__icon:focus-visible,
+:root[data-theme-mode="dark"] .protyle-toolbar__item:focus-visible,
+:root[data-theme-mode="dark"] .protyle-gutters button:focus-visible,
+:root[data-theme-mode="dark"] .mobile-bottom-bar__item:focus-visible,
+:root[data-theme-mode="dark"] .mobile-tabs__item:focus-visible,
+:root[data-theme-mode="dark"] .mobile-tabs__close:focus-visible,
+:root[data-theme-mode="dark"] .mobile-tabs__actions .b3-button:focus-visible,
+:root[data-theme-mode="dark"] .side-panel .toolbar__icon:focus-visible,
+:root[data-theme-mode="dark"] .b3-snackbar__close:focus-visible {
+    outline: none;
+    box-shadow: var(--yj-focus-ring);
+    position: relative;
+    z-index: 1;
+}
+
+:root[data-theme-mode="dark"] .b3-snackbar__close:focus-visible,
+:root[data-theme-mode="dark"] .side-panel .toolbar__icon:focus-visible,
+:root[data-theme-mode="dark"] .protyle-breadcrumb__icon:focus-visible {
+    box-shadow: var(--yj-focus-ring-inset);
+}
+
+/* D9（2026-10-29，与浅色 theme.css 同步）：禁用顶栏按钮 Tab 可达但不承载焦点
+   语义，WCAG 2.4.7 对禁用控件不作要求——压掉外扩环（类禁用与原生 :disabled
+   两种形态都覆盖）。 */
+:root[data-theme-mode="dark"] .toolbar__item--disabled:focus-visible,
+:root[data-theme-mode="dark"] .toolbar__item:disabled:focus-visible {
+    box-shadow: none;
+}
+
+/* C2：深色文件必须自带等价的昼夜过渡清单。
+   本文件可单独加载（预览 dark 页即此路径），缺少这份清单时真实 @import
+   路径有过渡、dark-only 路径却是硬切——同一主题两种加载方式视觉不一致。
+   清单与 theme.css 同名同序，含真正绘纸面的 `.protyle` 与
+   `.layout__center .layout-tab-container`。
+   R2-01：`color` 只在 body 过渡（color 是继承属性；逐层各写一条会把
+   180ms 叠成秒级，深色首帧正文停在 35% 合成）。容器只过渡 background-color。 */
+:root[data-theme-mode="dark"] body {
+    transition: background-color var(--yj-dur-base) var(--yj-ease-out),
+                color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .layout,
+:root[data-theme-mode="dark"] .layout__center,
+:root[data-theme-mode="dark"] .layout__center .layout-tab-container,
+:root[data-theme-mode="dark"] .layout__dockl,
+:root[data-theme-mode="dark"] .layout__dockr,
+:root[data-theme-mode="dark"] .layout__dockb,
+:root[data-theme-mode="dark"] .layout-tabs,
+:root[data-theme-mode="dark"] .layout-tab-bar,
+:root[data-theme-mode="dark"] .protyle,
+:root[data-theme-mode="dark"] .protyle-breadcrumb,
+:root[data-theme-mode="dark"] .protyle-wysiwyg,
+:root[data-theme-mode="dark"] .b3-typography,
+:root[data-theme-mode="dark"] .b3-list,
+:root[data-theme-mode="dark"] .b3-menu,
+:root[data-theme-mode="dark"] .b3-dialog__container,
+:root[data-theme-mode="dark"] .toolbar,
+:root[data-theme-mode="dark"] .status {
+    transition: background-color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+/* C6：面包屑层级箭头是"我在文档树哪一层"的唯一路径指示，
+   按 WCAG 1.4.11 属非文本信息 → 需 ≥3:1。on-surface-lighter 在夜砚上
+   只有 1.97:1（浅色 1.64），改用 on-surface（深 5.67 / 浅 5.05）。 */
+
+/* 深底下滚动条改用砚沿色，避免暖白条过于抢眼 */
+:root[data-theme-mode="dark"] ::-webkit-scrollbar-thumb {
+    background-color: var(--b3-scroll-color);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+:root[data-theme-mode="dark"] ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] ::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+
+/* ==========================================================================
+   2. 按钮：深色下阴影弱、靠底色与描边分层
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] .b3-button {
+    color: var(--b3-theme-on-primary);
+    background-color: var(--b3-theme-primary);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out),
+                box-shadow var(--yj-dur-micro) var(--yj-ease-out),
+                transform var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .b3-button:not(:disabled):hover {
+    /* MAJ-03（2026-10-29）：与浅色同构，改主色派生——原字面量 #93B5D7 在覆写
+       --b3-theme-primary 后不跟随（probe 实测跳回蓝灰）。88% 混白 =
+       rgb(145,178,210)，墨字 #14202C 对它 7.47:1（静止 6.56:1）。 */
+    background-color: color-mix(in srgb, var(--b3-theme-primary) 88%, #fff);
+    box-shadow: var(--b3-button-shadow);
+}
+
+:root[data-theme-mode="dark"] .b3-button:not(:disabled):active {
+    /* MAJ-03：88% 混黑 = rgb(114,147,180)，墨字 5.15:1（原字面量 #6F93B6 同向） */
+    background-color: color-mix(in srgb, var(--b3-theme-primary) 88%, #000);
+    transform: translateY(.5px);
+    box-shadow: var(--b3-button-active-shadow);
+}
+
+:root[data-theme-mode="dark"] .b3-button--text {
+    color: var(--b3-theme-primary);
+    background-color: transparent;
+}
+
+:root[data-theme-mode="dark"] .b3-button--text:not(:disabled):hover {
+    /* G06：与浅色 theme.css 同——透明变体悬停不加底色 */
+    background-color: transparent;
+}
+
+:root[data-theme-mode="dark"] .b3-button--text:not(:disabled):active {
+    /* G06：按下态原先用 48% 靛青底 + 主色文字，砚 2.47 / 面板 2.34；
+       改主色实底 + on-primary（#14202C 对 #82A7CC = 6.56），两种底都过 AA。 */
+    background-color: var(--b3-theme-primary);
+    color: var(--b3-theme-on-primary);
+}
+
+:root[data-theme-mode="dark"] .b3-button--cancel {
+    color: var(--b3-theme-on-surface);
+    background-color: transparent;
+}
+
+:root[data-theme-mode="dark"] .b3-button--cancel:not(:disabled):hover {
+    /* G06：与浅色同——透明变体悬停不加底色，文字色保持不变 */
+    background-color: transparent;
+}
+
+:root[data-theme-mode="dark"] .b3-button--outline {
+    color: var(--b3-theme-primary);
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--b3-theme-primary);
+}
+
+:root[data-theme-mode="dark"] .b3-button--outline:not(:disabled):hover {
+    /* G06：与浅色同——透明变体悬停不加底色 */
+    background-color: transparent;
+}
+
+/* G06：取消/描边按钮的按下态。浅色同名规则（pointer 用 primary-lightest）
+   在深色下只有 4.25:1（面板）/4.65（砚），不达 AA：
+   描边=主色实底 + on-primary 6.56；取消=中性面底 + on-background。 */
+:root[data-theme-mode="dark"] .b3-button--cancel:not(:disabled):active {
+    background-color: var(--b3-theme-surface-lighter);
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .b3-button--outline:not(:disabled):active {
+    background-color: var(--b3-theme-primary);
+    color: var(--b3-theme-on-primary);
+}
+
+:root[data-theme-mode="dark"] .b3-button--remove {
+    color: var(--b3-theme-error);
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--b3-theme-error);
+}
+
+/* C4：深色 #E07B6D 在失败横幅 #46302B 上只有 4.20:1（12px 文本需 4.5）。
+   --b3-card-error-color(#EFAEA3) 在同底上是 6.55 → 横幅内的重试按钮改用它；
+   描边仍用 #E07B6D（非文本 3:1 已过：对 #46302B 为 4.20），朱砂语义不变。
+   hover 按深色叠 18% 朱砂并保留 inset 描边，不再换成与横幅相同的实色。 */
+:root[data-theme-mode="dark"] .b3-snackbar--error .b3-button--remove {
+    color: var(--b3-card-error-color);
+}
+
+:root[data-theme-mode="dark"] .b3-button--remove:not(:disabled):hover {
+    background-color: rgba(224, 123, 109, .18);
+    color: var(--b3-theme-error);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-error);
+}
+
+:root[data-theme-mode="dark"] .b3-snackbar--error .b3-button--remove:not(:disabled):hover {
+    color: var(--b3-card-error-color);
+}
+
+:root[data-theme-mode="dark"] .b3-button:disabled {
+    opacity: 1;
+    color: var(--b3-theme-on-surface-lighter);
+    background-color: var(--b3-theme-surface);
+    box-shadow: inset 0 0 0 1px var(--b3-border-color);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* R2-05：补上 --outline 变体。深色基础禁用规则（surface 底 + inset 1px）特异性更高，
+   漏掉 outline 会让同一禁用态在深浅两模式形态不同
+   （浅色是 ghost 透明底，深色变成带底带框的实心块）。 */
+:root[data-theme-mode="dark"] .b3-button--text:disabled,
+:root[data-theme-mode="dark"] .b3-button--cancel:disabled,
+:root[data-theme-mode="dark"] .b3-button--outline:disabled {
+    background-color: transparent;
+    box-shadow: none;
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-button--error {
+    color: var(--b3-card-error-color);
+    background-color: var(--b3-card-error-background);
+}
+
+:root[data-theme-mode="dark"] .b3-button--warning {
+    color: var(--b3-card-warning-color);
+    background-color: var(--b3-card-warning-background);
+}
+
+:root[data-theme-mode="dark"] .b3-button--info {
+    color: var(--b3-card-info-color);
+    background-color: var(--b3-card-info-background);
+}
+
+:root[data-theme-mode="dark"] .b3-button--success {
+    color: var(--b3-card-success-color);
+    background-color: var(--b3-card-success-background);
+}
+
+:root[data-theme-mode="dark"] .b3-button--progress {
+    color: var(--b3-theme-primary);
+    background-color: transparent;
+}
+
+:root[data-theme-mode="dark"] .b3-button--progress > span {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+:root[data-theme-mode="dark"] .b3-button--progress-text::before {
+    background-color: var(--b3-theme-primary);
+    opacity: .2;
+}
+
+/* ==========================================================================
+   3. 输入控件
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] .b3-text-field {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-theme-background);
+    border-radius: var(--b3-border-radius);
+    outline-color: var(--b3-border-color);
+}
+
+:root[data-theme-mode="dark"] .b3-text-field::placeholder {
+    color: var(--b3-empty-color);
+}
+
+/* F3：悬停规则排除 :focus / :disabled。
+   深色这里与浅色同构：`:hover`（0,3,0）权重高于 `:focus`（0,2,0），
+   且 `.b3-select:hover` 早于 `.b3-select:focus`——不排除时鼠标停在
+   已聚焦控件上会把 focus 环整个替换成 hover 描边。
+   排除后深浅两模式的输入控件状态矩阵逐条对齐：
+   基础 → hover（仅未聚焦）→ focus（优先）→ disabled（互斥）。 */
+/* R2-08：hover 描边达 1.4.11 的 3:1，并与浅色统一为 1px。
+   原 0.6px + on-surface-lighter 对砚只有 1.97（浅色 1.64）——看不见。
+   改 on-surface(#A29C8D) 对砚 5.67、对面板 5.17；线宽 1px 与浅色一致。 */
+:root[data-theme-mode="dark"] .b3-text-field:not(.b3-text-field--text):not(:disabled):not(:focus):hover {
+    box-shadow: 0 0 0 1px var(--b3-theme-on-surface);
+}
+
+/* R2-08：`--text` 变体（搜索框）在悬停时给极淡底纹，保持"无框"形态。 */
+:root[data-theme-mode="dark"] .b3-text-field--text:not(:disabled):not(:focus):hover {
+    background-color: var(--b3-list-hover);
+}
+
+/* C3：深色必须与浅色逐字对齐——浅色 theme.css 有通用的
+   `.b3-text-field:focus`（含 `--text` 变体，即搜索框），而深色原规则
+   带 `:not(.b3-text-field--text)` → 深色搜索框聚焦时环被排除，
+   harness B2-input-focus-text-dark 实测 shadow none→none、像素 0 变化。
+   这里补两条：通用 `:focus` 覆盖 `--text`；`--text` 变体单独覆盖，
+   使它在深色 `.b3-text-field`（0,2,0）之后仍拿到主题环。
+   F4（2026-10-28，与浅色同步）：外圈光晕从 primary-lightest(α.16，
+   对砚合成 (53,57,59)=1.33:1) 提到 α .34 → 合成 (69,81,90)、对砚 1.90:1、
+   对面板 1.74:1，图上可测到 3px 淡靛带（连同 1px 内框，外缘 4px）。
+   两模式保持同一档强度，不制造深浅分叉。 */
+:root[data-theme-mode="dark"] .b3-text-field:focus {
+    outline-color: var(--b3-theme-primary);
+    box-shadow: 0 0 0 1px var(--b3-theme-primary), 0 0 0 4px var(--b3-focus-halo);
+}
+
+:root[data-theme-mode="dark"] .b3-text-field:not(.b3-text-field--text):focus {
+    outline-color: var(--b3-theme-primary);
+    box-shadow: 0 0 0 1px var(--b3-theme-primary), 0 0 0 4px var(--b3-focus-halo);
+}
+
+:root[data-theme-mode="dark"] .b3-text-field:disabled {
+    color: var(--b3-theme-on-surface-lighter);
+    background-color: var(--b3-theme-surface);
+    cursor: not-allowed;
+}
+
+:root[data-theme-mode="dark"] .b3-select {
+    color: var(--b3-theme-on-background);
+    box-shadow: inset 0 0 0 1px var(--b3-border-color);
+}
+
+:root[data-theme-mode="dark"] .b3-select:not(:disabled):not(:focus):hover {
+    /* R2-08：与浅色同——外圈用 on-surface（对砚 5.67，过 3:1），线宽统一 1px */
+    box-shadow: inset 0 0 0 1px var(--b3-theme-on-surface), 0 0 0 1px var(--b3-border-color);
+}
+
+:root[data-theme-mode="dark"] .b3-select:focus {
+    /* G06：与浅色 500-503 同——1px 主色内环 + 4px 淡靛光晕（原照抄官方
+       0.6px/48% 版，外环实测 2.50:1，且门控从未覆盖 select）。 */
+    outline-color: var(--b3-theme-primary);
+    box-shadow: 0 0 0 1px var(--b3-theme-primary), 0 0 0 4px var(--b3-focus-halo);
+}
+
+/* F4：`select.b3-select:disabled:disabled`（0,3,0）用来压过官方
+   `.body--windows .b3-select:disabled` / `.body--linux …`（同为 0,3,0，
+   这是真实特异性差距，与加载顺序无关；真实顺序仍是官方 base.css 先于主题）。
+   只写 `.b3-select:disabled`（0,2,0）会被它盖掉，
+   Windows/Linux 上实测仍是 opacity .68。 */
+:root[data-theme-mode="dark"] .b3-select:disabled,
+:root[data-theme-mode="dark"] select.b3-select:disabled:disabled {
+    color: var(--b3-theme-on-surface-lighter);
+    background-color: var(--b3-theme-surface);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-surface-lighter);
+    cursor: not-allowed;
+    /* 同浅色：压掉官方 base-select 的 opacity:.68 */
+    opacity: 1;
+}
+
+:root[data-theme-mode="dark"] .b3-text-field::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(.7);
+}
+
+:root[data-theme-mode="dark"] .b3-switch {
+    border-color: var(--b3-switch-border);
+    background-color: var(--b3-switch-background);
+}
+
+:root[data-theme-mode="dark"] .b3-switch::after {
+    background-color: var(--b3-theme-on-surface-light);
+}
+
+:root[data-theme-mode="dark"] .b3-switch:checked {
+    background-color: var(--b3-switch-checked-background);
+    border-color: transparent;
+}
+
+:root[data-theme-mode="dark"] .b3-switch:checked::after {
+    background-color: var(--b3-switch-checked);
+}
+
+/* R3-04：禁用态统一枯墨色，不用 opacity（与浅色、按钮、菜单项一致）。
+   F4：官方 `.b3-switch:disabled{opacity:.38}`，而主题规则带
+   `:root[data-theme-mode="dark"]` 前缀（权重更高），已压得住；这里显式
+   归 1 并把权重抬到 :disabled:disabled，与浅色保持同一写法。 */
+:root[data-theme-mode="dark"] .b3-switch:disabled,
+:root[data-theme-mode="dark"] .b3-switch:disabled:disabled {
+    background-color: var(--b3-theme-surface-lighter);
+    border-color: var(--b3-theme-on-surface-lighter);
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+:root[data-theme-mode="dark"] .b3-switch:disabled::after {
+    background-color: var(--b3-theme-on-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-slider::-webkit-slider-runnable-track {
+    background-color: var(--b3-theme-primary-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-slider::-webkit-slider-thumb {
+    background-color: var(--b3-theme-primary);
+    transition: transform var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .b3-slider:hover::-webkit-slider-thumb {
+    transform: scale(1.15);
+}
+
+:root[data-theme-mode="dark"] .b3-label {
+    border-bottom-color: var(--b3-border-color);
+}
+
+:root[data-theme-mode="dark"] .b3-label__text {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .b3-label__icon {
+    color: var(--b3-theme-on-surface);
+}
+
+/* ==========================================================================
+   4. 菜单 / 浮层：深色下描边承担阴影职能
+   ========================================================================== */
+
+/* F11（2026-10-28）：菜单底提亮到 #3A372F 后，原描边 --b3-border-color(#3B3831)
+   对新底只有 1.02:1——等于没有边线。
+   D1-02（2026-10-29）：父菜单保持 1px 淡线（本相位渲染 3.34–4.27，四边均 ≥3）。
+   D9（2026-10-29 用户指令）：子菜单已整体回归官方基线（1px surface-lighter 边 +
+   dialog-shadow 分层），「父子贴合 ≤1px」契约废止，见下方 D9 注。 */
+:root[data-theme-mode="dark"] .b3-menu {
+    background-color: var(--b3-menu-background);
+    /* F11 / D1-02（2026-10-29）原为 rgba(250,247,241,.60)——为把「菜单边沿」凑到
+       非文本 3:1 而把纸白提到 60%，真机上读作一圈**发白的边**（用户 D10 截图指出）。
+       D10（2026-10-29 用户指令）：收细到 .14 —— 合成 rgb(94,92,84)，对菜单底约
+       1.9:1，只作一道极淡的收边；菜单与画布的分离改由 dialog-shadow（官方做法）
+       承担，不再用一圈亮边。 */
+    border: 1px solid rgba(250, 247, 241, .14);
+    border-radius: var(--b3-border-radius-b);
+    box-shadow: var(--b3-dialog-shadow);
+    animation: yj-menu-in var(--yj-dur-base) var(--yj-ease-out) both;
+    padding-block: var(--yj-space-2);
+}
+
+:root[data-theme-mode="dark"] .b3-menu--fullscreen {
+    animation: none;
+}
+
+:root[data-theme-mode="dark"] .b3-menu__item {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-menu-background);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .b3-menu__item:hover:not(.b3-menu__item--readonly):not([disabled="disabled"]),
+:root[data-theme-mode="dark"] .b3-menu__item--current.b3-menu__item:not(.b3-menu__item--readonly) {
+    background-color: var(--b3-list-hover);
+    color: var(--b3-theme-on-background);
+}
+
+/* D9（2026-10-29 用户指令，与浅色 theme.css 同步）：菜单项拿到 DOM focus
+   （思源在打开子菜单、恢复菜单等流程调 .focus()）时的焦点指示——改走与悬停
+   一致的底色通道，不出外扩环。:focus-visible 启发式与方向键导航「只搬
+   --current 不搬 focus」的前提见浅色同位注释。 */
+:root[data-theme-mode="dark"] .b3-menu__item:focus-visible:not(.b3-menu__item--readonly) {
+    background-color: var(--b3-list-hover);
+    color: var(--b3-theme-on-background);
+}
+
+/* D9（2026-10-29 用户指令，与浅色 theme.css 同步）：当前菜单项第二通道收为
+   仅 700 字重——思源在 mouseover 上就搬 --current，左墨条在真机等于悬停蓝条。 */
+:root[data-theme-mode="dark"] .b3-menu__item--current.b3-menu__item:not(.b3-menu__item--readonly) {
+    font-weight: 700;
+}
+
+/* D1-04（2026-10-29）→ D9 重做（2026-10-29 用户指令，与浅色同构）：
+   当前菜单项拿到 DOM focus 时的防御通道——不再叠外扩环（原三段 box-shadow
+   是菜单里最重口的蓝环），改与悬停同底色 + 保留当前态墨条。真机前提
+   （方向键导航只搬 --current 类、不搬 DOM focus）见浅色同位注释。 */
+:root[data-theme-mode="dark"] .b3-menu__item--current.b3-menu__item:focus-visible {
+    background-color: var(--b3-list-hover);
+}
+
+:root[data-theme-mode="dark"] .b3-menu__item--show {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+:root[data-theme-mode="dark"] .b3-menu__item[disabled="disabled"],
+:root[data-theme-mode="dark"] .b3-menu__item--disabled {
+    cursor: not-allowed;
+}
+
+/* C18：与浅色一致——去 opacity:.38，改枯墨色（深色 #55514A）+ not-allowed。
+   权重说明同浅色：叠 `:not(.b3-menu__submenu)` 到 (0,4,0)，压过官方
+   `.b3-menu__item[disabled=disabled]>*:not(.b3-menu__submenu)`。 */
+:root[data-theme-mode="dark"] .b3-menu__item[disabled="disabled"] > *:not(.b3-menu__submenu):not(.b3-menu__submenu),
+:root[data-theme-mode="dark"] .b3-menu__item[disabled="disabled"].b3-menu__item--disabled > *:not(.b3-menu__submenu),
+:root[data-theme-mode="dark"] .b3-menu__item--disabled,
+:root[data-theme-mode="dark"] .b3-menu__item--disabled.b3-menu__item--disabled {
+    opacity: 1;
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-menu__item[disabled="disabled"] > .b3-menu__icon,
+:root[data-theme-mode="dark"] .b3-menu__item--disabled > .b3-menu__icon,
+:root[data-theme-mode="dark"] .b3-menu__item--disabled.b3-menu__item--disabled > .b3-menu__icon {
+    color: var(--b3-theme-on-surface-lighter);
+    opacity: 1;
+}
+
+:root[data-theme-mode="dark"] .b3-menu__item--warning:hover,
+:root[data-theme-mode="dark"] .b3-menu__item--warning.b3-menu__item--current {
+    color: var(--b3-theme-error);
+}
+
+:root[data-theme-mode="dark"] .b3-menu__icon {
+    color: var(--b3-menu-icon-color);
+}
+
+:root[data-theme-mode="dark"] .b3-menu__separator {
+    /* D4（2026-10-29）：F11 抬底后 --b3-border-color(#3A372F) 与菜单底同色，
+       分隔线 1.000:1 完全不可见（浅色同位 1.244 可见）。改 #4A463C：
+       对菜单底 1.263:1，与浅色可见档对齐（1.244），恢复深浅对称。 */
+    background-color: #4A463C;
+}
+
+/* D1-03（2026-10-29）+ G03：快捷键/分组标题是真实信息文本（12px/10-12px），
+   必须 ≥4.5。原 on-surface(#A29C8D) 对抬底后的菜单底只有 4.34:1（改前 5.67）。
+   现值 #BEB8AA (190,184,170)，基准为 **D4 的菜单底 #3C3930**：
+   对菜单底 5.838:1、对 7% 悬停/当前项底 4.749:1（复算脚本值；旧注释 6.01/4.91
+   与 5.838/4.915 两套读数均已作废）。浅色侧不动（on-surface 对纸 5.05:1）。 */
+:root[data-theme-mode="dark"] .b3-menu__accelerator,
+:root[data-theme-mode="dark"] .b3-menu__group-title {
+    color: #BEB8AA;
+}
+
+/* D9（2026-10-29 用户指令）：子菜单回归官方基线（与浅色 theme.css 同步）。
+   深色对 .b3-menu__submenu 的全部自定义（F2/R1-02/D1-01/D1-02 的 2px 载体边框、
+   -2px 盖带、margin-left:0、左边框覆写、圆角覆写、以及与官方同值属 no-op 的
+   background-color/border-radius 声明）已整体移除，官方 base.css 规则自然生效：
+   1px `--b3-theme-surface-lighter` 边框（四边）、`var(--b3-border-radius-b)`
+   圆角（四角）、自带 `var(--b3-dialog-shadow)`、`padding:8px 0`、
+   `position:fixed`，摆位由官方 showSubMenu 公式决定。深浅同口径；浮层分层
+   职责移交 dialog-shadow（深色官方边 rgb(59,56,49) 对菜单底 1.013:1，靠
+   `0 8px 24px rgba(0,0,0,.4)` 分层——与官方 midnight 同策略，用户明确接受）。 */
+
+:root[data-theme-mode="dark"] .b3-menu__action {
+    color: var(--b3-theme-on-surface-light);
+    border-radius: var(--b3-border-radius-s);
+}
+
+:root[data-theme-mode="dark"] .b3-menu__action:hover {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-icon-hover);
+}
+
+/* ==========================================================================
+   5. 列表 / 文档树
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] .b3-list-item {
+    color: var(--b3-theme-on-background);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item:hover {
+    background-color: var(--b3-list-hover);
+}
+
+:root[data-theme-mode="dark"] .b3-list--background .b3-list-item:hover:not(.b3-list-item--focus):not(.dragover):not(.dragover__current):not(.dragover__top):not(.dragover__bottom) {
+    background-color: var(--b3-list-hover);
+}
+
+/* Z2-03（深色副本）：选中行的第二通道与浅色同构——左缘 2px 主色墨条
+   （对 16% 靛青选中底 4.24，过 1.4.11 的 3:1）+ 内框保留纸边质感。
+   原 1px 内框 primary-lighter(.48) 对选中底仅 2.11。 */
+:root[data-theme-mode="dark"] .b3-list--background .b3-list-item--focus {
+    background-color: var(--b3-theme-primary-lightest);
+    box-shadow: inset 2px 0 0 var(--b3-theme-primary),
+                inset 0 0 0 1px var(--b3-theme-primary-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__text {
+    color: var(--b3-theme-on-background);
+}
+
+/* C21 / Z2-03：当前项字重 700（Windows 上 YaHei 只有 400/700 两个真字面，
+   500 会合成到 Regular、与普通行同形，等于没有第二通道）。
+   浅色 theme.css 同名规则同步为 700，两模式一致。 */
+:root[data-theme-mode="dark"] .b3-list-item--focus > .b3-list-item__text {
+    color: var(--b3-theme-on-background);
+    font-weight: 700;
+}
+
+/* C5/C10（深色副本）：选中行内的计数与数字提到 on-background；
+   折叠箭头提到 on-surface（对 16% 靛青底 4.78，过 1.4.11 的 3:1）。 */
+:root[data-theme-mode="dark"] .b3-list-item--focus .b3-list-item__number,
+:root[data-theme-mode="dark"] .b3-list-item--focus .counter,
+:root[data-theme-mode="dark"] .b3-list-item--focus .b3-list-item__meta {
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .counter {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__toggle {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__icon svg,
+:root[data-theme-mode="dark"] .b3-list-item__icon img {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__icon:hover,
+:root[data-theme-mode="dark"] .b3-list-item__action:hover,
+:root[data-theme-mode="dark"] .b3-list-item__toggle--hl:hover {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-icon-hover);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__action {
+    color: var(--b3-theme-on-surface-light);
+    border-radius: var(--b3-border-radius-s);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__action--warning:hover {
+    color: var(--b3-theme-error);
+}
+
+/* F3（深色副本，2026-10-28）：计数悬停态对比修复，与浅色 theme.css 同名
+   规则逐字对应。深色悬停底 rgba(250,247,241,.07) 合成 rgb(59,57,51)，
+   on-surface(#A29C8F) 对它 4.22（实测）；提为 on-background 后 7.88。 */
+:root[data-theme-mode="dark"] .b3-list-item:hover .b3-list-item__meta,
+:root[data-theme-mode="dark"] .b3-list-item:hover .b3-list-item__number,
+:root[data-theme-mode="dark"] .b3-list-item:hover .counter {
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__meta {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__number {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .b3-list-item__toggle {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .b3-list--border .b3-list__panel::before {
+    border-left-color: var(--b3-border-color);
+}
+
+/* R3-11（深色副本）：移动抽屉里的展开/折叠箭头宽 32px（官方 min-width:28px +
+   padding 0 2px），低于 44 下限。width 侧补齐，图标居中。
+   深色文件可单独加载，必须自带这条——否则 dark-only 路径仍是 32px。
+   Z3-02（深色副本）：与浅色同改 content-box。border-box 会把官方用来表达
+   层级的 padding-left:18px 吞进 44px 盒宽，导致根/子行图标全部对齐
+   （实测 x 全为 56.7，父子层级消失）；content-box 下根 48 / 子 64、
+   图标 x=60.7 / 76.7，层级恢复且热区仍 ≥44×44。 */
+:root[data-theme-mode="dark"] .b3-list--mobile .b3-list-item__toggle,
+:root[data-theme-mode="dark"] .b3-list--mobile .b3-list-item__toggle--hl {
+    box-sizing: content-box;
+    min-width: 44px;
+    justify-content: center;
+}
+
+/* R3-09（深色副本）：触屏下 hide-action 的行级动作见 theme.css 的 (hover:none) 块，
+   这里只补几何，不重复行为。 */
+
+/* R3-08：深色抽屉遮罩带。50% 纯黑压在夜砚上只有 1.15:1（对抽屉 1.26），
+   "点这里关闭"的唯一热区在视觉上不存在，只能凭记忆点；浅色 C11 已做到 26% 墨。
+   纯黑加深在深色底上收效极小（实测 alpha 从 .5 加到 .85 也只到 1.27:1，
+   因为纸本身已经接近黑）。改走"灯下蒙纸"：用 14% 暖白叠在夜砚上，
+   带/页 1.54、带/抽屉 1.41——比加深更有效，也与深色"灯照"的叙事一致。
+   Z1-01：这里不再写 border-left。实测（浏览器探针）遮罩铺满整个手机框
+   （left:0），它的 border-left 落在 x≈0.7 处、且 z-index 6 低于抽屉的 7，
+   被抽屉整块盖住，一个像素都渲染不出来。用户看到的抽屉边界是
+   `.side-panel` 自己的 border-right，已在下方改为 --b3-theme-on-background
+   （交付 PNG 实测 4.04，浅色 3.55，两模式对称过 1.4.11 的 3:1）。 */
+:root[data-theme-mode="dark"] .side-panel ~ .side-mask {
+    /* F5（深色副本，2026-10-28，Z3-N5）：遮罩带可见性 1.54 → 3:1。
+       14% 暖白不够，实测 35% 暖白合成 (112,110,104) 对夜砚 3.04:1；
+       状态栏同步抬到遮罩之上（浅色 theme.css 同名规则），「字数」不再被压暗。 */
+    background-color: rgba(250, 247, 241, .35);
+}
+
+:root[data-theme-mode="dark"] .status {
+    z-index: 6;
+}
+
+:root[data-theme-mode="dark"] .b3-list--background .b3-list-item.dragover::after {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+:root[data-theme-mode="dark"] .b3-list--background .b3-list-item.dragover__top::after,
+:root[data-theme-mode="dark"] .b3-list--background .b3-list-item.dragover__bottom::after {
+    background-color: var(--b3-theme-primary);
+}
+
+:root[data-theme-mode="dark"] .b3-list--empty {
+    color: var(--b3-empty-color);
+    /* Z5-01：深色文件可单独加载（states-dark.html 就只链 theme-dark.css），
+       而浅色 theme.css:935-939 给空列表设了 line-height:1.75。漏抄这一条时，
+       深色独立打开的空反链/空列表行距是 normal(14px)、比浅色 24.5px 紧
+       10.5px——实测容器 145.9 vs 152.4、states 卡 07 高 330.5 vs 337。
+       这不是预览特例：真实客户端只加载深色样式时同样生效。 */
+    line-height: 1.75;
+    padding-block: var(--yj-space-8);
+    /* R2-01（与浅色 theme.css 同步）：文案与墨点同轴居中——浅色单侧改会造出
+       「浅 04 墨点左对齐+文案居中 / 深 07 墨点居中+文案左对齐」的镜像错位。 */
+    text-align: center;
+}
+
+/* R1-02：深色同样补齐基础态（深色文件可单独加载，不能依赖浅色文件兜底） */
+:root[data-theme-mode="dark"] .sy__file .b3-list,
+:root[data-theme-mode="dark"] .sy__backlink .b3-list {
+    padding: var(--yj-space-1) var(--yj-space-2);
+}
+
+:root[data-theme-mode="dark"] .sy__backlink .backlinkList__source {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 4px 28px;
+    border: 0;
+    border-radius: var(--b3-border-radius);
+    background-color: transparent;
+    color: var(--b3-theme-on-surface);
+    font: inherit;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .sy__backlink .backlinkList__source:hover {
+    background-color: var(--b3-theme-primary-lightest);
+    color: var(--b3-theme-on-background);
+}
+
+/* ==========================================================================
+   6. 布局：页签 / dock / 顶栏 / 状态栏
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] .layout__center {
+    border-radius: var(--b3-border-radius-b);
+}
+
+/* R1-23：深色侧栏同样用 surface（砚身）区分干区，编辑区保持 background（砚面） */
+:root[data-theme-mode="dark"] .layout__dockl,
+:root[data-theme-mode="dark"] .layout__dockr,
+:root[data-theme-mode="dark"] .layout__dockb {
+    background-color: var(--b3-theme-surface);
+    border-radius: var(--b3-border-radius-b);
+}
+
+:root[data-theme-mode="dark"] .layout__dockl {
+    /* MAJ-05（深色副本）：同浅色——简写补 background-color，保住亮暗切换过渡。 */
+    transition: width var(--yj-dur-base) var(--yj-ease-out), margin-right var(--yj-dur-base) var(--yj-ease-out),
+                background-color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .layout__dockr {
+    transition: width var(--yj-dur-base) var(--yj-ease-out), margin-left var(--yj-dur-base) var(--yj-ease-out),
+                background-color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .layout__dockb {
+    transition: width var(--yj-dur-base) var(--yj-ease-out),
+                height var(--yj-dur-base) var(--yj-ease-out),
+                margin-top var(--yj-dur-base) var(--yj-ease-out),
+                background-color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .layout-tab-bar {
+    background-color: var(--b3-theme-background);
+    border-bottom: 1px solid var(--b3-border-color);
+}
+
+:root[data-theme-mode="dark"] .layout-tab-bar .item {
+    /* R2-06（深色副本）：与浅色同——用 --yj-status-color，保证页签条铺纸色
+       或透出案几色两种底上都过 4.5，两模式语义一致。 */
+    color: var(--yj-status-color);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+/* R2-01：深色自足——R1-17 的"省略号而非硬裁切"必须在深色文件内也成立。
+   浅色同名规则不带前缀，@import 下虽能生效，但 dark-only 加载时会缺失。 */
+:root[data-theme-mode="dark"] .layout-tab-bar .item__text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    min-width: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+:root[data-theme-mode="dark"] .layout-tab-bar .item:hover:not(.item--focus):not(.item--readonly) {
+    background-color: var(--b3-theme-surface);
+    color: var(--b3-theme-on-background);
+}
+
+/* R2-07（深色副本）：页签当前态对齐大纲当前行——16% 靛青底 + on-background
+   文字 + 字重 500（D9 起：内框与底部墨条均已移除，只剩靛青底 + 字重）。
+   不再要求 .layout__wnd--active 祖先，面板页签（左右栏）同样覆盖。 */
+:root[data-theme-mode="dark"] .layout-tab-bar .item--focus {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-theme-primary-lightest);
+    /* D7 + D9（2026-10-29，与浅色同构）：当前页签只剩靛青底 + 字重 500；
+       box-shadow:none 压掉官方 1px primary-lighter 内框。 */
+    box-shadow: none;
+    font-weight: 500;
+}
+
+:root[data-theme-mode="dark"] .layout__wnd--active .layout-tab-bar .item--focus {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-theme-primary-lightest);
+    /* D7 + D9（2026-10-29，与浅色同构）：当前页签只剩靛青底 + 字重；
+       box-shadow:none 压掉官方 1px primary-lighter 内框。 */
+    box-shadow: none;
+}
+
+/* F1（深色副本）+ THEME-CSS-06（2026-10-29 评审）：页签键盘焦点态走 inset 2px
+   主色环，不外扩。与浅色合并为同一条规则：裸 `.item:focus-visible` 覆盖普通
+   页签与从文档树打开的页签；`.layout__wnd--active …` 分支只为压过
+   `.layout__wnd--active … .item--focus{box-shadow:none}`。
+   D9 补注：3.8.8 桌面页签 tabIndex=-1，本组为防御性规则（仅合成 focus 可达）。 */
+:root[data-theme-mode="dark"] .layout-tab-bar .item:focus-visible,
+:root[data-theme-mode="dark"] .layout__wnd--active .layout-tab-bar .item:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--b3-theme-primary);
+}
+
+:root[data-theme-mode="dark"] .layout-tab-bar .item__close:hover {
+    color: var(--b3-theme-error);
+}
+
+/* Z2-02（深色副本）：当前页签关闭钮压掉官方/脚手架的 opacity:.68，
+   颜色提到 on-surface（对 16% 靛青选中底 4.27，过 1.4.11 的 3:1）。
+   与浅色 theme.css 同名规则逐字对应，dark-only 加载也成立。 */
+:root[data-theme-mode="dark"] .layout-tab-bar .item--focus .item__close svg {
+    opacity: 1;
+    color: var(--b3-theme-on-surface);
+}
+
+/* R3-03（深色副本）：当前页签放宽到 min(420px,42vw)，全局生效（不限媒体查询）。
+   `.layout-tab-bar:not(...) .item.item--focus` = (0,4,0)，压过脚手架 186px。 */
+:root[data-theme-mode="dark"] .layout-tab-bar:not(.layout-tab-bar--readonly) .item.item--focus {
+    max-width: min(420px, 42vw);
+}
+
+:root[data-theme-mode="dark"] .layout__empty {
+    color: var(--b3-empty-color);
+}
+
+:root[data-theme-mode="dark"] .layout__resize::after,
+:root[data-theme-mode="dark"] .layout__dockresize {
+    /* C19：原来显式 transparent，三栏之间只剩 1.10:1 的底色差，
+       扫视连成一片、拖窗格时找不到分隔位置——DESIGN 5.3 明确
+       「深色模式描边承担阴影职能」，栏界正是该职能的用例。
+       F5（2026-10-28，Z6-N11）：栏界线须达 1.4.11 非文本 3:1。0.5px 发丝线
+       宽度保留（C19 的"弱信号"定位不变），只提颜色通道：
+       rgba(218,213,200,.45) 合成后对砚 3.33:1（原 #3A372F 仅 1.30:1）。
+       D4（2026-10-29）：0.5px 在 1x 下只有约 56% 覆盖，渲染实测只剩 1.910:1，
+       声明被混合稀释——与浅色同改 1px：rgb(124,122,116) 对深面板面 3.298、
+       对砚 3.612，声明即渲染。 */
+    width: 1px;
+    background-color: rgb(124, 122, 116);
+}
+
+:root[data-theme-mode="dark"] .dock__item {
+    color: var(--b3-theme-on-surface-light);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .dock__item:hover:not(.dock__item--activefocus),
+:root[data-theme-mode="dark"] .dock__item--active {
+    background-color: var(--b3-toolbar-hover);
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .dock__item--activefocus {
+    color: var(--b3-theme-on-primary);
+    background-color: var(--b3-theme-primary);
+}
+
+:root[data-theme-mode="dark"] .dock__split::after {
+    background-color: var(--b3-border-color);
+}
+
+:root[data-theme-mode="dark"] .toolbar__item {
+    color: var(--b3-toolbar-color);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .toolbar__item:not(.toolbar__item--disabled):not(.toolbar__item--close):hover,
+:root[data-theme-mode="dark"] .toolbar__item--active {
+    background-color: var(--b3-toolbar-hover);
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .toolbar__item--disabled,
+:root[data-theme-mode="dark"] .toolbar__item--disabled.toolbar__item--disabled {
+    /* C18：与浅色同步，压掉官方 `.toolbar__item--disabled{opacity:.54}` */
+    opacity: 1;
+    color: var(--b3-theme-on-surface-lighter);
+    cursor: not-allowed;
+}
+
+:root[data-theme-mode="dark"] .toolbar__item--close:hover {
+    color: var(--b3-theme-on-error);
+    background-color: var(--b3-theme-error);
+}
+
+:root[data-theme-mode="dark"] .toolbar__text {
+    /* R3-10（深色副本）：与浅色同用 on-surface（夜案 6.22） */
+    color: var(--b3-theme-on-surface);
+}
+
+/* C13：深色副本（dark-only 加载路径也要成立）。深色 on-surface-light
+   在夜案底上 6.22:1，已达标；用同一 --yj-status-color 保持语义一致。 */
+:root[data-theme-mode="dark"] .toolbar #drag {
+    color: var(--yj-status-color);
+}
+
+:root[data-theme-mode="dark"] .status {
+    color: var(--yj-status-color);
+}
+
+:root[data-theme-mode="dark"] .status__msg,
+:root[data-theme-mode="dark"] .status__counter,
+:root[data-theme-mode="dark"] .status__backgroundtask {
+    color: var(--yj-status-color);
+}
+
+:root[data-theme-mode="dark"] .status__format-painter {
+    color: var(--b3-theme-primary);
+}
+
+/* ==========================================================================
+   7. 对话框 / 遮罩 / 浮窗：1px 砚沿上缘
+   ========================================================================== */
+
+/* C12：底栏当前页签的计数徽标（10px）在 16% 靛青底上为 4.27:1，
+   比未选中项（5.67）更难读。当前/按下态提到 on-background（合成底 6.2+）。
+   当前项的判定与浅色同一组选择器（官方无稳定类名）。 */
+:root[data-theme-mode="dark"] .mobile-bottom-bar__item:active:not([disabled]) .toolbar__tabs-count,
+:root[data-theme-mode="dark"] .mobile-bottom-bar__item--active .toolbar__tabs-count,
+:root[data-theme-mode="dark"] .mobile-bottom-bar__item[aria-current] .toolbar__tabs-count,
+:root[data-theme-mode="dark"] .mobile-bottom-bar__item[style*="primary-lightest"] .toolbar__tabs-count {
+    color: var(--b3-theme-on-background);
+}
+
+/* C20：深色自足副本——滚动条宽度（浅色 ::-webkit-scrollbar 为 8px，
+   深色原来只改颜色不改宽度，深浅正文可用宽度不同、同段文字断行不同）。 */
+:root[data-theme-mode="dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+/* C20：深色侧栏当前 tab 的靛青（浅色 .side-panel .toolbar__icon--active 无前缀） */
+:root[data-theme-mode="dark"] .side-panel .toolbar__icon:hover,
+:root[data-theme-mode="dark"] .side-panel .toolbar__icon--active {
+    background-color: var(--b3-theme-primary-lightest);
+    color: var(--b3-theme-primary);
+}
+
+/* C20：移动顶栏下缘分隔线与抽屉右侧砚沿——深色原来缺失，
+   只剩投影，与 DESIGN 5.4「深色靠 1px 描边而非投影」相反。 */
+/* F4（2026-10-28，上一轮必修 Z6-02）：深色移动顶栏缺背景色。
+   浅色 theme.css:1205-1207 有 `.mobile-topbar{background-color:var(--b3-theme-background)}`，
+   深色只有 border-bottom → computed 为 rgba(0,0,0,0)。长文滚动时正文
+   从顶栏下穿出（390 触摸仿真 A/B：滚动 260px 后顶栏带正文色像素
+   166 → 1128；浅色同操作 166 → 166 不增）。补 background-color 与
+   浅色对齐，`.mobile-safe-area`（浅色同一条规则里的兄弟选择器）一并补。 */
+:root[data-theme-mode="dark"] .mobile-topbar {
+    background-color: var(--b3-theme-background);
+    border-bottom: 1px solid var(--b3-border-color);
+}
+
+:root[data-theme-mode="dark"] .mobile-safe-area {
+    background-color: var(--b3-theme-background);
+}
+
+/* Z1-01：抽屉边界线。原来沿用 --b3-border-color(#3A372F)，对抽屉面
+   #2D2B25 只有 1.19（交付 PNG 渲染后 1.12）——深色触屏用户关闭抽屉时，
+   纯背景区（长列表尾部）分不清抽屉与遮罩热区，与浅色 1.18 一起构成
+   "两模式都不达标且互相不对称"的边界缺陷。
+   改 --b3-theme-on-background(#DAD5C8)：交付 PNG 逐列扫描实测 4.04
+   （名义 9.66；1px 线经亚像素抗锯齿后覆盖率约六成，故以像素实测为准），
+   浅色同改后 3.55，两模式相差 1.14 倍、同一档位，独立过 1.4.11 的 3:1。
+   与浅色 theme.css 的 .side-panel 规则逐字对应（dark-only 加载也成立）。 */
+:root[data-theme-mode="dark"] .side-panel {
+    border-right: 1px solid var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .side-panel--right {
+    border-right: 0;
+    border-left: 1px solid var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .b3-dialog__scrim {
+    background-color: var(--b3-mask-background);
+    transition: opacity var(--yj-dur-base) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .b3-dialog__container {
+    background-color: var(--b3-theme-surface);
+    border: 1px solid var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius-b);
+    box-shadow: var(--b3-dialog-shadow);
+    transform: scale(.98);
+    transition: opacity var(--yj-dur-enter) var(--yj-ease-out),
+                transform var(--yj-dur-enter) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .b3-dialog--open .b3-dialog__container {
+    transform: none;
+    opacity: 1;
+}
+
+:root[data-theme-mode="dark"] .b3-dialog__header {
+    border-bottom: 1px solid var(--b3-theme-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-dialog__action {
+    border-top: 1px solid var(--b3-theme-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-dialog__close:hover {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-hover);
+}
+
+:root[data-theme-mode="dark"] .block__popover {
+    background-color: var(--b3-theme-background);
+    border: 1px solid var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius-b);
+    box-shadow: var(--b3-dialog-shadow);
+    transform: translateY(4px);
+    transition: opacity var(--yj-dur-enter) var(--yj-ease-out),
+                transform var(--yj-dur-enter) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .block__popover--open {
+    transform: none;
+}
+
+:root[data-theme-mode="dark"] .block__icons {
+    min-height: var(--b3-ui-panel-height, 42px);
+}
+
+:root[data-theme-mode="dark"] .protyle-hint,
+:root[data-theme-mode="dark"] .protyle-util {
+    background-color: var(--b3-theme-background);
+    border: 1px solid var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+    box-shadow: var(--b3-dialog-shadow);
+}
+
+/* ==========================================================================
+   8. 通知 / 提示
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] .b3-snackbar__content {
+    background-color: var(--b3-tooltips-background);
+    color: var(--b3-tooltips-color);
+    border-radius: var(--b3-border-radius);
+    /* R1-03（2026-10-28）：描边原用 --b3-theme-surface-lighter(#3B3831)，
+       对浓墨底 #141310 与承载底（states 卡面合成 ≈ rgb(43,41,35)）都只有
+       ~1.3:1——「已保存」浮条轮廓沉进卡片，深浅不对称（浅色浓墨条对米色页
+       清晰浮起）。浓墨底契约保留，描边提亮到 #7E7867 并取 2px：浮条盒缘
+       落在非整像素（x=512.7），1px 环整列半覆盖（实测边缘峰值只剩
+       rgb(91,86,74)，对承载底 2.0:1）；2px 保证至少一整列实色描边，
+       对承载底 3.30:1、对条底 4.22:1，双向过 1.4.11 的 3:1。 */
+    box-shadow: inset 0 0 0 2px #7E7867, var(--b3-tooltips-shadow);
+    position: relative;
+}
+
+/* R1-10 / R2-06：与浅色一致——真实成功信号是顶栏图标 #iconCloudSucc
+   （dialog/processSystem.ts:450-451），不是 b3-snackbar--success（官方不存在）。
+   提示条上的印章圆点保留为兼容路径。 */
+:root[data-theme-mode="dark"] #barSync use[href="#iconCloudSucc"] {
+    transform-origin: 50% 50%;
+    animation: yj-save-pulse var(--yj-dur-pulse) var(--yj-ease-spring);
+}
+
+:root[data-theme-mode="dark"] .b3-snackbar--success .b3-snackbar__content {
+    padding-left: 32px;
+}
+
+:root[data-theme-mode="dark"] .b3-snackbar--success .b3-snackbar__content::before {
+    content: "";
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    width: 11px;
+    height: 11px;
+    margin-top: -5.5px;
+    border-radius: 50%;
+    /* C9：与浅色同一族灯照态绿；深色 --b3-theme-success(#85B98C) 在 #141310 上
+       是 8.24，已达标——这里显式写死同族值，保证两模式"盖章"是同一个绿。 */
+    background-color: #A9D2AE;
+    transform-origin: 50% 50%;
+    animation: yj-save-pulse var(--yj-dur-pulse) var(--yj-ease-spring);
+}
+
+:root[data-theme-mode="dark"] .b3-snackbar--error .b3-snackbar__content {
+    background-color: var(--b3-card-error-background);
+    color: var(--b3-card-error-color);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-error), var(--b3-tooltips-shadow);
+}
+
+:root[data-theme-mode="dark"] .b3-snackbar--error .b3-snackbar__content a,
+:root[data-theme-mode="dark"] .b3-snackbar--error .b3-snackbar__close {
+    color: var(--b3-card-error-color);
+}
+
+:root[data-theme-mode="dark"] .tooltip,
+:root[data-theme-mode="dark"] .b3-tooltips::after {
+    background-color: var(--b3-tooltips-background);
+    color: var(--b3-tooltips-color);
+    border-radius: var(--b3-border-radius);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-surface-lighter), var(--b3-tooltips-shadow);
+}
+
+/* ==========================================================================
+   9. 标签 / 卡片
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] .b3-chip {
+    border-radius: var(--b3-border-radius-s);
+}
+
+:root[data-theme-mode="dark"] .b3-chip--current {
+    background-color: var(--b3-theme-primary-lightest);
+    color: var(--b3-theme-primary);
+}
+
+:root[data-theme-mode="dark"] .b3-card {
+    background-color: var(--b3-theme-surface);
+    border-radius: var(--b3-border-radius);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-surface-lighter);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                box-shadow var(--yj-dur-base) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .b3-card:hover {
+    background-color: var(--b3-theme-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-card--current {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+/* ==========================================================================
+   10. 编辑器
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg,
+:root[data-theme-mode="dark"] .b3-typography {
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg > p,
+:root[data-theme-mode="dark"] .protyle-wysiwyg li > p,
+:root[data-theme-mode="dark"] .protyle-wysiwyg blockquote > p,
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-node-id],
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-table-cell-node],
+:root[data-theme-mode="dark"] .b3-typography > p,
+:root[data-theme-mode="dark"] .b3-typography li > p,
+:root[data-theme-mode="dark"] .b3-typography blockquote > p,
+:root[data-theme-mode="dark"] .b3-typography [data-node-id] {
+    line-height: 1.75;
+}
+
+/* R1-21：深色同样分级块间距（与浅色同 token、同值） */
+:root[data-theme-mode="dark"] .protyle-wysiwyg > [data-node-id],
+:root[data-theme-mode="dark"] .b3-typography > [data-node-id] {
+    margin-block: var(--yj-block-gap);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg > [data-node-id]:first-child,
+:root[data-theme-mode="dark"] .b3-typography > [data-node-id]:first-child {
+    margin-top: 0;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"],
+:root[data-theme-mode="dark"] .b3-typography .h1,
+:root[data-theme-mode="dark"] .b3-typography .h2,
+:root[data-theme-mode="dark"] .b3-typography .h3,
+:root[data-theme-mode="dark"] .b3-typography .h4,
+:root[data-theme-mode="dark"] .b3-typography .h5,
+:root[data-theme-mode="dark"] .b3-typography .h6 {
+    margin-top: var(--yj-heading-gap-before);
+    margin-bottom: var(--yj-heading-gap-after);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .bq > [data-type="NodeHeading"]:first-child,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout-content > [data-type="NodeHeading"]:first-child,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .li > [data-type="NodeHeading"]:first-child {
+    margin-top: 0;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .bq,
+:root[data-theme-mode="dark"] .protyle-wysiwyg blockquote,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .code-block,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .render-node,
+:root[data-theme-mode="dark"] .b3-typography .bq,
+:root[data-theme-mode="dark"] .b3-typography blockquote,
+:root[data-theme-mode="dark"] .b3-typography .callout,
+:root[data-theme-mode="dark"] .b3-typography .code-block {
+    margin-block: var(--yj-container-gap);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .li > .protyle-action {
+    height: calc(1.75em + 8px);
+    line-height: calc(1.75em + 8px);
+}
+
+/* R1-07：深色文件自足性补齐。
+   theme-dark.css 可以被单独加载（深色预览页只链本文件、README 也允许
+   dark-only 用法），因此标题字重/字距不能只写在 theme.css 里，
+   否则深色标题会比浅色弱一档，两种加载方式不一致。 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg .h1,
+:root[data-theme-mode="dark"] .protyle-wysiwyg h1,
+:root[data-theme-mode="dark"] .b3-typography .h1,
+:root[data-theme-mode="dark"] .b3-typography h1,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .h2,
+:root[data-theme-mode="dark"] .protyle-wysiwyg h2,
+:root[data-theme-mode="dark"] .b3-typography .h2,
+:root[data-theme-mode="dark"] .b3-typography h2 {
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .h3,
+:root[data-theme-mode="dark"] .protyle-wysiwyg h3,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .h4,
+:root[data-theme-mode="dark"] .protyle-wysiwyg h4,
+:root[data-theme-mode="dark"] .b3-typography .h3,
+:root[data-theme-mode="dark"] .b3-typography h3,
+:root[data-theme-mode="dark"] .b3-typography .h4,
+:root[data-theme-mode="dark"] .b3-typography h4 {
+    /* R2-03：与浅色同一套两档现实（YaHei 只有 400/700）——700 + 负字距 */
+    font-weight: 700;
+    letter-spacing: -.005em;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .h4,
+:root[data-theme-mode="dark"] .protyle-wysiwyg h4,
+:root[data-theme-mode="dark"] .b3-typography .h4,
+:root[data-theme-mode="dark"] .b3-typography h4 {
+    /* H4 比 H3 淡一档（on-surface 对砚 5.67）——第三通道 */
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .h5,
+:root[data-theme-mode="dark"] .protyle-wysiwyg h5,
+:root[data-theme-mode="dark"] .b3-typography .h5,
+:root[data-theme-mode="dark"] .b3-typography h5 {
+    font-weight: 500;
+    letter-spacing: .01em;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .h6,
+:root[data-theme-mode="dark"] .protyle-wysiwyg h6,
+:root[data-theme-mode="dark"] .b3-typography .h6,
+:root[data-theme-mode="dark"] .b3-typography h6 {
+    /* R2-03：H6「与正文同大、仅加粗」需真 700 */
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+:root[data-theme-mode="dark"] .protyle-title__input {
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+/* R2-10（深色副本）：已完成待办正文是阅读信息，用 on-surface（深色 5.67）。
+   深色原本恰好因 token 更亮而达标，但仍是同一语义——两模式显式同写，
+   避免以后改 token 时又分裂。第二通道仍是删除线。 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg .protyle-task--done:not([data-task="/"]) > div[data-node-id].p,
+:root[data-theme-mode="dark"] .b3-typography .protyle-task--done:not([data-task="/"]) > div[data-node-id].p {
+    color: var(--b3-theme-on-surface);
+    text-decoration: line-through;
+}
+
+/* 标题行高阶梯（DESIGN 4.3） */
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"].h1,
+:root[data-theme-mode="dark"] .b3-typography .h1 {
+    line-height: 1.75;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"].h2,
+:root[data-theme-mode="dark"] .b3-typography .h2 {
+    line-height: 1.58;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"].h3,
+:root[data-theme-mode="dark"] .b3-typography .h3 {
+    line-height: 1.42;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"].h4,
+:root[data-theme-mode="dark"] .b3-typography .h4 {
+    line-height: 1.28;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"].h5,
+:root[data-theme-mode="dark"] .b3-typography .h5 {
+    line-height: 1.15;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"].h6,
+:root[data-theme-mode="dark"] .b3-typography .h6 {
+    line-height: 1.05;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h1 {
+    line-height: calc(1.75em / 1.75);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h2 {
+    line-height: calc(1.75em / 1.55);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h3 {
+    line-height: calc(1.75em / 1.38);
+}
+
+:root[data-theme-mode="dark"] .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .protyle-top,
+:root[data-theme-mode="dark"] .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .protyle-wysiwyg,
+:root[data-theme-mode="dark"] .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .sy__backlink--bottom {
+    /* R3-05（深色副本）：与浅色同一表达式——百分比按 clientWidth 解析，
+       可见区域内精确居中（滚动条槽在外框里，不算 padding 偏移）。 */
+    --b3-protyle-padding-left: max(var(--yj-space-4), calc((100% - var(--yj-measure)) / 2));
+    --b3-protyle-padding-right: max(var(--yj-space-4), calc((100% - var(--yj-measure)) / 2));
+}
+
+/* F5（深色副本，2026-10-28）：题头簇节奏与浅色同步——上边距 48→24px，
+   消除标签→标题的 48px 断档（Z2-N8）。 */
+:root[data-theme-mode="dark"] .protyle-title {
+    margin-top: var(--yj-space-6);
+}
+
+:root[data-theme-mode="dark"] .protyle-title__input {
+    color: var(--b3-theme-on-background);
+    /* C2 + R2-01（深色副本）：清掉官方的 `transition: all`，颜色继承 body
+       那条唯一的 color 过渡；不要在这里单独写 transition: color，
+       否则会叠成秒级渐变（首帧正文停在 35% 合成）。 */
+    transition: none;
+}
+
+:root[data-theme-mode="dark"] .protyle-title:focus-within {
+    /* R4-M1（2026-10-29 复核）：G02 把浅色标题焦点从「左缘 2px 墨条」改为整圈
+       淡靛 outline，但深色副本漏改。真实加载路径是 theme.css 首行 @import
+       theme-dark.css，两条规则同时命中 → 深色实得「2px 整圈环 + 左侧主色墨条」
+       叠加，正是本轮要清除的单侧重蓝；dark-only 页则只剩墨条。此处与浅色
+       theme.css:2044 逐字同值，深浅与「编辑中」的整圈 outline 语言一致。 */
+    outline: 2px solid var(--b3-theme-primary-lighter);
+    outline-offset: -2px;
+    border-radius: var(--b3-border-radius);
+}
+
+:root[data-theme-mode="dark"] .protyle-title__icon {
+    color: var(--b3-theme-on-surface-lighter);
+    border-radius: var(--b3-border-radius-s);
+}
+
+:root[data-theme-mode="dark"] .protyle-title__icon:hover {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .protyle-breadcrumb {
+    background-color: var(--b3-theme-background);
+}
+
+:root[data-theme-mode="dark"] .protyle-breadcrumb__item {
+    color: var(--b3-theme-on-surface);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .protyle-breadcrumb__item:hover,
+:root[data-theme-mode="dark"] .protyle-breadcrumb__item--active {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-hover);
+}
+
+:root[data-theme-mode="dark"] .protyle-breadcrumb__arrow {
+    color: var(--b3-theme-on-surface);
+}
+
+/* F5（2026-10-28，Z6-N7）：移动面包屑入口与当前文档 chip 同底同色不可辨
+   （浅色 theme.css:1938 同修）。入口改透明底 + on-surface，与 chip 的
+   6% 底 + on-background 在底色、文字色两个通道上都区分开。 */
+:root[data-theme-mode="dark"] .protyle-breadcrumb__icon {
+    color: var(--b3-theme-on-surface);
+    background-color: transparent;
+}
+
+:root[data-theme-mode="dark"] .block__icon {
+    color: var(--b3-theme-on-surface-light);
+    border-radius: var(--b3-border-radius-s);
+}
+
+/* R2-03（与浅色 theme.css 同步）：hover 排除 --active；激活块标改常驻
+   主色淡底 + 主色图标，悬停不再掩盖激活态。 */
+:root[data-theme-mode="dark"] .block__icon:not([disabled]):hover:not(.block__icon--active) {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-icon-hover);
+}
+
+:root[data-theme-mode="dark"] .block__icon--active {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+/* R2-03（与浅色同步）：悬停扫过激活块标时保持激活样式，压过脚手架通用 hover。 */
+:root[data-theme-mode="dark"] .block__icon.block__icon--active:not([disabled]):hover {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+:root[data-theme-mode="dark"] .block__icon[disabled],
+:root[data-theme-mode="dark"] .block__icon[disabled][disabled] {
+    /* R3-07（深色副本）：压掉官方 `opacity:.38`，与浅色同步 */
+    opacity: 1;
+    color: var(--b3-theme-on-surface-lighter);
+    cursor: not-allowed;
+}
+
+:root[data-theme-mode="dark"] .block__logo {
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .protyle-icon {
+    color: var(--b3-theme-on-surface-light);
+    background-color: var(--b3-theme-surface);
+    border-radius: var(--b3-border-radius-s);
+}
+
+:root[data-theme-mode="dark"] .protyle-icon:hover {
+    color: var(--b3-theme-on-surface);
+    background-color: var(--b3-theme-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .protyle-gutters svg {
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .protyle-gutters button:hover svg {
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .protyle-scroll__up,
+:root[data-theme-mode="dark"] .protyle-scroll__down {
+    /* G06：原 border-color 对砚 1.19–1.31，属不可见控件；抬到 on-surface
+       （对砚 5.67，过 1.4.11 的 3:1）。浅色同名规则同步抬到 on-surface。 */
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .protyle-scroll__up:hover,
+:root[data-theme-mode="dark"] .protyle-scroll__down:hover {
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .protyle-attr {
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+/* 行内链接 · 悬停 +1 档（深 #9BBDDB） */
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="a"],
+:root[data-theme-mode="dark"] .b3-typography span[data-type~="a"] {
+    color: var(--b3-protyle-inline-link-color);
+    /* F5（2026-10-28，Z6-N11）：下划线从 48% 主色提到实色主色（浅色同改）——
+       半透明值对砚只有 2.50:1（1.4.11 非文本需 ≥3），实色 #82A7CC 对砚 6.37:1。 */
+    border-bottom: 1px solid var(--b3-theme-primary);
+    text-decoration: none;
+    transition: color var(--yj-dur-micro) var(--yj-ease-out),
+                border-color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="a"]:hover,
+:root[data-theme-mode="dark"] .b3-typography span[data-type~="a"]:hover {
+    color: #9BBDDB;
+    border-bottom-color: #9BBDDB;
+}
+
+/* 引文笺 · 灯下黛紫 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="block-ref"]:not(.av__celltext),
+:root[data-theme-mode="dark"] .b3-typography span[data-type~="block-ref"]:not(.av__celltext) {
+    background-image: none;
+    /* R2-05：底色跟文字同色相（#B39BDB），12% 不变 */
+    background-color: rgba(179, 155, 219, .12);
+    border-left: 2px solid var(--b3-protyle-inline-blockref-color);
+    border-radius: var(--b3-border-radius-s);
+    padding: 0 3px;
+    color: var(--b3-protyle-inline-blockref-color);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                border-left-width var(--yj-dur-micro) var(--yj-ease-out);
+    /* C15（深色副本）：官方脚手架把行内元素设为 box-decoration-break:clone，
+       本主题的块引用是"实底 + 左边框"，clone 会在跨行时把 2px 左边框
+       复制到第二行行首（看起来像多一个「|」）。浅色已改 slice，
+       深色文件可单独加载，必须同样显式声明。 */
+    box-decoration-break: slice;
+    -webkit-box-decoration-break: slice;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="block-ref"]:not(.av__celltext):hover,
+:root[data-theme-mode="dark"] .b3-typography span[data-type~="block-ref"]:not(.av__celltext):hover {
+    /* R2-05：20% 底会把 #B39BDB 压到 4.00；收到 16% 后 4.76，仍过 AA。
+       加深感由 2px→3px 左缘线承担（与浅色同法）。 */
+    background-color: rgba(179, 155, 219, .16);
+    border-left-width: 3px;
+    padding-left: 2px;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="file-annotation-ref"],
+:root[data-theme-mode="dark"] .b3-typography span[data-type~="file-annotation-ref"] {
+    background-image: none;
+    background-color: rgba(143, 190, 150, .12);
+    border-left: 2px solid var(--b3-protyle-inline-fileref-color);
+    border-radius: var(--b3-border-radius-s);
+    padding: 0 3px;
+    color: var(--b3-protyle-inline-fileref-color);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="virtual-block-ref"] {
+    border-bottom: 1px dashed var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="virtual-block-ref"]:hover {
+    background-color: var(--b3-theme-primary-lightest);
+    border-bottom-color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="tag"],
+:root[data-theme-mode="dark"] .b3-typography span[data-type~="tag"] {
+    color: var(--b3-protyle-inline-tag-color);
+    border-bottom-color: var(--b3-protyle-inline-tag-color);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="tag"]:hover,
+:root[data-theme-mode="dark"] .b3-typography span[data-type~="tag"]:hover {
+    color: var(--b3-theme-on-background);
+    border-bottom-color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="mark"],
+:root[data-theme-mode="dark"] .b3-typography span[data-type~="mark"],
+:root[data-theme-mode="dark"] .b3-list mark {
+    background-color: var(--b3-protyle-inline-mark-background);
+    color: var(--b3-protyle-inline-mark-color);
+    border-radius: var(--b3-border-radius-s);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="search-mark"] {
+    background-color: var(--b3-highlight-background);
+    color: var(--b3-highlight-color);
+    border-radius: var(--b3-border-radius-s);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="search-mark"].search-mark--hl {
+    background-color: var(--b3-theme-primary-lighter);
+    color: var(--b3-theme-on-background);
+    box-shadow: 0 0 0 .5px var(--b3-theme-on-background);
+}
+
+/* Z2-04（深色副本）：行内代码显式给 on-background
+   （对 7% 暖白 chip 底 7.88；原继承 on-surface 时 4.22，低于 AA）。 */
+:root[data-theme-mode="dark"] .fn__code {
+    background-color: var(--b3-protyle-code-background);
+    border-radius: var(--b3-border-radius-s);
+    color: var(--b3-theme-on-background);
+}
+
+/* F5（深色副本，2026-10-28）：行内代码整 token 不在连字符处折行，
+   与浅色 theme.css 的 @media (min-width:769px) 规则逐字对应
+   （dark-only 加载也成立）。 */
+@media (min-width: 769px) {
+    :root[data-theme-mode="dark"] .fn__code,
+    :root[data-theme-mode="dark"] .b3-typography code:not(.hljs),
+    :root[data-theme-mode="dark"] .b3-typography span[data-type~="code"],
+    :root[data-theme-mode="dark"] .protyle-wysiwyg code:not(.hljs),
+    :root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="code"] {
+        white-space: nowrap;
+    }
+}
+
+:root[data-theme-mode="dark"] .fn__kbd {
+    background-color: var(--b3-theme-surface);
+    border: 1px solid var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius-s);
+    color: var(--b3-theme-on-surface);
+    box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .b3-typography .code-block,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .code-block {
+    background-color: var(--b3-protyle-code-background);
+    border-radius: var(--b3-border-radius);
+    padding: var(--yj-space-2);
+}
+
+/* R1-22：深色同样给代码行号"淡墨"（灯下的淡墨 = on-surface-lighter） */
+:root[data-theme-mode="dark"] .protyle-wysiwyg .code-block .hljs-ln-numbers,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .code-block .hljs-ln-n,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .code-block [data-line-number],
+:root[data-theme-mode="dark"] .b3-typography .code-block .hljs-ln-numbers,
+:root[data-theme-mode="dark"] .b3-typography .code-block .hljs-ln-n,
+:root[data-theme-mode="dark"] .b3-typography .code-block [data-line-number] {
+    color: var(--b3-theme-on-surface-lighter);
+    border-right: 1px solid var(--b3-border-color);
+    padding-right: var(--yj-space-2);
+    margin-right: var(--yj-space-2);
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+}
+
+/* R1-03：竖线改 on-surface（深色 5.67:1），线宽 3px，与浅色同形态 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg .bq::before,
+:root[data-theme-mode="dark"] .protyle-wysiwyg blockquote::before,
+:root[data-theme-mode="dark"] .b3-typography .bq::before,
+:root[data-theme-mode="dark"] .b3-typography blockquote::before {
+    background-color: var(--b3-theme-on-surface);
+    border-radius: var(--b3-border-radius-s);
+    width: 3px;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .bq,
+:root[data-theme-mode="dark"] .protyle-wysiwyg blockquote,
+:root[data-theme-mode="dark"] .b3-typography .bq,
+:root[data-theme-mode="dark"] .b3-typography blockquote {
+    color: var(--b3-theme-on-surface);
+}
+
+/* Callout · 灯下笺注。
+   MAJ-07（2026-10-29）实测口径：深色内文继承 on-surface（#A29C8D）对五类
+   功能色淡底合成值 4.56–4.98 全部 ≥4.5（WARNING 底是 12% 灯照藤黄合成
+   rgb(59,51,36)，4.556 为最薄一档），故深色**不改内文色**，维持 on-surface
+   继承；浅色同轮把内文提到 --yj-status-color（浅色 IMPORTANT/CAUTION 原
+   4.457/4.434 不达）。若日后调整深色淡底浓度，须复算此表。 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout,
+:root[data-theme-mode="dark"] .b3-typography .callout {
+    background-color: rgba(130, 167, 204, .08);
+    border-radius: var(--b3-border-radius);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout[data-subtype="TIP"],
+:root[data-theme-mode="dark"] .b3-typography .callout[data-subtype="TIP"] {
+    background-color: rgba(133, 185, 140, .10);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout[data-subtype="WARNING"],
+:root[data-theme-mode="dark"] .b3-typography .callout[data-subtype="WARNING"] {
+    background-color: rgba(217, 164, 74, .12);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout[data-subtype="IMPORTANT"],
+:root[data-theme-mode="dark"] .b3-typography .callout[data-subtype="IMPORTANT"] {
+    background-color: rgba(169, 143, 209, .12);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout[data-subtype="CAUTION"],
+:root[data-theme-mode="dark"] .b3-typography .callout[data-subtype="CAUTION"] {
+    background-color: rgba(224, 123, 109, .12);
+}
+
+/* Z4-02（深色副本）：与浅色同构。callout 标题被官方的
+   `color: on-surface` × `opacity: .86` 压到 3.78–4.12，
+   callout 内行内代码 3.69 —— 均为阅读文字，改用 on-background 并把
+   opacity 归 1，两模式同一套语义。 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout-title,
+:root[data-theme-mode="dark"] .b3-typography .callout-title {
+    color: var(--b3-theme-on-background);
+    opacity: 1;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .callout [data-type~="code"],
+:root[data-theme-mode="dark"] .b3-typography .callout [data-type~="code"] {
+    color: var(--b3-theme-on-background);
+}
+
+:root[data-theme-mode="dark"] .b3-typography table th,
+:root[data-theme-mode="dark"] .protyle-wysiwyg table th {
+    background-color: var(--b3-theme-surface);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeBlockQueryEmbed"].render-node {
+    background-color: var(--b3-theme-surface);
+    border: 1px dashed var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+
+/* 选中块 · 朱批底（16% 灯下靛青 + 1px 亮青细框） */
+:root[data-theme-mode="dark"] .protyle-wysiwyg--select::after,
+:root[data-theme-mode="dark"] .protyle-wysiwyg--select-mode::after {
+    background-color: var(--b3-theme-primary-lightest);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-primary);
+    border-radius: var(--b3-border-radius);
+}
+
+/* R1-09：选中落定的回锋脉冲（与浅色同曲线同幅度） */
+:root[data-theme-mode="dark"] .protyle-wysiwyg--select::after {
+    animation: yj-settle var(--yj-dur-spring) var(--yj-ease-spring);
+}
+
+@keyframes yj-settle {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.008); }
+    100% { transform: scale(1); }
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg--hl::after {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+/* 编辑中（D9，2026-10-29 用户指令「完全对齐官方」，与浅色同构）：
+   研墨条改官方 2px 淡靛整圈描边，无底色。 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-node-id].protyle-wysiwyg--navigation {
+    outline: 2px solid var(--b3-theme-primary-lighter);
+    outline-offset: -2px;
+    border-radius: var(--b3-border-radius);
+}
+
+/* 双链跳转落点：左缘线展开后淡出。
+   F2：不直接用 ::after / outline / box-shadow 的理由（与浅色同）：
+   官方 `.protyle-wysiwyg--hl::after` 已铺整块高亮底（z-index:3，100%×100%）；
+   `--navigation` 的研墨条已占 outline:none + inset box-shadow；选中块也占用
+   inset 阴影。三条路要么需重写官方高亮，要么无法做"从顶部生长"的动画。
+   故标题/列表等六类块型改用 background-image（下面的 B 实现），
+   伪元素空闲的块继续走 ::before + scaleY。
+   R1-11：改走 transform:scaleY（合成层），不用 height 触发布局重排。 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg--hl:not(.li):not(.list):not(.sb):not(.bq):not(.callout):not([data-type="NodeHeading"])::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    border-radius: var(--b3-border-radius-s);
+    background-color: var(--b3-theme-primary);
+    transform-origin: top center;
+    animation: yj-ref-line var(--yj-dur-enter) var(--yj-ease-out) both,
+               yj-ref-fade var(--yj-dur-pulse) var(--yj-ease-in) var(--yj-dur-hold) both;
+    pointer-events: none;
+}
+
+/* R3-02：伪元素被官方占用的块型（标题 / 列表 / 超级块 / 引述 / 标注）
+   改用 background-image 竖条 + @property 驱动透明度，不碰任何伪元素。
+   与浅色同一套载体与曲线，保证"跳转到标题/列表也有落点反馈"。 */
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+    @property --yj-ref-alpha {
+        syntax: "<number>";
+        inherits: false;
+        initial-value: 1;
+    }
+
+    :root[data-theme-mode="dark"] .protyle-wysiwyg--hl:is(.li, .list, .sb, .bq, .callout, [data-type="NodeHeading"]) {
+        background-image: linear-gradient(
+            to bottom,
+            color-mix(in srgb, var(--b3-theme-primary) calc(var(--yj-ref-alpha) * 100%), transparent) 0 100%
+        );
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-size: 2px 100%;
+        animation: yj-ref-grow var(--yj-dur-enter) var(--yj-ease-out) both,
+                   yj-ref-alpha-out var(--yj-dur-pulse) var(--yj-ease-in) var(--yj-dur-hold) both;
+    }
+
+    @keyframes yj-ref-grow {
+        from { background-size: 2px 0%; --yj-ref-alpha: 1; }
+        to { background-size: 2px 100%; --yj-ref-alpha: 1; }
+    }
+
+    @keyframes yj-ref-alpha-out {
+        from { --yj-ref-alpha: 1; }
+        to { --yj-ref-alpha: 0; }
+    }
+}
+
+/* AI 生成内容 · 铅笔稿 */
+:root[data-theme-mode="dark"] .ai-editor-panel {
+    background-color: rgba(250, 247, 241, .03);
+    border: 1px dashed var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+
+:root[data-theme-mode="dark"] .agent-chat__msg--ai .agent-chat__body {
+    background-color: rgba(250, 247, 241, .03);
+    border: 1px dashed var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+
+/* 闪卡 */
+:root[data-theme-mode="dark"] .card__main {
+    background-color: var(--b3-theme-surface);
+    border-radius: var(--b3-border-radius-b);
+    box-shadow: var(--yj-shadow-card);
+}
+
+:root[data-theme-mode="dark"] .card__empty {
+    color: var(--b3-empty-color);
+}
+
+/* 数据库 */
+:root[data-theme-mode="dark"] .av__row:hover {
+    background-color: var(--b3-list-hover);
+}
+
+:root[data-theme-mode="dark"] .av__row--select,
+:root[data-theme-mode="dark"] .av__row--hl {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+:root[data-theme-mode="dark"] .av__gallery-item {
+    border-radius: var(--b3-border-radius);
+    box-shadow: var(--b3-av-gallery-shadow);
+}
+
+/* ==========================================================================
+   11. 状态：搜索当前项 / 加载 / 自动保存 / 空状态
+   ========================================================================== */
+
+/* Z2-03 边界（深色副本）：搜索当前项是 C8 的藤黄命中条语言，
+   不叠加导航当前位置的靛青墨条（否则藤黄条左缘多出一根青线）。 */
+:root[data-theme-mode="dark"] .search__list .b3-list-item--focus {
+    background-color: var(--b3-highlight-current-background);
+    color: var(--b3-theme-on-background);
+    box-shadow: none;
+}
+
+/* R1-01：藤黄当前条上的辅助文字必须用「灯下纸色」。
+   --b3-highlight-color 在深色里是给 #E8D48A 亮藤黄配的墨色（#26241F），
+   复用到暗藤黄 #5A5340 上只有 2.03:1。此处显式覆盖 meta/number/kbd/提示文字，
+   用 --b3-theme-on-background 得 5.22:1（DESIGN §3.4）。
+   同时覆盖浅色规则（@import 在前、浅色后到）→ 必须提高特异性。 */
+:root[data-theme-mode="dark"] .search__list .b3-list-item--focus .b3-list-item__meta,
+:root[data-theme-mode="dark"] .search__list .b3-list-item--focus .b3-list-item__number,
+:root[data-theme-mode="dark"] .search__list .b3-list-item--focus .b3-list-item__hinttext,
+:root[data-theme-mode="dark"] .search__list .b3-list-item--focus kbd,
+:root[data-theme-mode="dark"] .search__list .b3-list-item--focus .b3-menu__accelerator {
+    color: var(--b3-theme-on-background);
+}
+
+/* C8：当前条内的命中 mark 去底改 on-background（对暗藤黄 #5A5340 为 5.22）。
+   原浅藤黄底 #E8D48A 落在 #5A5340 上是 5.18，变成整页最亮的色块，
+   命中词从"辅助标记"反客为主；去底后主次关系与原设计一致。 */
+:root[data-theme-mode="dark"] .search__list .b3-list-item--focus mark {
+    background-color: transparent;
+    color: var(--b3-theme-on-background);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+}
+
+:root[data-theme-mode="dark"] .search__empty {
+    color: var(--b3-theme-on-surface);
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+/* R1-06（深色补齐）：空状态墨点必须在本文件内定义。
+   本文件可单独加载，原先只有浅色文件有 ::before 圆点规则，
+   深色页面的空状态因此完全没有图形线索。线色用 on-surface（5.67:1）。 */
+:root[data-theme-mode="dark"] .b3-list--empty::before,
+:root[data-theme-mode="dark"] .search__empty::before {
+    content: "";
+    display: block;
+    /* F7（2026-10-28，与浅色 theme.css:2615 同步）：外径含描边 = 24px。
+       伪元素默认 content-box，width:24px 之外再加 1.5px 描边两侧会渲染成
+       27px 外径，与题注「24px」不符；改 border-box 后外径 24px（内径 21px）。 */
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    border: 1.5px solid var(--b3-theme-on-surface);
+    background-image: radial-gradient(circle at 50% 50%,
+        var(--b3-theme-on-surface) 0 3px,
+        transparent 3px);
+}
+
+:root[data-theme-mode="dark"] .search__empty::before {
+    margin-bottom: 16px;
+}
+
+/* R1-08（深色补齐）：空状态建议行 */
+/* R2-02：与浅色一致用 on-surface（深色 5.67）。
+   原用 on-surface-light（6.94 也达标），但同一元素深浅不一致会削弱
+   "两种模式同一套语义秩序"的设计叙事。 */
+:root[data-theme-mode="dark"] .search__empty-sub {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--b3-theme-on-surface);
+}
+
+:root[data-theme-mode="dark"] .search__tip {
+    color: var(--b3-theme-on-surface-light);
+    border-top-color: var(--b3-border-color);
+}
+
+:root[data-theme-mode="dark"] .fn__loading {
+    color: var(--b3-theme-primary);
+}
+
+:root[data-theme-mode="dark"] .fn__rotate {
+    animation: yj-spin 1s linear infinite;
+}
+
+/* 自动保存中 · 顶栏同步图标呼吸（与浅色一致：仅呼吸，不叠加装饰性旋转） */
+:root[data-theme-mode="dark"] #barSync svg.fn__rotate,
+:root[data-theme-mode="dark"] #toolbarSync svg.fn__rotate,
+:root[data-theme-mode="dark"] .yj-sync svg.fn__rotate,
+:root[data-theme-mode="dark"] .mobile-topbar svg.fn__rotate {
+    animation: yj-breathe 2s ease-in-out infinite;
+}
+
+:root[data-theme-mode="dark"] .b3-list--empty,
+:root[data-theme-mode="dark"] .protyle-wysiwyg--empty:empty::before {
+    color: var(--b3-empty-color);
+}
+
+/* Z5-01（同类缺口）：浅色 theme.css:2390-2392 给空文档占位伪元素设了
+   line-height:1.75，深色文件此前只有 color。深色独立加载时空文档占位
+   的行距同样会退回 normal，与空列表是同一个「漏抄一条声明」的形态，一并补齐。 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg--empty:empty::before {
+    line-height: 1.75;
+}
+
+/* ==========================================================================
+   12. 深度：深底下阴影不可见，用砚沿描边表达层级（DESIGN 5.4）
+   ========================================================================== */
+
+:root[data-theme-mode="dark"] .layout--float.layout__dockl,
+:root[data-theme-mode="dark"] .layout--float.layout__dockr,
+:root[data-theme-mode="dark"] .layout--float.layout__dockb {
+    border: 1px solid var(--b3-theme-surface-lighter);
+}
+
+:root[data-theme-mode="dark"] .block__popover,
+/* F10/F11（2026-10-28）：`.b3-menu` 从原先「.block__popover / .b3-menu /
+   .b3-dialog__container」那组里**移出**——那组把 border-top-color 覆盖成
+   surface-lighter(#3B3831)，正好抹掉第 762 行给菜单设的砚沿淡线：实测
+   computed border-top 仍是 rgb(59,56,49)，渲染对菜单底 1.02:1，等于没有边线。
+   现在菜单四边统一由第 762 行那条规则给出。 */
+:root[data-theme-mode="dark"] .b3-dialog__container {
+    border-top-color: var(--b3-theme-surface-lighter);
+}
+
+/* ==========================================================================
+   12b. 关键帧：本文件在深色预览页会被单独加载（不经过 theme.css 的 @import），
+        因此必须在自身内定义所用到的全部 @keyframes，否则动画全部失效。
+        数值与 theme.css 第 12 节完全一致（DESIGN 6.1 运笔曲线）。
+   ========================================================================== */
+
+/* R1-09：文档树展开的子节点渐显 + 上移（与浅色同曲线） */
+.protyle-wysiwyg--animate {
+    animation: yj-tree-in var(--yj-dur-base) var(--yj-ease-out);
+}
+
+@keyframes yj-tree-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes yj-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(359deg); }
+}
+
+@keyframes yj-breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .6; }
+}
+
+@keyframes yj-save-pulse {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* D7（2026-10-29，真机核查）：入场动画必须只动 opacity。原先带
+   translateY(-4px) scale(.99)，而 animation-fill-mode:both 让该动画永久处于
+   filling 状态——Chromium 对「正在动画 transform 的元素」启用 containing-block，
+   官方 JS 以视口坐标给子菜单写的 position:fixed left 被劫持成相对菜单左缘解析，
+   实测子菜单右漂 = 菜单左缘坐标（真机 left:489px 渲染在 639.9px，gap 300.7px），
+   接缝修复被整体架空。opacity 动画不产生 containing-block，淡入观感不变。 */
+@keyframes yj-menu-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes yj-ref-line {
+    from { transform: scaleY(0); opacity: 1; }
+    to { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes yj-ref-fade {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* ==========================================================================
+   13. 响应式：1280 / 1024 / 768（与浅色同断点）
+   ========================================================================== */
+
+/* 全书房：默认档 >1280px 用 46em 行长（:root[data-theme-mode="dark"] 已定义），不重复声明 */
+
+/* G08：深色行长度量内距在上文（R3-05 深色副本）已用
+   `max(var(--yj-space-4), …)` 声明；此处原有一份 16px 字面量同选择器副本，
+   后置把 token 版整体压掉，已删除（yun 同值，行为不变）。 */
+
+/* 移动端：面包屑按钮与侧栏图标补足 44px 触控热区
+   （官方 mobile 只给 24px 行高 / 40px 图标盒，未达触控下限）
+   G01（2026-10-29 评审）：与浅色同——由 `#mobileTopBar` 结构钩子门控，
+   `:where(:has(…))` 特异性归零，不改深色副本原有层级。 */
+@media (max-width: 768px) {
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-breadcrumb__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        box-sizing: border-box;
+        padding: 0 8px;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .side-panel .toolbar__icon {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 12px;
+    }
+}
+
+/* R1-16：行长切换点 1200px（与浅色、DESIGN §8 一致；
+   本条原先误写在 1280 里，会让 1200–1280 拿到 44 字/行）。 */
+@media (max-width: 1200px) {
+    :root[data-theme-mode="dark"] {
+        --yj-measure: calc(var(--b3-font-size-editor, 16px) * 44);
+    }
+}
+
+@media (max-width: 1280px) {
+    :root[data-theme-mode="dark"] .b3-dialog__container {
+        max-width: min(88vw, 720px);
+    }
+
+    :root[data-theme-mode="dark"] .block__popover {
+        width: 72vw;
+    }
+
+    /* R2-01：深色文件自足——补齐浅色同断点的窄屏规则 */
+    /* R2-04（深色副本）：与浅色同——弹性上限，不再固定 88px */
+    :root[data-theme-mode="dark"] .protyle-breadcrumb__text--ellipsis {
+        max-width: min(240px, 42vw);
+    }
+}
+
+@media (max-width: 1024px) {
+    :root[data-theme-mode="dark"] .b3-dialog__container {
+        max-width: min(92vw, 640px);
+    }
+
+    :root[data-theme-mode="dark"] .block__popover {
+        width: 80vw;
+    }
+
+    /* R2-01：深色自足——面包屑省略宽度与状态栏收窄 */
+    :root[data-theme-mode="dark"] .protyle-breadcrumb__text--ellipsis {
+        max-width: min(240px, 42vw);
+    }
+
+    :root[data-theme-mode="dark"] .status__msg {
+        max-width: 46vw;
+    }
+
+    :root[data-theme-mode="dark"] .dock__item {
+        margin: 4px;
+        padding: 4px;
+    }
+
+    /* R2-01：与浅色 R1-17 对齐为 176px。
+       原先残留 148px，且深色规则特异性更高，@import 加载下会压过浅色，
+       导致 1024px 视口切换昼夜时页签宽度在 176/148 之间跳变。
+       C16：与浅色同——只读操作条不受 176px 限制。 */
+    :root[data-theme-mode="dark"] .layout-tab-bar:not(.layout-tab-bar--readonly) .item {
+        max-width: 176px;
+    }
+
+    :root[data-theme-mode="dark"] .layout-tab-bar--readonly .item {
+        max-width: none;
+    }
+
+}
+
+/* D11（2026-10-29）+ G01（2026-10-29 评审）：手机外壳块改由 `#mobileTopBar`
+   结构钩子门控（与浅色同构），媒体查询只保留宽度兜底；`:where(:has(…))`
+   特异性归零，不改深色副本原有层级。 */
+@media (max-width: 768px) {
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) {
+        --yj-measure: calc(var(--b3-font-size-editor, 16px) * 36);
+    }
+
+    /* R1-07：移动端 15px 正文字号也必须在深色文件内成立，
+       否则单独加载 theme-dark.css 时移动页仍是 14px。 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) body {
+        font-size: 15px;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-title__input {
+        font-size: 1.75em;
+    }
+
+    /* R2-01：R1-19 面包屑 112px / R1-18 标题图标隐藏，
+       深色文件原先缺失，dark-only 加载时窄屏适配退化。 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-breadcrumb__text--ellipsis {
+        max-width: min(240px, 42vw);
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-title__icon {
+        display: none;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .status__msg {
+        max-width: 60vw;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .protyle-top,
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .protyle-wysiwyg,
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .sy__backlink--bottom {
+        /* G01 / THEME-CSS-02：原先写死 12px，把本块声明的 36em 行长
+           （--yj-measure）整个盖掉，36em 永不生效。恢复桌面同款度量表达式，
+           12px 仍是下限（--yj-space-3）：390px 手机仍得 12px（(100%-576)/2<0），
+           ≥600px 的手机外壳/触屏平板才真正按 36em 居中。 */
+        --b3-protyle-padding-left: max(var(--yj-space-3), calc((100% - var(--yj-measure)) / 2));
+        --b3-protyle-padding-right: max(var(--yj-space-3), calc((100% - var(--yj-measure)) / 2));
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-title {
+        margin: 20px 12px 0;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-list-item {
+        min-height: 44px;
+        line-height: 44px;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-menu__item {
+        line-height: 44px;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .toolbar__item,
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .dock__item,
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .block__icon {
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    /* R3-01：与浅色一致，移动端所有按钮 44px（含对话框确认/删除等高风险操作） */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-button {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px 12px;
+    }
+
+    /* F1：输入类控件同样是触控目标（移动预览页搜索框内联 height:40px）。
+       min-height 收口后与"所有触控目标 ≥ 44 × 44"的声明一致，深浅同步。 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-text-field,
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-select {
+        min-height: 44px;
+    }
+
+    /* F1：移动外壳的 .toolbar__icon 也是可点目标。官方移动样式是
+       20×20 + padding:10px + margin:4px（热区 40px、外框 48px）；抽屉里
+       18×18 + 11px + 2px；历史面板 36px 无内距。
+       统一为 border-box 的 44×44 外框 + 对应内距 + margin:2px
+       （占位 44+2×2 = 48px，与官方 40+4×2 一致，不撑破工具条）。
+       与浅色逐条对齐（dark-only 加载时也成立）。 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .toolbar__icon {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 12px;
+        margin: 2px;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) #sidebar .toolbar__icon,
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) #sidebar2 .toolbar__icon,
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) #sidebarRight .toolbar__icon {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 13px;
+        margin: 2px;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .toolbar__icon--history {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 4px;
+        margin: 2px;
+    }
+
+    /* F1：官方移动页签总览的项 40px、关闭钮 34×30、拖动把手高 40px，
+       都低于 44px 下限；与浅色逐条对齐。 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .mobile-tabs__item {
+        min-height: 44px;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .mobile-tabs__drag {
+        width: 44px;
+        height: 44px;
+        margin-right: 0;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .mobile-tabs__close {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 14px;
+    }
+
+    /* F5（2026-10-28，Z6-N9）：与浅色同改——当前页签补形状第二通道
+       （2px 主色左墨条 + 内框 + 700），面板标题提到 on-background。
+       F2（2026-10-28，R3-02，与浅色逐字对应）：原第三条 `0 0 0 1px
+       primary-lightest` 是非 inset 外环，外扩 1px 改变几何、且在
+       overflow:auto 的父容器里会被裁边；改为 inset 并入内框层。 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .mobile-tabs__item--active {
+        box-shadow: inset 2px 0 0 var(--b3-theme-primary),
+                    inset 0 0 0 1px var(--b3-theme-primary-lighter),
+                    inset 0 0 0 2px var(--b3-theme-primary-lightest);
+        font-weight: 700;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .mobile-topbar .toolbar__text {
+        color: var(--b3-theme-on-background);
+    }
+
+    /* F1：面包屑条目（可点击回到上级文档）官方移动样式是 24px 行高；
+       整条面包屑高度由 `--mobile-breadcrumb-height`（官方 42px）决定，
+       这里一并抬到 44px，正文顶部占位（官方用同一变量计算）随之同步。
+       `.mobile-frame` 分支用于预览脚手架（变量声明在手机框上，比 body 近）；
+       真实应用只认 body 分支。与浅色逐条对齐。 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) body,
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .mobile-frame {
+        --mobile-breadcrumb-height: 44px;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-breadcrumb__item {
+        height: 44px;
+        line-height: 44px;
+        margin: 0;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-dialog__container {
+        max-width: 96vw;
+        max-height: 88vh;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .block__popover {
+        width: 92vw;
+        max-width: none;
+    }
+
+    /* R1-14：避让底部工具栏（48px）+ 状态栏（32px）+ 8px 间隙。
+       原先 bottom:16px 会把提示条压在底栏图标上，且 z-index 更高直接吃掉点击。 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-snackbars {
+        left: 12px;
+        right: 12px;
+        top: auto;
+        bottom: calc(48px + 32px + 8px);
+        align-items: center;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-snackbar {
+        text-align: center;
+        justify-self: center;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-snackbar__content {
+        max-width: calc(100vw - 24px);
+    }
+
+    /* R1-14：提示条内控件满足 44px 触控目标（视觉图标仍 18px，热区 44×44） */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-snackbar__close {
+        width: 44px;
+        height: 44px;
+        right: 2px;
+        top: 50%;
+        margin-top: -22px;
+        padding: 13px;
+        box-sizing: border-box;
+    }
+
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-snackbar--error .b3-button {
+        min-height: 44px;
+        min-width: 44px;
+        /* F5（深色副本，2026-10-28）：重试钮与文案间距同浅色（padding-inline
+           8px + margin-inline-start 8px，实测 3.89 → 16px）。 */
+        padding: 10px 8px;
+        margin-inline-start: 8px;
+    }
+}
+
+/* R1-15：深色同步把移动断点收敛到单一 768px（原 750px 兜底并入），
+   避免 751–768px 双规则带。 */
+@media (max-width: 768px) {
+    :root[data-theme-mode="dark"] #toolbar .toolbar__text {
+        display: none;
+    }
+
+    :root[data-theme-mode="dark"] .av__cell {
+        font-size: 90%;
+    }
+
+    /* C1（深色副本）：正文滚到底时最后一行会被悬浮底栏/状态栏压住。
+       与浅色同一条 80px 纸色渐隐，落在底栏之下、不拦点击。
+       深色文件可单独加载，必须自带这条规则。 */
+    :root[data-theme-mode="dark"] #editor {
+        position: absolute;
+    }
+
+    :root[data-theme-mode="dark"] #editor::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 80px;
+        z-index: 1;
+        pointer-events: none;
+        background-image: linear-gradient(
+            to bottom,
+            transparent 0,
+            var(--b3-theme-background) 68%
+        );
+    }
+}
+
+/* 触控设备：按下反馈替代悬停（!important 理由同 theme.css 该段注释：
+   点击会同时命中 :hover 与 :active，:active 须 !important 才能盖住 hover） */
+@media (hover: none) {
+    /* R3-05：菜单项排除 --current，与浅色逐字对齐。
+       否则触控瞬间会把"当前项"的靛青底清成透明（!important 生效）。
+       D1-09（2026-10-29）：一并排除 :active（与浅色 theme.css 同修）——
+       触控按下同时命中 :hover 与 :active，本组 (0,4,0) 高于下面 :active 的
+       (0,3,0)，按下态被清成透明、与静止态逐字相同。 */
+    :root[data-theme-mode="dark"] .b3-list-item:not(.b3-list-item--focus):not(:active):hover,
+    :root[data-theme-mode="dark"] .b3-menu__item:not(.b3-menu__item--current):not(:active):hover,
+    :root[data-theme-mode="dark"] .b3-list-item__icon:not(:active):hover,
+    :root[data-theme-mode="dark"] .b3-list-item__action:not(:active):hover,
+    :root[data-theme-mode="dark"] .block__icon:not(:active):hover {
+        background-color: transparent !important;
+    }
+
+    :root[data-theme-mode="dark"] .b3-card:hover {
+        /* G07（深色副本，THEME-CSS-10）：触屏没有 hover，卡片不应常驻悬停面底；
+           底色清空，描边/投影一并复位（深色靠砚沿表达层级，不用投影）。 */
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* 与浅色 .b3-card:hover { box-shadow: var(--yj-shadow-card) } 等价意图：
+       触控设备上取消卡片悬停的"抬起"感（深色用描边，不叠加投影） */
+
+    /* D1-09：补页签总览行与面包屑图标（与浅色同清单）。 */
+    :root[data-theme-mode="dark"] .b3-list-item:active,
+    :root[data-theme-mode="dark"] .b3-menu__item:active,
+    :root[data-theme-mode="dark"] .b3-list-item__icon:active,
+    :root[data-theme-mode="dark"] .b3-list-item__action:active,
+    :root[data-theme-mode="dark"] .block__icon:active,
+    :root[data-theme-mode="dark"] .dock__item:active,
+    :root[data-theme-mode="dark"] .toolbar__item:active,
+    :root[data-theme-mode="dark"] .mobile-tabs__item:not(.mobile-tabs__item--active):active,
+    :root[data-theme-mode="dark"] .protyle-breadcrumb__icon:active,
+    :root[data-theme-mode="dark"] .b3-button:not(:disabled):active,
+    :root[data-theme-mode="dark"] .b3-card:active {
+        background-color: var(--b3-theme-primary-lightest) !important;
+        /* R2-01：与浅色一致——按下反馈要"即时"，不被 100ms 过渡拖慢 */
+        transition-duration: var(--yj-dur-micro);
+    }
+
+    :root[data-theme-mode="dark"] .block__icon {
+        opacity: 1;
+    }
+
+    /* R3-09（深色副本）：触屏下 hide-action 的行级动作常显（悬停语义不存在），
+       半透明 .75 表示次要；按下时提满。深色文件可单独加载，必须自带。 */
+    :root[data-theme-mode="dark"] .b3-list-item--hide-action > .b3-list-item__action {
+        display: flex;
+        opacity: .75;
+    }
+
+    :root[data-theme-mode="dark"] .b3-list-item--hide-action:active > .b3-list-item__action {
+        opacity: 1;
+    }
+
+    :root[data-theme-mode="dark"] .b3-tooltips::after {
+        content: none;
+    }
+}
+
+/* 无障碍：尊重减少动效，保存呼吸改为静态半透明 */
+@media (prefers-reduced-motion: reduce) {
+    /* R2-04：深色文件必须与 theme.css 的 reduce 块等价。
+       原先只压 delay 两项，dark-only 加载时：
+       - .fn__rotate 通用加载图标仍 1s 无限旋转
+       - 菜单进入/落定等一次性动画按原时长播放
+       这与浅色路径行为不一致，也违背"深色文件可单独加载"的自足承诺。 */
+    :root[data-theme-mode="dark"] *,
+    :root[data-theme-mode="dark"] *::before,
+    :root[data-theme-mode="dark"] *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        animation-delay: 0ms !important;
+        transition-duration: .01ms !important;
+        transition-delay: 0ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    :root[data-theme-mode="dark"] #barSync svg.fn__rotate,
+    :root[data-theme-mode="dark"] #toolbarSync svg.fn__rotate,
+    :root[data-theme-mode="dark"] .yj-sync svg.fn__rotate,
+    :root[data-theme-mode="dark"] .mobile-topbar svg.fn__rotate {
+        animation: none !important;
+        opacity: .6;
+    }
+
+    /* G07（深色副本）：通用加载旋转同样显式停转（理由见浅色同位注释） */
+    :root[data-theme-mode="dark"] .fn__rotate {
+        animation: none !important;
+    }
+
+    :root[data-theme-mode="dark"] .b3-snackbar--success .b3-snackbar__content::before {
+        animation: none !important;
+    }
+
+    :root[data-theme-mode="dark"] .protyle-wysiwyg--hl:not(.li):not(.list):not(.sb):not(.bq):not(.callout):not([data-type="NodeHeading"])::before {
+        animation: none !important;
+        transform: none;
+        opacity: 1;
+    }
+
+    /* F2/N7：落点线 B 实现（标题/列表/列表项/超级块/引述/标注）在减少动效下
+       同样要静态常显。B 的载体是 background-image + @property --yj-ref-alpha；
+       只把 duration 压到 .01ms 会让 yj-ref-alpha-out 立刻到达终态 alpha:0，
+       减少动效用户跳转到标题/列表时反而没有落点提示。这里直接关动画并显式
+       给出终态（线常显、全长），与浅色逐条对齐。 */
+    :root[data-theme-mode="dark"] .protyle-wysiwyg--hl:is(.li, .list, .sb, .bq, .callout, [data-type="NodeHeading"]) {
+        animation: none !important;
+        background-size: 2px 100% !important;
+        --yj-ref-alpha: 1;
+    }
+}
+
+/* ==========================================================================
+   14. 深色自足性补全（Z5-01 同族）
+   --------------------------------------------------------------------------
+   深色文件可单独加载（states-dark.html 只链 theme-dark.css；README 也允许
+   dark-only 用法），因此浅色 theme.css 里每一条影响排版/几何/触控的声明，
+   深色都必须自带一份。Z5-01 报的 `.b3-list--empty{line-height}` 是其中一例：
+   漏抄时深色空列表行距退回 normal、比浅色紧 10.5px，states 卡 07 比浅色矮 6.5px。
+
+   下面这一组是逐条扫描 theme.css 后找出的**同类缺口**（浅色有、深色无），
+   值逐字照抄浅色，只是加了 :root[data-theme-mode="dark"] 前缀。
+   全部是加法（原有深色规则不动），所以 @import 路径下视觉零变化，
+   只补齐 dark-only 路径。分组：排版阶梯 / 表格与数字 / 移动触控 / 对话框内距 / 圆角。
+   ========================================================================== */
+
+/* 14.1 标题行高阶梯：深色原先只镜像了 .b3-typography .h1…h6（类选择器），
+   漏了裸元素 h1…h6；`li > .protyle-action ~ [data-type=NodeHeading]` 只覆盖到 h3。 */
+:root[data-theme-mode="dark"] .b3-typography h1 { line-height: 1.75; }
+:root[data-theme-mode="dark"] .b3-typography h2 { line-height: 1.58; }
+:root[data-theme-mode="dark"] .b3-typography h3 { line-height: 1.42; }
+:root[data-theme-mode="dark"] .b3-typography h4 { line-height: 1.28; }
+:root[data-theme-mode="dark"] .b3-typography h5 { line-height: 1.15; }
+:root[data-theme-mode="dark"] .b3-typography h6 { line-height: 1.05; }
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h4 {
+    line-height: calc(1.75em / 1.25);
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h5 {
+    line-height: calc(1.75em / 1.13);
+}
+
+/* 14.2 表格单元格行高（与正文同为 1.75，窄表格里换行才不挤） */
+:root[data-theme-mode="dark"] .table__cell-rich [data-node-id] {
+    line-height: 1.75;
+}
+
+/* 14.3 表格与数字：表头字重、表体与各处计数用等宽数字 */
+:root[data-theme-mode="dark"] .b3-typography table th,
+:root[data-theme-mode="dark"] .protyle-wysiwyg table th {
+    font-weight: 600;
+}
+
+:root[data-theme-mode="dark"] .b3-typography table td,
+:root[data-theme-mode="dark"] .protyle-wysiwyg table td,
+:root[data-theme-mode="dark"] .b3-list-item__number,
+:root[data-theme-mode="dark"] .status__counter,
+:root[data-theme-mode="dark"] .status__backgroundtask,
+:root[data-theme-mode="dark"] .av__cell,
+:root[data-theme-mode="dark"] .toolbar__tabs-count {
+    font-variant-numeric: tabular-nums;
+}
+
+/* 14.4 移动抽屉：行圆角与行内动作的 44px 热区（深色 dark-only 路径原先会退回
+   官方 32px 宽的动作按钮，触控不达标——与 R3-09/R3-11 的承诺冲突） */
+:root[data-theme-mode="dark"] .b3-list--mobile .b3-list-item {
+    border-radius: var(--b3-border-radius);
+}
+
+:root[data-theme-mode="dark"] .b3-list--mobile .b3-list-item__action {
+    min-width: 44px;
+    min-height: 44px;
+    /* F5（深色副本，2026-10-28）：动作钮 border-box + 水平内距，盒 44×44、
+       行高回 44（浅色同改，Z6-N8）。 */
+    box-sizing: border-box;
+    padding: 0 12px;
+    justify-content: center;
+    color: var(--b3-theme-on-surface-light);
+    border-radius: var(--b3-border-radius);
+}
+
+:root[data-theme-mode="dark"] .mobile-bottom-bar__item {
+    min-width: 44px;
+}
+
+:root[data-theme-mode="dark"] .toolbar__tabs-count {
+    border-radius: var(--b3-border-radius-s);
+}
+
+/* 14.5 对话框内距与标题字重（DESIGN 5.1 的 16/24px 节奏） */
+:root[data-theme-mode="dark"] .b3-dialog__header {
+    font-weight: 600;
+    padding: var(--yj-space-3) var(--yj-space-6);
+}
+
+:root[data-theme-mode="dark"] .b3-dialog__content {
+    padding: var(--yj-space-4);
+}
+
+:root[data-theme-mode="dark"] .b3-dialog__action {
+    padding: var(--yj-space-3) var(--yj-space-4);
+}
+
+/* 14.6 空闪卡行高（空状态行距与空列表同一档 1.75） */
+:root[data-theme-mode="dark"] .card__empty {
+    line-height: 1.75;
+}
+
+/* 14.7 圆角：滚动条拇指 / 面包屑上缘 / 虚拟块引用 hover */
+:root[data-theme-mode="dark"] ::-webkit-scrollbar-thumb {
+    border-radius: var(--b3-border-radius-b);
+}
+
+:root[data-theme-mode="dark"] ::-webkit-scrollbar-thumb:hover {
+    border-width: 1px;
+}
+
+:root[data-theme-mode="dark"] .protyle-breadcrumb {
+    border-radius: var(--b3-border-radius-b) var(--b3-border-radius-b) 0 0;
+}
+
+:root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="virtual-block-ref"]:hover,
+:root[data-theme-mode="dark"] .b3-typography span[data-type="virtual-block-ref"]:hover {
+    border-radius: var(--b3-border-radius-s);
+}

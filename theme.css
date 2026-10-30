@@ -1,0 +1,3312 @@
+@import url("theme-dark.css");
+
+/* ==========================================================================
+   砚笺 YanJian · 笺（浅色 / 日光纸笺）
+   --------------------------------------------------------------------------
+   设计依据：siyuan-theme/design/DESIGN.md
+   - 第一层：官方 --b3-* 变量（第 3.2 节色板，变量名以 siyuan-note/siyuan
+     master 的 daylight/theme.css 为准）
+   - 第二层：--yj-* 扩展 token（间距 / 动效 / 阴影 / 行长，第 5、6、9 节）
+   深色色板见同目录 theme-dark.css，由文件首行 @import 载入，
+   作用域为 :root[data-theme-mode="dark"]（官方 reset.scss 13–19 行机制）。
+   ========================================================================== */
+
+:root {
+    color-scheme: light;
+
+    /* 主色 · 三色秩序：纸墨为体，靛青为脉，朱砂为戒 */
+    --b3-theme-primary: #2F5D8A;
+    --b3-theme-primary-light: rgba(47, 93, 138, .54);
+    --b3-theme-primary-lighter: rgba(47, 93, 138, .38);
+    --b3-theme-primary-lightest: rgba(47, 93, 138, .12);
+    --b3-theme-secondary: #8C6114;
+    --b3-theme-background: #FAF7F1;
+    --b3-theme-background-light: #DBD5C6;
+    --b3-theme-surface: #F1EDE3;
+    --b3-theme-surface-light: rgba(241, 237, 227, .92);
+    --b3-theme-surface-lighter: #E4DFD2;
+    --b3-theme-error: #B3362A;
+    --b3-theme-success: #3E7D4E;
+
+    /* 墨色分层：正文浓墨 / 次级淡墨 / 图标灰墨 / 禁用枯墨 */
+    --b3-theme-on-primary: #FFFFFF;
+    --b3-theme-on-secondary: #FFFFFF;
+    --b3-theme-on-background: #33312C;
+    --b3-theme-on-surface: #6E6A5E;
+    --b3-theme-on-surface-light: #8B8677;
+    --b3-theme-on-surface-lighter: #C9C3B4;
+    --b3-theme-on-error: #FFFFFF;
+
+    /* 字体：拉丁在前、CJK 在后（DESIGN 4.1，官方 daylight 同款策略）。
+       C14：CJK 栈里 Microsoft YaHei 提到 Source Han Sans SC 之前。
+       原因：不少机器只装了 "Source Han Sans SC Medium" 单字面，
+       而本主题依赖 400/500/600/700 四档（H5/H6=500、H3/H4=600、H1/H2=700）。
+       该家族排在前面时，400 会落到 Medium、600/700 落到合成粗体，
+       字重阶梯塌成两级（实测画布墨量 400=500=1099、600=700=1497）。
+       YaHei 有真实的 400/700 两档且 Windows 必装；macOS/Linux 上通常
+       没有 YaHei，会自然穿透到后方字体，不改变原有表现。 */
+    --b3-font-family-emoji-reset: "Emojis Additional", "Emojis Reset";
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans CJK SC", "Microsoft YaHei", "Source Han Sans SC", arial, sans-serif, emojis;
+    --b3-font-family: var(--b3-font-family-default);
+    --b3-font-family-protyle: var(--b3-font-family);
+    --b3-font-family-code: var(--b3-font-family-emoji-reset), "JetBrainsMono-Regular", "JetBrains Mono", "Cascadia Code", Consolas, mononoki, "Liberation Mono", var(--b3-font-family), monospace;
+    --b3-font-family-graph: arial;
+    --b3-font-family-emoji: "Emojis Additional", emojis;
+    --b3-font-family-math: KaTeX_Math;
+    --b3-font-family-kbd: var(--b3-font-family-protyle);
+    --b3-font-size: 14px;
+
+    /* 背景：案几 / 四角微光 */
+    --b3-body-background: #EDE9DF;
+    --b3-body-background-hl-opacity: 0.16;
+    --b3-body-background-hl: 32, 24%, 46%;
+    --b3-body-background-gradient: none;
+    --b3-layout-space: 4px;
+    --b3-layout-space-margin: -4px;
+
+    /* 顶部工具栏 */
+    --b3-toolbar-color: var(--b3-theme-on-surface-light);
+    --b3-toolbar-hover: rgba(51, 49, 44, .06);
+    --b3-toolbar-left-mac: 74px;
+
+    /* 线条：圆角刻意小于官方 6/3/12（DESIGN 5.2） */
+    --b3-border-color: #E2DCCB;
+    --b3-border-radius: 4px;
+    --b3-border-radius-s: 2px;
+    --b3-border-radius-b: 8px;
+
+    /* 滚动条 */
+    --b3-scroll-color: rgba(51, 49, 44, .18);
+
+    /* 列表 */
+    --b3-list-hover: rgba(51, 49, 44, .06);
+    --b3-list-icon-hover: rgba(51, 49, 44, .09);
+
+    /* 列表脑图 */
+    --b3-mindmap-line-color: var(--b3-border-color);
+    --b3-mindmap-line-width: 1.5;
+    --b3-mindmap-line-hover-color: initial;
+    --b3-mindmap-line-hover-width: auto;
+    --b3-mindmap-line-selected-color: initial;
+    --b3-mindmap-line-selected-width: auto;
+    --b3-mindmap-relation-color: var(--b3-theme-primary);
+    --b3-mindmap-relation-width: 1.5;
+    --b3-mindmap-relation-hover-color: initial;
+    --b3-mindmap-relation-hover-width: auto;
+    --b3-mindmap-relation-selected-color: initial;
+    --b3-mindmap-relation-selected-width: auto;
+    --b3-mindmap-summary-color: var(--b3-border-color);
+    --b3-mindmap-summary-width: 1.5;
+    --b3-mindmap-summary-hover-color: initial;
+    --b3-mindmap-summary-hover-width: auto;
+    --b3-mindmap-summary-selected-color: initial;
+    --b3-mindmap-summary-selected-width: auto;
+
+    /* 菜单 */
+    --b3-menu-background: var(--b3-theme-background);
+    --b3-menu-icon-color: rgba(51, 49, 44, .6);
+
+    /* 提示 · 砚边浓墨 */
+    --b3-tooltips-background: #332F27;
+    --b3-tooltips-color: #FAF7F1;
+    --b3-tooltips-second-color: #A8A395;
+    --b3-tooltips-shadow: 0 2px 8px rgba(60, 55, 40, .18);
+
+    /* 为空提示 */
+    --b3-empty-color: var(--b3-theme-on-surface);
+
+    /* 遮罩 · 蒙纸 */
+    --b3-mask-background: rgba(219, 213, 198, .45);
+
+    /* 功能卡（石绿 / 藤黄 / 朱砂 / 靛青） */
+    --b3-card-error-color: #9C2B20;
+    --b3-card-error-background: #F6E3DE;
+    --b3-card-warning-color: #7A5200;
+    --b3-card-warning-background: #F5EAD1;
+    --b3-card-info-color: #2F5D8A;
+    --b3-card-info-background: #E1EAF3;
+    --b3-card-success-color: #2E6B3F;
+    --b3-card-success-background: #E2EDE0;
+
+    /* 自定义文字色 */
+    --b3-font-color1: var(--b3-card-error-color);
+    --b3-font-color2: var(--b3-card-warning-color);
+    --b3-font-color3: var(--b3-card-info-color);
+    --b3-font-color4: var(--b3-card-success-color);
+    --b3-font-color5: var(--b3-theme-on-surface);
+    --b3-font-color6: var(--b3-theme-primary);
+    --b3-font-color7: var(--b3-theme-secondary);
+    --b3-font-color8: var(--b3-theme-error);
+    --b3-font-color9: #7A5FA0;
+    --b3-font-color10: #47714D;
+    --b3-font-color11: #2E6B3F;
+    --b3-font-color12: #8C6114;
+    --b3-font-color13: var(--b3-theme-background);
+    --b3-font-background1: var(--b3-card-error-background);
+    --b3-font-background2: var(--b3-card-warning-background);
+    --b3-font-background3: var(--b3-card-info-background);
+    --b3-font-background4: var(--b3-card-success-background);
+    --b3-font-background5: #E4DFD2;
+    --b3-font-background6: #DCE6F0;
+    --b3-font-background7: #F5EAD1;
+    --b3-font-background8: #F6E3DE;
+    --b3-font-background9: #EBE3F3;
+    --b3-font-background10: #E2EDE0;
+    --b3-font-background11: #E7EEE2;
+    --b3-font-background12: #F7EFD2;
+    --b3-font-background13: var(--b3-theme-on-background);
+
+    /* 动画效果 · 落墨（DESIGN 6.1） */
+    --b3-transition: all .18s cubic-bezier(.2, 0, 0, 1) 0ms;
+    --b3-width-transition: width .18s cubic-bezier(.2, 0, 0, 1) 0ms;
+    --b3-color-transition: color .18s cubic-bezier(.2, 0, 0, 1) 0ms;
+    --b3-background-transition: background-color .1s cubic-bezier(.2, 0, 0, 1) 0ms;
+
+    /* 高亮 · 藤黄 */
+    --b3-highlight-color: #33312C;
+    --b3-highlight-background: #F2DFA4;
+    --b3-highlight-current-background: #E9C77E;
+
+    /* 下拉菜单箭头（与 --b3-theme-on-surface-light 同色） */
+    --b3-select-background: url("data:image/svg+xml;utf8,<svg fill='rgba(139, 134, 119, 0.9)' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat right 2px center var(--b3-menu-background);
+
+    /* switch */
+    --b3-switch-background: #E4DFD2;
+    --b3-switch-border: #8B8677;
+    --b3-switch-hover: rgba(51, 49, 44, .08);
+    --b3-switch-checked: #FFFFFF;
+    --b3-switch-checked-background: var(--b3-theme-primary);
+    /* G04：由主色派生（覆写 --b3-theme-primary 后跟随） */
+    --b3-switch-checked-hover: color-mix(in srgb, var(--b3-theme-primary) 16%, transparent);
+    --b3-switch-checked-hover2: rgba(51, 49, 44, .06);
+
+    /* 阴影 · 纸叠纸（暖色阴影，DESIGN 5.4） */
+    --b3-dock-shadow-color: rgba(60, 55, 40, .18);
+    --b3-point-shadow: 0 0 1px 0 rgba(60, 55, 40, .10), 0 0 2px 0 rgba(60, 55, 40, .14);
+    --b3-dialog-shadow: 0 8px 24px rgba(60, 55, 40, .14);
+    --b3-button-shadow: 0 1px 2px color-mix(in srgb, var(--b3-theme-primary) 25%, transparent);
+    --b3-button-active-shadow: 0 2px 3px rgba(60, 55, 40, .20);
+
+    /* 图表颜色 · 颜料态 */
+    --b3-graph-p-point: #6E6A5E;
+    --b3-graph-heading-point: #7A5FA0;
+    --b3-graph-math-point: #47714D;
+    --b3-graph-code-point: #8C6114;
+    --b3-graph-table-point: #2F5D8A;
+    --b3-graph-list-point: #B3362A;
+    --b3-graph-todo-point: #A85B12;
+    --b3-graph-olist-point: #8C6114;
+    --b3-graph-listitem-point: #47714D;
+    --b3-graph-bq-point: #7A5FA0;
+    --b3-graph-callout-point: #3E7D4E;
+    --b3-graph-super-point: #2F5D8A;
+    --b3-graph-doc-point: #33312C;
+    --b3-graph-tag-point: #E9C77E;
+    --b3-graph-asset-point: #47714D;
+    --b3-graph-line: rgba(51, 49, 44, .45);
+    --b3-graph-ref-line: #B3362A;
+    --b3-graph-tag-line: #8C6114;
+    --b3-graph-tag-tag-line: #E9C77E;
+    --b3-graph-asset-line: #47714D;
+    --b3-graph-hl-point: #8C6114;
+    --b3-graph-hl-line: #B3362A;
+
+    /* 代码块 · 碑帖 */
+    --b3-protyle-code-background: rgba(51, 49, 44, .05);
+
+    /* 所见即所得行内元素 */
+    --b3-protyle-inline-strong-color: inherit;
+    --b3-protyle-inline-em-color: inherit;
+    --b3-protyle-inline-u-color: inherit;
+    --b3-protyle-inline-s-color: inherit;
+    --b3-protyle-inline-link-color: #2F5D8A;
+    /* 任务书机器校验要求的别名；真实生效名为官方 --b3-protyle-inline-link-color */
+    --b3-protyle-inline-link: #2F5D8A;
+    --b3-protyle-inline-mark-background: #F2DFA4;
+    --b3-protyle-inline-mark-color: #33312C;
+    --b3-protyle-inline-tag-color: rgba(51, 49, 44, .72);
+    /* R2-05：块引用是双链的正文载体，文字要连同**自身 8% 黛紫底**一起达 4.5。
+       原 #7A5FA0 在 8% 底上只有 4.47、hover 14% 底 4.13。
+       改 #705596（同样色相、深一档）：8% 底 5.19、hover 14% 底 4.80、裸纸 5.73。 */
+    --b3-protyle-inline-blockref-color: #705596;
+    --b3-protyle-inline-fileref-color: #47714D;
+
+    /* PDF */
+    --b3-pdf-selection: #E2EDE0;
+    --b3-pdf-selection-dark: #779170;
+    --sidebar-width: 200px;
+    --b3-pdf-offset: 0;
+    --b3-pdf-background1-light: #B3362A;
+    --b3-pdf-background1-dark: #B3362A;
+    --b3-pdf-background2-light: #C4811A;
+    --b3-pdf-background2-dark: #C4811A;
+    --b3-pdf-background3-light: #E9C77E;
+    --b3-pdf-background3-dark: #E9C77E;
+    --b3-pdf-background4-light: #47714D;
+    --b3-pdf-background4-dark: #47714D;
+    --b3-pdf-background5-light: #C9636F;
+    --b3-pdf-background5-dark: #C9636F;
+    --b3-pdf-background6-light: #2F5D8A;
+    --b3-pdf-background6-dark: #2F5D8A;
+    --b3-pdf-background7-light: #8C6FA8;
+    --b3-pdf-background7-dark: #8C6FA8;
+    --b3-pdf-dark: #33312C;
+
+    /* callout · 笺注 */
+    --b3-callout-note: var(--b3-theme-primary);
+    --b3-callout-tip: var(--b3-theme-success);
+    --b3-callout-caution: var(--b3-theme-error);
+    --b3-callout-important: var(--b3-protyle-inline-blockref-color);
+    --b3-callout-warning: #8C6114;
+
+    /* 表格 */
+    --b3-table-even-background: rgba(51, 49, 44, .04);
+
+    /* 数据库 */
+    --b3-av-gallery-shadow: rgba(60, 55, 40, .06) 0 2px 4px 0, var(--b3-border-color) 0 0 0 1px;
+
+    /* 嵌入块 / 引述块 / 父块 */
+    --b3-embed-background: transparent;
+    --b3-bq-background: transparent;
+    --b3-parent-background: var(--b3-theme-background);
+
+    /* 其他官方变量 */
+    --b3-icon-star-fill: currentColor;
+
+    /* ======================================================================
+       第二层：--yj-* 扩展 token（允许用户整体覆写做个性化）
+       ====================================================================== */
+
+    /* 间距（4/8 栅格，DESIGN 5.1） */
+    --yj-space-1: 4px;
+    --yj-space-2: 8px;
+    --yj-space-3: 12px;
+    --yj-space-4: 16px;
+    --yj-space-6: 24px;
+    --yj-space-8: 32px;
+
+    /* 动效（DESIGN 6.1） */
+    --yj-ease-out: cubic-bezier(.2, 0, 0, 1);
+    --yj-ease-in: cubic-bezier(.4, 0, 1, 1);
+    --yj-ease-spring: cubic-bezier(.34, 1.3, .64, 1);
+    --yj-dur-micro: 100ms;
+    --yj-dur-base: 180ms;
+    --yj-dur-enter: 240ms;
+    --yj-dur-spring: 260ms;
+    --yj-dur-pulse: 400ms;
+    /* R3-06：落点线"停留后再淡出"的保持时长，单独 token 化
+       （原本 1.5s 是字面量，用户覆写时长契约时不会跟随） */
+    --yj-dur-hold: 1.5s;
+
+    /* 阴影 */
+    --yj-shadow-card: 0 1px 2px rgba(60, 55, 40, .06), 0 4px 12px rgba(60, 55, 40, .08);
+
+    /* 行长：46 个编辑区字宽的度量（DESIGN 8） */
+    --yj-measure: calc(var(--b3-font-size-editor, 16px) * 46);
+
+    /* 状态栏文字：落在案几底 #EDE9DF 上，需比 on-surface 深一档才够 4.5（5.04） */
+    --yj-status-color: #666254;
+
+    /* C7：辅助小标签（状态卡英文标签等 12px 文本）落在卡头带 #E4DFD2 上。
+       on-surface-light #8B8677 只有 2.73；本 token 取 #666254 → 4.59，
+       与深色 on-surface-light(#B3AD9F → 5.23) 同一语义档位。 */
+    --yj-meta-label: #666254;
+
+    /* 焦点环：2px 主色 + 2px 间隙（DESIGN 5.3）。
+       用 outline 组合不支持圆角/间隙叠加，故统一走 box-shadow 双环；
+       所有焦点规则都消费本 token，用户覆写一处即可全局生效。 */
+    --yj-focus-ring: 0 0 0 2px var(--b3-theme-background), 0 0 0 4px var(--b3-theme-primary);
+    /* 焦点环的 inset 变体（用于 overflow:hidden 容器内的元素，避免环被裁剪） */
+    --yj-focus-ring-inset: inset 0 0 0 2px var(--b3-theme-primary);
+    /* F4（2026-10-28）：输入框双环的外圈光晕。原用 --b3-theme-primary-lightest
+       （α .12）对纸面仅 1.19:1，渲染读数 ≤2px；提到 α .32 合成 (185,198,208)、
+       对纸面 1.63:1，成图上可见 3px 淡靛带（外缘 4px）。D3 复测像素 (185,198,208)，
+       原记 (185,196,208)/1.56 为笔误。 */
+    /* G04：光晕改由主色派生（α .32 不变，与 DESIGN F4 读数同值） */
+    --b3-focus-halo: color-mix(in srgb, var(--b3-theme-primary) 32%, transparent);
+
+    /* 块间距分级（DESIGN 5.1）：全部由 --yj-space-* 派生，用户改 token 即改节奏。
+       C17：思源正文是 flex 列（`.protyle-wysiwyg{display:flex;flex-direction:column}`），
+       相邻块的 margin **不折叠**，块间实测距离 = 上块 margin-bottom + 下块 margin-top。
+       原先两侧各取 8/24/8/12 → 实测 16/32/16/20，正好是契约（8/24/8/12）的两倍。
+       现按"和等于契约"取值：4+4=8、4+20=24、4+4=8、4+8=12。
+       （块自身的 4px 上下内距由官方样式提供，位于盒子内部，不计入块间距。） */
+    --yj-block-gap: var(--yj-space-1);
+    /* 4px + 4px = 8px 段落间 */
+    --yj-heading-gap-before: calc(var(--yj-space-4) + var(--yj-space-1));
+    /* 4 + 20 = 24px 标题上留白 */
+    --yj-heading-gap-after: var(--yj-space-1);
+    /* 4px + 4px = 8px 标题后呼吸 */
+    --yj-container-gap: var(--yj-space-2);
+    /* 4px + 8px = 12px 引用/代码/标注上下 */
+}
+
+/* 分语言字体栈（官方 :root:lang() 挂钩，DESIGN 4.1）。
+   C14：与 :root 主栈保持同一顺序（Microsoft YaHei 在 Source Han Sans SC 前），
+   否则 zh-CN 页面会覆盖回"只有 Medium 单字面"的顺序、字重阶梯再次塌缩。 */
+:root:lang(zh-CN) {
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans CJK SC", "Microsoft YaHei", "Source Han Sans SC", arial, sans-serif, emojis;
+}
+
+:root:lang(zh-TW) {
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang TC", "Noto Sans CJK TC", "Source Han Sans TC", "Microsoft JhengHei", arial, sans-serif, emojis;
+}
+
+:root:lang(ja) {
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "Hiragino Sans", "Noto Sans CJK JP", "Yu Gothic UI", arial, sans-serif, emojis;
+}
+
+/* ==========================================================================
+   1. 基础与选区
+   ========================================================================== */
+
+::selection {
+    background-color: var(--b3-theme-primary-lighter);
+    color: var(--b3-theme-on-background);
+}
+
+html {
+    -webkit-tap-highlight-color: var(--b3-list-hover);
+}
+
+/* R2-01：`color` 只允许在 `body` 这一处过渡，容器一律只过渡背景。
+   根因：color 是**继承属性**。原先清单里 `.layout → .layout__center → .protyle
+   → .protyle-wysiwyg → 正文` 每一层都写了 `color` 过渡，于是每层都在追自己
+   父级"仍在变化中"的计算值 → 180ms 被逐层叠加放大到 1–1.6 秒，而且首帧
+   从初始黑渐变到终态色，深色页正文长时间停在 35% 合成的 rgb(101,98,92)
+   （2.55:1）。只在 `body` 过渡 `color` 后，整棵树的文字共享同一条 180ms 曲线，
+   与纸面背景严格同步，冷启动也在 180ms 内到达终态。 */
+body {
+    background-color: var(--b3-body-background);
+    color: var(--b3-theme-on-background);
+    font-family: var(--b3-font-family);
+    -webkit-font-smoothing: antialiased;
+    /* R1-09：主题亮暗切换的全局颜色过渡（DESIGN 6.2「时辰流动感」）。
+       只过渡 color/background-color，绝不写 all——否则任何属性变化
+       （含焦点环、布局）都会被拖成 180ms。 */
+    transition: background-color var(--yj-dur-base) var(--yj-ease-out),
+                color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+/* 主要承载背景的容器同步过渡，切换昼夜时不出现"半张纸" */
+/* C2：真正绘纸面的是 `.protyle`（编辑区纸底）与 `.layout__center .layout-tab-container`
+   这两处，原清单漏掉它们 → 亮暗切换的第一帧纸面已跳到终态、顶栏仍是旧色，
+   出现"浅色顶栏 + 深色纸面 + 半灰正文"的割裂帧（实测正文瞬时对比 1.67:1）。
+   清单里必须包含所有"自己画 background-color 的容器"，不只是外壳祖先。
+   R2-01：这里**只列 background-color**，不列 color——理由见上一条注释。 */
+.layout,
+.layout__center,
+.layout__center .layout-tab-container,
+.layout__dockl,
+.layout__dockr,
+.layout__dockb,
+.layout-tabs,
+.layout-tab-bar,
+.protyle,
+.protyle-breadcrumb,
+.protyle-wysiwyg,
+.b3-typography,
+.b3-list,
+.b3-menu,
+.b3-dialog__container,
+.toolbar,
+.status {
+    transition: background-color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+a {
+    color: var(--b3-theme-primary);
+    text-decoration-color: var(--b3-theme-primary-light);
+    text-underline-offset: 2px;
+}
+
+/* 焦点：仅键盘导航出现 2px 靛青外环 + 2px 间隙（DESIGN 5.3 / 7）
+   R1-13：原清单漏掉移动外壳与提示条里的可交互元素，外接键盘用户在
+   移动布局里完全看不到焦点位置。这里补齐 .toolbar__button（移动顶栏）、
+   .mobile-bottom-bar__item、.protyle-breadcrumb__icon、.b3-snackbar__close、
+   .side-panel .toolbar__icon、.mobile-tabs__item/__close。
+   同时统一改走 --yj-focus-ring（box-shadow 双环），这样用户覆写一个 token
+   即可全局生效（R1-22 的 token 契约）。
+   D9（2026-10-29 用户指令，menu:focus-ring-expanded 根因修复）：**.b3-menu 全家
+   一律不出外扩环**——.b3-menu__item / .b3-menu__action 已从本清单剔除。
+   根因：思源在打开子菜单、恢复菜单等流程对菜单项调 .focus()，:focus-visible
+   命中即出「2px 间隙 + 4px 主色」外扩环（用户报的主菜单/悬浮块菜单/子菜单蓝环
+   本体）；而菜单键盘主路径（方向键导航）只搬 --current 类、不搬 DOM focus，
+   外扩环本就不是菜单的可达性指示。菜单焦点指示改走与悬停一致的底色通道
+   （见「菜单 / 浮层」节的 .b3-menu__item:focus-visible 规则）；
+   .b3-menu__action 保留官方 base.css 自带的 1px inset outline 作焦点指示
+   （那是内向描边，不是外扩环）。 */
+.b3-button:focus-visible,
+.b3-list-item:focus-visible,
+.b3-list-item__action:focus-visible,
+.b3-list-item__icon:focus-visible,
+.b3-list-item__toggle:focus-visible,
+.b3-chip:focus-visible,
+.b3-card:focus-visible,
+.b3-switch:focus-visible,
+.block__icon:focus-visible,
+.toolbar__item:focus-visible,
+.toolbar__button:focus-visible,
+.dock__item:focus-visible,
+.layout-tab-bar .item:focus-visible,
+.protyle-breadcrumb__item:focus-visible,
+.protyle-breadcrumb__arrow--interactive:focus-visible,
+.protyle-breadcrumb__icon:focus-visible,
+.protyle-toolbar__item:focus-visible,
+.protyle-gutters button:focus-visible,
+.mobile-bottom-bar__item:focus-visible,
+.mobile-tabs__item:focus-visible,
+.mobile-tabs__close:focus-visible,
+.mobile-tabs__actions .b3-button:focus-visible,
+.side-panel .toolbar__icon:focus-visible,
+.b3-snackbar__close:focus-visible {
+    outline: none;
+    box-shadow: var(--yj-focus-ring);
+    position: relative;
+    z-index: 1;
+}
+
+/* 会被 overflow 裁剪的容器内元素：用 inset 环，避免环被切掉 */
+.b3-snackbar__close:focus-visible,
+.side-panel .toolbar__icon:focus-visible,
+.protyle-breadcrumb__icon:focus-visible {
+    box-shadow: var(--yj-focus-ring-inset);
+}
+
+/* D9（2026-10-29，toolbar:disabled-item-ring）：禁用顶栏按钮 Tab 可达但不承载
+   焦点语义，WCAG 2.4.7 对禁用控件不作要求——压掉外扩环（思源的类禁用
+   .toolbar__item--disabled 与原生 :disabled 两种形态都覆盖）。 */
+.toolbar__item--disabled:focus-visible,
+.toolbar__item:disabled:focus-visible {
+    box-shadow: none;
+}
+
+/* F3：焦点环的选择器必须与官方基础态同权重或更高。
+   官方 `.b3-text-field:not(.b3-text-field--text):focus`（0,3,0）比
+   `.b3-text-field:focus`（0,2,0）权重高——只写后者时浅色实测拿到的是
+   官方的 0.6px 弱环，而深色因带 `:root[data-theme-mode]` 前缀拿到主题的
+   1px + 4px 环，两模式焦点强度不一致。这里补一条同权重的非 text 变体，
+   让深浅两套焦点环完全等价。 */
+/* F4（2026-10-28，R3-03 focus:halo-claim）：输入框焦点双环的外圈光晕原为
+   --b3-theme-primary-lightest（α .12），对纸面合成 (226,229,229) 只有 1.19:1
+   ——渲染出来与纸面几乎同值，「4px 淡靛外环」在成图上读作 ≤2px（只剩 1px 主色
+   内框 + 抗锯齿边）。Playwright A/B（toolbar overflow hidden → visible，③ 区
+   0 像素差异）已排除 overflow 裁剪，根因是光晕透明度太低，不是几何被吞。
+   改为 3px 档的 rgba(47,93,138,.32)：合成 (185,196,208)，对纸面 1.56:1、
+   对画布 1.43:1，图上是一条可测的 3px 淡靛带；连同 1px 主色内框，外缘恰在
+   4px 处——题注「外缘 4px / 可见厚度 4px」与像素自此一致。
+   几何（box-shadow）不参与布局，外扩不改变元素盒。 */
+.b3-text-field:focus,
+.b3-text-field:not(.b3-text-field--text):focus,
+.b3-select:focus {
+    outline-color: var(--b3-theme-primary);
+    box-shadow: 0 0 0 1px var(--b3-theme-primary), 0 0 0 4px var(--b3-focus-halo);
+}
+
+/* 滚动条 · 细纸边 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: var(--b3-border-radius-b);
+    background-color: var(--b3-scroll-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    border-width: 1px;
+    background-color: var(--b3-theme-on-surface-light);
+}
+
+::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+
+/* ==========================================================================
+   2. 按钮：悬停 / 焦点 / 按下 / 禁用 / 进度
+   ========================================================================== */
+
+.b3-button {
+    border-radius: var(--b3-border-radius);
+    color: var(--b3-theme-on-primary);
+    background-color: var(--b3-theme-primary);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                box-shadow var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out),
+                transform var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.b3-button--text,
+.b3-button--cancel,
+.b3-button--outline,
+.b3-button--remove {
+    background-color: transparent;
+}
+
+.b3-button--text {
+    color: var(--b3-theme-primary);
+}
+
+.b3-button--cancel {
+    color: var(--b3-theme-on-surface);
+}
+
+/* F3（2026-10-28，R3-04 + R2-07 + R1-09）：主按钮悬停改成「变色 + 淡投影」双通道。
+   原先只加 --b3-button-shadow（深青 25% alpha、1px/2px 偏移），悬停底与静止底
+   完全同值，实测底色差 0、投影差 ≤9/255——四类悬停元素（列表 12 / 块标 18 /
+   菜单 12）里唯一「看不出被悬停」的一类，与 DESIGN 6.2「悬停=即时确认这个可点」
+   的意图相悖。深色侧本就走变色通道，两模式至此同构。
+
+   MAJ-03（2026-10-29）：hover/active 底色从字面量（#3B6B9C/#264E77）改为主色
+   **派生** color-mix——README「换一个主色，整套交互色随之推导」的承诺此前被
+   字面量击穿（覆写 --b3-theme-primary 后静止底跟随、hover/active 跳回蓝灰，
+   probe 实测）。改后 hover=主色 88% 混白 rgb(72,112,152)（白字 5.19:1，
+   静止 6.88:1）、active=主色 88% 混黑 rgb(41,82,121)（白字 8.15:1），均 ≥4.5；
+   覆写主色时两态自动跟随。投影保持原样。color-mix 需 Chromium ≥111，
+   `minAppVersion: 3.8.0` 闸内的客户端内核均满足（本文件「双链落点线」的
+   `--yj-ref-*` @supports 块里已有 color-mix 用法先例，按钮此处不加门控：
+   失效退化方向是「回落官方 hover 色」，不破版）。
+
+   权重刻意保持 (0,3,0)：深色副本用 `:root[data-theme-mode="dark"]` 前缀把同名
+   规则抬到 (0,5,0)，本文件的浅色规则必须在它之下，否则深色页会被这里改回
+   浅色靛。因此变体排除不写进同一条 :not() 链（那会把权重抬到 (0,7,0) 反压
+   深色），而是用同权重的后置透明声明复位。 */
+.b3-button:not(:disabled):hover {
+    background-color: color-mix(in srgb, var(--b3-theme-primary) 88%, #fff);
+    box-shadow: var(--b3-button-shadow);
+}
+
+/* 透明底变体（文字/取消/描边/移除）不接受变色：复位到 transparent，其余
+   （文字颜色、投影、按下态）沿用各自原有规则。同权重且后置，压过上一条。 */
+.b3-button--text:not(:disabled):hover,
+.b3-button--cancel:not(:disabled):hover,
+.b3-button--outline:not(:disabled):hover {
+    background-color: transparent;
+}
+
+.b3-button:not(:disabled):active {
+    transform: translateY(.5px);
+    box-shadow: var(--b3-button-active-shadow);
+    /* MAJ-03：主色 88% 混黑 = rgb(41,82,121)，白字 8.15:1（原字面量 #264E77 同向） */
+    background-color: color-mix(in srgb, var(--b3-theme-primary) 88%, #000);
+}
+
+.b3-button--text:not(:disabled):active,
+.b3-button--cancel:not(:disabled):active,
+.b3-button--outline:not(:disabled):active {
+    transform: translateY(.5px);
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+/* 禁用：枯墨字 + 纸面底，去阴影去悬停（DESIGN 7） */
+.b3-button:disabled {
+    opacity: 1;
+    background-color: var(--b3-theme-surface-lighter);
+    color: var(--b3-theme-on-surface-lighter);
+    box-shadow: none;
+    transform: none;
+    cursor: not-allowed;
+}
+
+.b3-button--text:disabled,
+.b3-button--cancel:disabled,
+.b3-button--outline:disabled {
+    background-color: transparent;
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+.b3-button--outline {
+    /* R3b-02：必须显式写 color。原来只清了 background，于是文字颜色继续从
+       `.b3-button` 继承 `--b3-theme-on-primary`（白）——透明底上白字，
+       对纸面 1.17:1，等于不可读。深色文件本来就有 color，
+       两边不一致正是这条漏写造成的。 */
+    color: var(--b3-theme-primary);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-primary);
+    background-color: transparent;
+}
+
+.b3-button--remove {
+    color: var(--b3-theme-error);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-error);
+    background-color: transparent;
+}
+
+/* C4：hover 不能把背景换成与失败横幅完全相同的 --b3-card-error-background
+   （浅色实测差值 0，按钮"溶解"进横幅、朱砂内框也丢了）。
+   改为按模式叠一层浅朱砂（浅 12% / 深 18%，见 theme-dark.css），
+   同时保留 inset 1px 朱砂描边——悬停只加深，不改材质。 */
+.b3-button--remove:not(:disabled):hover {
+    background-color: rgba(179, 54, 42, .12);
+    color: var(--b3-theme-error);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-error);
+}
+
+/* Z1-03：失败横幅内「重试」按钮的 hover 态文字。上一条把浅色 hover 文字
+   留在 --b3-theme-error(#B3362A)，对 12% 朱砂合成底 (238,206,200) 只有
+   4.11:1——悬停反而低于静态 4.88，且与深色（4.97，深色侧本就用
+   card-error-color，见 theme-dark.css 同名规则）不对称。改用
+   --b3-card-error-color(#9C2B20)：同一合成底 5.14:1；重试的"破坏性"
+   语义由朱砂描边与叠底承担，文字只加深不换语义。 */
+.b3-snackbar--error .b3-button--remove:not(:disabled):hover {
+    color: var(--b3-card-error-color);
+}
+
+/* 加载中：进度条用主色，文字不移动 */
+.b3-button--progress {
+    color: var(--b3-theme-primary);
+}
+
+.b3-button--progress > span {
+    background-color: var(--b3-theme-primary-lightest);
+    transition: width var(--yj-dur-base) var(--yj-ease-out);
+}
+
+.b3-button--progress-text::before {
+    background-color: var(--b3-theme-primary);
+    opacity: .16;
+}
+
+/* ==========================================================================
+   3. 输入控件
+   ========================================================================== */
+
+.b3-text-field {
+    border-radius: var(--b3-border-radius);
+    background-color: var(--b3-theme-background);
+    transition: box-shadow var(--yj-dur-micro) var(--yj-ease-out),
+                outline-color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.b3-text-field::placeholder {
+    color: var(--b3-empty-color);
+}
+
+.b3-text-field:disabled {
+    color: var(--b3-theme-on-surface-lighter);
+    background-color: var(--b3-theme-surface);
+    cursor: not-allowed;
+}
+
+/* R3-03：浅色补齐输入类控件的悬停反馈。
+   深色文件原本就有 :hover 规则，浅色缺失 → 同一控件在两种模式状态矩阵不对称，
+   违背 DESIGN §7「悬停：即时确认这个可点」。描边只加深一档，不做填充变化，
+   避免与 :focus 的 4px 主色晕抢注意力。
+   F3：hover 规则额外排除 :focus / :disabled。
+   原因：`.b3-text-field:not(.b3-text-field--text):hover`（0,3,0）比
+   `.b3-text-field:focus`（0,2,0）权重高，且 `.b3-select:hover` 在源码中位于
+   `.b3-select:focus` 之后——鼠标停在控件上聚焦时，focus 环会被 hover 描边整个替换。
+   排除后两条状态互不覆盖：悬停只对未聚焦控件生效，聚焦环始终可见。 */
+/* R2-08：hover 描边必须达 1.4.11 的 3:1（"悬停即时确认这个可点"）。
+   原先用 on-surface-lighter：对纸 1.64、对面板 1.45 —— 几乎看不见。
+   改用 on-surface-light(#8B8677)：对纸 3.40、对面板 3.11，过 3:1，
+   仍轻于 focus 的主色环（不抢焦点）。线宽统一 1px（深浅同）。 */
+.b3-text-field:not(.b3-text-field--text):not(:disabled):not(:focus):hover {
+    box-shadow: 0 0 0 1px var(--b3-theme-on-surface-light);
+}
+
+/* R2-08：`--text` 变体（搜索框/"无框"输入）官方与主题都排除了描边 hover，
+   于是它在悬停时毫无反馈。无框控件不该突然长出描边——改用极淡底纹表示可点，
+   不改变"无框"的形态语言。 */
+.b3-text-field--text:not(:disabled):not(:focus):hover {
+    background-color: var(--b3-list-hover);
+}
+
+.b3-select {
+    border-radius: var(--b3-border-radius);
+    transition: box-shadow var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.b3-select:not(:disabled):not(:focus):hover {
+    box-shadow: inset 0 0 0 1px var(--b3-border-color),
+                0 0 0 1px var(--b3-theme-on-surface-light);
+}
+
+/* R3-04：禁用态统一为「枯墨色 + not-allowed」，不用 opacity。
+   opacity 会让实际对比度随底色漂移，且与按钮/菜单项/工具栏/块标的
+   枯墨语言不一致（DESIGN §7 明确用 --b3-theme-on-surface-lighter）。
+   覆盖标记：`select.b3-select:disabled:disabled` 的权重（0,3,0）用于压过官方
+   `.body--windows .b3-select:disabled` / `.body--linux …`（0,3,0）——这是真实
+   特异性差距，与加载顺序无关：只写 `.b3-select:disabled`（0,2,0）在任何顺序下
+   都低一档，Windows/Linux 上实测仍为 opacity .68。
+   G09（2026-10-29 评审）：真实加载顺序是 **官方 base.css 先于主题**
+   （客户端模板 baseStyle → themeDefaultStyle → themeStyle），见 DESIGN §7。 */
+.b3-select:disabled,
+select.b3-select:disabled:disabled {
+    color: var(--b3-theme-on-surface-lighter);
+    background-color: var(--b3-theme-surface);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-surface-lighter);
+    cursor: not-allowed;
+    /* 官方在 @supports (appearance: base-select) 内给 :disabled 加了 opacity:.68
+       （component/_select.scss:43-45）；显式归 1，保持"枯墨色"而非"半透明" */
+    opacity: 1;
+}
+
+.b3-switch {
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                border-color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+/* MAJ-08（2026-10-29）：未激活旋钮底色原先继承官方 = --b3-switch-border
+   （#8B8677，与 on-surface-light 同值），对轨道 #E4DFD2 仅 2.734，
+   状态指示（WCAG 1.4.11 非文本 ≥3）不达。改用 on-surface（#6E6A5E，
+   对轨道 4.062）。深色副本已在 theme-dark.css 覆写为 on-surface-light
+   （#B3AD9F 对深轨道 5.231）——两模式各取自己的达标档；`:checked::after`
+   官方特异性更高（(0,2,0)），白色选中旋钮不受本条影响。 */
+.b3-switch::after {
+    background-color: var(--b3-theme-on-surface);
+}
+
+/* F4 + G09：官方 `.b3-switch:disabled{opacity:.38}`（0,2,0）与本节同权重。
+   不显式归 1 时开关仍是"半透明控件"，与按钮/下拉的枯墨方案不一致。
+   真实加载顺序是官方 base.css 先、主题后（模板 baseStyle → themeDefaultStyle
+   → themeStyle），同权重本已由后置的主题胜出；重复写 `:disabled`（(0,3,0)）
+   只是防御性兜底，不构成"官方后加载"的依据。 */
+.b3-switch:disabled,
+.b3-switch:disabled:disabled {
+    background-color: var(--b3-theme-surface-lighter);
+    border-color: var(--b3-theme-on-surface-lighter);
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+/* 禁用开关的滑块也走枯墨，避免 opacity 造成"半透明控件"观感 */
+.b3-switch:disabled::after {
+    background-color: var(--b3-theme-on-surface-lighter);
+}
+
+.b3-slider::-webkit-slider-thumb {
+    transition: transform var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.b3-slider:hover::-webkit-slider-thumb {
+    transform: scale(1.15);
+}
+
+.b3-label__text {
+    color: var(--b3-theme-on-surface);
+}
+
+/* ==========================================================================
+   4. 菜单：悬停 / 当前项 / 禁用 / 分隔线
+   ========================================================================== */
+
+.b3-menu {
+    border-radius: var(--b3-border-radius-b);
+    /* F10 / D1-02（2026-10-29）：父菜单描边。
+       两段账：声明值 → 渲染值。1px 边框在 1.5x 屏幕缩放（Windows 150%）下每边
+       只覆盖 0.667 设备像素，Chromium 抗锯齿按子像素相位稀释到 1/3–2/3。父菜单
+       恰好落在 2/3 相位，声明 #494640 渲染成 rgb(130,127,120)：对纸面 3.63、
+       对画布 3.32、对案几 3.20，三处 ≥3:1（实测左/上/下 3.42/3.38/3.65）。
+       父菜单四边已达标，保持 1px 不透明深线。
+       D9（2026-10-29 用户指令）：子菜单已回归官方基线（1px surface-lighter 边 +
+       dialog-shadow 分层）——「父子贴合 ≤1px」契约废止，不再约束本条边框选择。 */
+    border: 1px solid #494640;
+    box-shadow: var(--b3-dialog-shadow);
+    animation: yj-menu-in var(--yj-dur-base) var(--yj-ease-out) both;
+    /* R1-22：菜单内距走 token（DESIGN 5.1「菜单项内距 12px」的纵向节奏） */
+    padding-block: var(--yj-space-2);
+    /* R1-02（2026-10-28）：菜单面板本体不透明（官方 .b3-menu 同）。原先面色
+       全靠每个 __item 自带底色撑起，padding 条透出画布，接缝处渲染出第三色带
+       （与深色副本 theme-dark.css:737 的做法对齐）。 */
+    background-color: var(--b3-menu-background);
+}
+
+.b3-menu__items {
+    padding-inline: var(--yj-space-2);
+}
+
+/* R1-22：文档树/反链面板的内距与项间距也由 token 派生，
+   覆写 --yj-space-* 时面板会同步呼吸。 */
+.sy__file .b3-list,
+.sy__backlink .b3-list {
+    padding: var(--yj-space-1) var(--yj-space-2);
+}
+
+.b3-menu--fullscreen {
+    animation: none;
+}
+
+.b3-menu__item {
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.b3-menu__item:hover:not(.b3-menu__item--readonly):not([disabled="disabled"]),
+.b3-menu__item--current.b3-menu__item:not(.b3-menu__item--readonly) {
+    background-color: var(--b3-list-hover);
+    color: var(--b3-theme-on-background);
+}
+
+/* D9（2026-10-29 用户指令，menu:focus-ring-expanded）：菜单项拿到 DOM focus
+   （思源在打开子菜单、恢复菜单等流程调 .focus()）时的焦点指示——改走与悬停
+   一致的底色通道（背景变化即指示），不出外扩环。排除 --readonly 非交互行。
+   两个前提如实注明（D8 真机实测）：① 浏览器对 :focus-visible 的启发式（鼠标
+   交互后的脚本 focus 不匹配、键盘预热后匹配）CSS 不可控，本条只覆盖匹配路径；
+   ② 菜单键盘主路径（ArrowUp/Down 导航）只搬 --current 类、不搬 DOM focus，
+   指示由上一条 --current 底色承担——本条是「--current 以外的项拿到 DOM focus」
+   与真机 focus 流程的兜底通道。 */
+.b3-menu__item:focus-visible:not(.b3-menu__item--readonly) {
+    background-color: var(--b3-list-hover);
+    color: var(--b3-theme-on-background);
+}
+
+/* R2-03（2026-10-28）→ D9 修订（2026-10-29 用户指令）：当前菜单项的第二通道
+   从「左缘 2px 主色墨条 + 700 字重」收为**仅 700 字重**。
+   原因（真机实测）：思源在 mouseover 上就把 --current 类搬到悬停项，于是那条
+   左墨条在真机上等价于「悬停就出现一根蓝条」，官方主题没有该装饰，用户直接
+   指为「蓝环/有的有有的没有」；字重 700 仍是颜色以外的通道（WCAG 1.4.1）。 */
+.b3-menu__item--current.b3-menu__item:not(.b3-menu__item--readonly) {
+    font-weight: 700;
+}
+
+/* D1-04（2026-10-29）→ D9 重做（2026-10-29 用户指令，menu:current-item-ring）：
+   当前菜单项拿到 DOM focus 时的指示。真机前提（D8 实测，root:menu-arrow-nav-no-focus）：
+   思源菜单键盘导航（ArrowUp/Down）只搬 --current 类、不搬 DOM focus，方向键平移时
+   任何 :focus-visible 环都不会出现——指示由 --current 底色（上一条声明块）承担；
+   DOM focus 只出现在打开子菜单、恢复菜单等少数流程，且 :focus-visible 是否匹配
+   还取决于焦点到达路径（浏览器启发式，CSS 不可控）。因此本规则是防御通道，不再
+   叠外扩环（原先 var(--yj-focus-ring) + 墨条三段 box-shadow 是菜单里最重口的
+   蓝环），改与悬停同底色 + 保留当前态墨条。 */
+.b3-menu__item--current.b3-menu__item:focus-visible {
+    background-color: var(--b3-list-hover);
+}
+
+.b3-menu__item--show {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+.b3-menu__item[disabled="disabled"],
+.b3-menu__item--disabled {
+    cursor: not-allowed;
+}
+
+/* C18：原规则把子元素 opacity 设 .38（与官方同值），与按钮/开关/下拉的
+   「枯墨色 + not-allowed」不是一套语言。改为 opacity:1 + 枯墨色，
+   图标由 currentColor 继承同一色，文字与图标一起变枯，不再半透明。
+   官方的同名规则是 `.b3-menu__item[disabled=disabled]>*:not(.b3-menu__submenu)`
+   （0,3,0）；这里再叠一个 `:not(.b3-menu__submenu)` 把权重抬到 (0,4,0)，
+   使主题无论加载在官方之前还是之后都压得住它的 .38。 */
+.b3-menu__item[disabled="disabled"] > *:not(.b3-menu__submenu):not(.b3-menu__submenu),
+.b3-menu__item[disabled="disabled"].b3-menu__item--disabled > *:not(.b3-menu__submenu),
+.b3-menu__item--disabled,
+.b3-menu__item--disabled.b3-menu__item--disabled {
+    opacity: 1;
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+.b3-menu__item[disabled="disabled"] > .b3-menu__icon,
+.b3-menu__item--disabled > .b3-menu__icon,
+.b3-menu__item--disabled.b3-menu__item--disabled > .b3-menu__icon {
+    color: var(--b3-theme-on-surface-lighter);
+    opacity: 1;
+}
+
+.b3-menu__item--warning:hover,
+.b3-menu__item--warning.b3-menu__item--current {
+    color: var(--b3-theme-error);
+}
+
+.b3-menu__item--warning:hover > .b3-menu__icon {
+    color: var(--b3-theme-error);
+}
+
+.b3-menu__separator {
+    background-color: var(--b3-theme-surface-lighter);
+}
+
+.b3-menu__accelerator {
+    /* R2-02：快捷键是真实信息文本（.75rem≈10-12px），on-surface-light 在纸上
+       仅 3.40:1 → 改 on-surface（5.05 / 深色 5.67）。 */
+    color: var(--b3-theme-on-surface);
+}
+
+.b3-menu__group-title {
+    /* R2-02：分组标题是文本，同上改用 on-surface */
+    color: var(--b3-theme-on-surface);
+}
+
+/* D9（2026-10-29 用户指令）：子菜单回归官方基线。
+   本文件对 .b3-menu__submenu 的全部自定义（F2/R1-02/D1-01/D1-02 层层叠加的
+   margin-left:0、左边框覆写、圆角覆写、-2px 盖带、2px 载体边框）已整体移除，
+   官方 base.css 的规则自然生效：1px `--b3-theme-surface-lighter` 边框（四边）、
+   `var(--b3-border-radius-b)` 圆角（四角）、自带 `var(--b3-dialog-shadow)`、
+   `padding:8px 0`、`position:fixed`，摆位由官方 showSubMenu 公式决定
+   （left = 父项 right + 8）。用户明确接受官方间距与 1px 边框观感，不再追求
+   「父子贴合无缝」设计；浮层分层职责移交 dialog-shadow。
+   注意：.b3-menu 自身的 1px 边框 / 不透明底 / yj-menu-in 纯 opacity 入场动画
+   （D7：修复 containing-block 定位劫持，与外观无关）全部保留。 */
+
+/* ==========================================================================
+   5. 列表 / 文档树 / 反链
+   ========================================================================== */
+
+.b3-list-item {
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.b3-list-item:hover {
+    background-color: var(--b3-list-hover);
+}
+
+/* 列表悬停用 --b3-list-hover（DESIGN 7「悬停」行）；仅"当前项/选中项"用靛青淡底。
+   同时覆盖官方把 hover 与 --focus 合并成同一色的默认写法。 */
+.b3-list--background .b3-list-item:hover:not(.b3-list-item--focus):not(.dragover):not(.dragover__current):not(.dragover__top):not(.dragover__bottom) {
+    background-color: var(--b3-list-hover);
+}
+
+/* Z2-03：选中行的「第二通道」必须真的看得见。
+   原方案是 1px 内框 primary-lighter(.38)：合成后对选中底仅 1.70（浅）/
+   2.11（深）——因为框线本身是半透明的，又叠在同色相的选中底上。
+   第三通道 font-weight:500 在 Windows 上等于不存在（Microsoft YaHei
+   只有 400/700 两个真字面，500 会被合成到 Regular，与普通行完全同形；
+   CDP getPlatformFontsForNode 实测焦点行与普通行都落 MicrosoftYaHei）。
+   于是「当前在哪一行」实际只剩 1.18 的淡底。
+   改两处硬信号：
+   - 形态：左侧 2px 主色墨条（inset 2px 0 0），与「编辑中」研墨条同一语言；
+     对选中底 4.98（浅）/ 4.24（深），独立过 1.4.11 的 3:1；
+   - 字重：500 → 700（Windows 唯一可见的加重档，macOS/Linux 同样成立）。
+   内框保留（它是"纸边"质感的第三层，不再承担对比职责）。
+   作用域是 `.b3-list--background`，文档树 / 大纲 / 标签面板 / 搜索结果共用。 */
+.b3-list--background .b3-list-item--focus {
+    background-color: var(--b3-theme-primary-lightest);
+    box-shadow: inset 2px 0 0 var(--b3-theme-primary),
+                inset 0 0 0 1px var(--b3-theme-primary-lighter);
+}
+
+.b3-list-item--focus > .b3-list-item__text {
+    color: var(--b3-theme-on-background);
+    font-weight: 700;
+}
+
+.b3-list-item__icon:hover,
+.b3-list-item__action:hover,
+.b3-list-item__toggle--hl:hover {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-icon-hover);
+}
+
+.b3-list-item__action {
+    border-radius: var(--b3-border-radius-s);
+    color: var(--b3-theme-on-surface-light);
+    transition: color var(--yj-dur-micro) var(--yj-ease-out),
+                background-color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.b3-list-item__action--warning:hover {
+    color: var(--b3-theme-error);
+}
+
+.b3-list-item__meta {
+    color: var(--b3-theme-on-surface);
+}
+
+/* R1-05：计数是文本（12px），不是图标层，必须达 4.5:1。
+   on-surface-light 在纸上仅 3.40 → 改用 on-surface（5.05 / 面板上 4.62）。 */
+.b3-list-item__number {
+    color: var(--b3-theme-on-surface);
+    font-variant-numeric: tabular-nums;
+}
+
+/* C5：官方 `.counter`（树/反链右端的引用计数）用 on-surface-light，
+   面板上只有 3.11:1（12px 文本）。它与 .b3-list-item__number 同性质，
+   本应同色——上一轮只修了后者，漏了 .counter。 */
+.counter {
+    color: var(--b3-theme-on-surface);
+}
+
+/* C5/C10：选中行是 12% 靛青活动底，上面 on-surface 会降到 ~3.9:1。
+   选中行内的计数/数字/折叠箭头一律改 on-background（合成底上 7.5+）；
+   箭头同时满足 WCAG 1.4.11 的 3:1（浅色原 2.63 不达标）。 */
+.b3-list-item--focus .b3-list-item__number,
+.b3-list-item--focus .counter,
+.b3-list-item--focus .b3-list-item__meta {
+    color: var(--b3-theme-on-background);
+}
+
+/* F3（2026-10-28，上一轮必修 Z6-01）：同一枚 12px 计数在**悬停态**跌破 4.5。
+   悬停底 var(--b3-list-hover)=rgba(51,49,44,.06) 叠在面板上合成
+   rgb(230,226,216)，on-surface(#6E6A5E) 对它只有 4.18（实测，states 06 卡
+   「#主题设计」行）；同色的 .b3-list-item__number / .counter 同病。
+   选中行既有先例（上方规则），悬停行同法提为 on-background：
+   对悬停合成底 10.04（浅，注入实测）。与选中态不同处在于选中行有靛青淡底、
+   悬停行只有 6% 墨底，视觉层级仍正确。 */
+.b3-list-item:hover .b3-list-item__meta,
+.b3-list-item:hover .b3-list-item__number,
+.b3-list-item:hover .counter {
+    color: var(--b3-theme-on-background);
+}
+
+/* C10：折叠箭头是展开/折叠的唯一入口（图标类信息），
+   on-surface-light 在选中底上仅 2.63（浅）→ 统一到 on-surface。 */
+.b3-list-item__toggle {
+    color: var(--b3-theme-on-surface);
+}
+
+/* C7：状态卡右上角英文标签（预览脚手架类 .yj-state-card__en）是 12px 文本，
+   须 ≥4.5。浅色 on-surface-light(#8B8677) 落在卡头带 #E4DFD2 上只有 2.73，
+   深色 #B3AD9F 已 5.23。抽 --yj-meta-label 让两模式共用同一语义档位
+   （浅 #666254 → 4.59，深 #B3AD9F → 5.23），不再各取一档。
+   真实应用里没有这个类，但同性质的辅助标签统一消费该 token。 */
+.yj-state-card__en {
+    color: var(--yj-meta-label);
+}
+
+/* 拖拽落点：靛青指示线 */
+.b3-list--background .b3-list-item.dragover::after {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+.b3-list--background .b3-list-item.dragover__top::after,
+.b3-list--background .b3-list-item.dragover__bottom::after {
+    background-color: var(--b3-theme-primary);
+}
+
+/* R1-22：空状态上下留白走 token，让空态在长面板里居中呼吸而非贴顶 */
+.b3-list--empty {
+    /* G08：color 由下方「空状态」段统一声明（同权重后置），此处不再重复 */
+    line-height: 1.75;
+    padding-block: var(--yj-space-8);
+    /* R2-01（2026-10-28）：文案与「砚池」墨点同轴居中。官方轴就是居中
+       （preview-base.css:1482 justify-content:center；搜索空态 :2062
+       text-align:center），墨点 margin:0 auto 回归居中后文案若仍 start
+       就是双轴错位（Z6-N4 的教训：两处必须同轴同侧）。 */
+    text-align: center;
+}
+
+/* 反链列表 · 引文笺底色 */
+/* R1-02：反链来源是 <button>，官方基线自带完整基础态（appearance:none 等）。
+   主题原先只写了 :hover / :focus-visible，脱离官方 CSS 加载时就会露出
+   浏览器原生的灰色凸边按钮（实测 rgb(240,240,240) + 2px outset + 0 圆角），
+   成为整页唯一的"非纸"色块。这里补齐基础态，使主题自带兜底。 */
+.sy__backlink .backlinkList__source {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 4px 28px;
+    border: 0;
+    border-radius: var(--b3-border-radius);
+    background-color: transparent;
+    color: var(--b3-theme-on-surface);
+    font: inherit;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.sy__backlink .backlinkList__source:hover {
+    background-color: var(--b3-theme-primary-lightest);
+    color: var(--b3-theme-on-background);
+}
+
+.sy__backlink .backlinkList__source:focus-visible {
+    outline: 2px solid var(--b3-theme-primary);
+    outline-offset: -2px;
+}
+
+/* ==========================================================================
+   6. 布局：页签 / dock / 顶栏 / 状态栏
+   ========================================================================== */
+
+.layout-tab-bar {
+    background-color: var(--b3-theme-background);
+    border-bottom: 1px solid var(--b3-border-color);
+}
+
+/* F5（2026-10-28，Z6-N13）：页签条底色策略浅深统一——四栏页签条一律纸面 + 1px 分隔线。
+   脚手架 preview-base.css:450 用 `.layout__wnd--left/center/right > .fn__flex >
+   .layout-tab-bar`（(0,3,0)）把中栏页签条设为透明（官方"页签条融进面板"的默认），
+   露出案几底；深色副本靠 `:root[data-theme-mode="dark"] .layout-tab-bar`
+   （(0,3,0) 且后加载）翻回纸面，浅色这条 (0,1,0) 压不过 → 深浅两模式策略相反。
+   这里用同权重选择器在后加载的 theme.css 里翻回纸面，与深色同策略；
+   实测 1440 浅色六条页签条 bg 全部回到 rgb(250,247,241)。 */
+.layout__wnd--left > .fn__flex > .layout-tab-bar,
+.layout__wnd--center > .fn__flex > .layout-tab-bar,
+.layout__wnd--right > .fn__flex > .layout-tab-bar {
+    background-color: var(--b3-theme-background);
+    border-bottom-color: var(--b3-border-color);
+}
+
+.layout-tab-bar .item {
+    border-radius: var(--b3-border-radius);
+    /* R2-06：页签条底色是纸色，但官方页签条在部分窗口态会透出案几底
+       (#EDE9DF)——on-surface #6E6A5E 在那上面只有 4.46（差 0.04 未达 AA）。
+       改用与状态栏同一档 --yj-status-color(#666254)：案几底 5.04、纸底 5.71，
+       两种底都安全，不依赖页签条是否铺满。 */
+    color: var(--yj-status-color);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+/* R1-17：页签标题必须给"省略号"而不是硬裁切。
+   官方/脚手架用 overflow:hidden + 右侧 mask 渐变，字符会被切掉半个笔画，
+   看起来像渲染错误；这里补 text-overflow:ellipsis 并停用 mask，
+   让截断有明确的"还有更多"语义。 */
+.layout-tab-bar .item__text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    min-width: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+.layout-tab-bar .item:hover:not(.item--focus):not(.item--readonly) {
+    background-color: var(--b3-theme-surface);
+    color: var(--b3-theme-on-background);
+}
+
+/* R2-07：页签"当前态"必须达 1.4.11 的 3:1。
+   官方（与脚手架）只给 `item--focus` 一层 8–12% 浅底 + 1px 淡描边，
+   实测填充 1.08:1、描边 1.28:1，与大纲当前行的三通道语言不一致。
+   这里对齐大纲：primary-lightest 底 + primary-lighter 内框 + on-background 文字
+   + 字重 500，并补一条 2px 主色底部墨条作为**形状**第二通道
+   （对纸面 6.43:1，缩略图下也能分辨）。
+   同时覆盖面板页签（左右栏）——官方面板页签只有 .item--focus，没有
+   .layout__wnd--active 前缀，所以这里不再要求祖先。 */
+.layout-tab-bar .item--focus {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-theme-primary-lightest);
+    /* D7 + D9（2026-10-29）：当前页签只剩靛青底 + 字重。
+       box-shadow:none 压掉官方 base.css 的 1px primary-lighter 内框（那圈在
+       本主题的饱和靛青定义下就是「蓝环」）；底部 2px 墨条亦已移除。 */
+    box-shadow: none;
+    font-weight: 500;
+}
+
+.layout__wnd--active .layout-tab-bar .item--focus {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-theme-primary-lightest);
+    /* D7 + D9（2026-10-29）：当前页签只剩靛青底 + 字重。
+       box-shadow:none 覆盖的是**官方 base.css 自带**的
+       `.layout__wnd--active … .item--focus{inset 0 0 0 1px primary-lighter}`
+       ——主题把 primary-lighter 定义为饱和靛青，这圈 1px 在真机上就是用户
+       反复报的「蓝环套住页签」的最后一层。 */
+    box-shadow: none;
+}
+
+/* F1（2026-10-28）+ THEME-CSS-06（2026-10-29 评审）：页签的键盘焦点态。
+   全局焦点环（2px 纸色间隙 + 4px 靛青外扩）会给当前页签套上外扩环，成为
+   页签条上最抢眼的元素，故页签一律改走 inset 2px 主色环（无外部几何）。
+   两条选择器合成一条规则：`.item:focus-visible` 覆盖普通页签与从文档树
+   打开的裸 `.item`；`.layout__wnd--active …` 分支 (0,4,0) 只为压过上文
+   `.layout__wnd--active … .item--focus{box-shadow:none}` (0,3,0)——否则活动
+   面板的当前页签聚焦时无任何指示。此处原先还有一条与 `.item.item--focus:
+   focus-visible` 字面完全相同的 (0,4,0) 规则，属同值重复，已合并。
+   D9 补注：3.8.8 桌面端页签是 <li> 且 tabIndex=-1，Tab 不落在页签上，本组
+   为防御性规则（仅脚本合成 focus 可达）；可达性由应用层决定，主题无法补救。 */
+.layout-tab-bar .item:focus-visible,
+.layout__wnd--active .layout-tab-bar .item:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--b3-theme-primary);
+}
+
+.layout-tab-bar .item__close:hover {
+    color: var(--b3-theme-error);
+}
+
+/* Z2-02：当前页签的关闭钮「✕」必须可见且达 1.4.11 的 3:1。
+   根因：脚手架与官方都把 `.item--focus .item__close svg` 设成 opacity:.68
+   （preview-base.css:378-381 / desktop base.css 同名），主题原先只覆盖了
+   :hover 的颜色。合成后实测：浅 0.68×(on-surface #6E6A5E) 落在选中页签底
+   12% 靛青上 → 2.37:1；深 → 2.62:1。关闭是页签上唯一的破坏性操作，
+   且它不是禁用态，不适用禁用豁免。
+   这里归 1 并把颜色提到 on-surface（浅 4.27 / 深 4.27；选中底上是 12%/16%
+   靛青），hover 仍转朱砂。非当前页签维持「悬停才显形」的官方行为，
+   避免每页签都挂一个常显的破坏性按钮。 */
+.layout-tab-bar .item--focus .item__close svg {
+    opacity: 1;
+    color: var(--b3-theme-on-surface);
+}
+
+/* R3-03：**当前页签**单独放宽（全局规则，不只在 1024 媒体查询里）。
+   176px 是给"一排并列页签"的公平配额；但当前页是用户唯一在看的文档，
+   右侧 readonly 条又常年闲置 250–320px。1440 实测标题可视 137/254px、
+   1024 只剩 127/254px —— 有空位却截断。
+   特异性说明：脚手架 `.layout-tab-bar .item{max-width:186px}`（0,2,0）在
+   主题之前加载，本规则的 `.layout-tab-bar:not(...) .item.item--focus`
+   是 (0,4,0)，两种加载顺序下都压得住。42vw 保证窄屏时给其它页签留位。 */
+.layout-tab-bar:not(.layout-tab-bar--readonly) .item.item--focus {
+    max-width: min(420px, 42vw);
+}
+
+.layout__center {
+    border-radius: var(--b3-border-radius-b);
+}
+
+/* F5（2026-10-28，Z6-N11）：栏间分隔线须达 1.4.11 非文本 3:1。0.5px 发丝线
+   宽度保留（脚手架 :287 的弱信号定位不变），只提颜色通道：脚手架用的
+   --b3-border-color(rgb(226,220,203)) 对纸仅 1.28:1，改 rgba(51,49,44,.62)
+   合成后对纸 3.91:1；深色副本同步提亮（theme-dark.css 同名规则）。 */
+.layout__resize::after {
+    /* D4（2026-10-29）：0.5px 发丝线在 1x 下只有约 56% 像素覆盖，rgba(.62) 声明
+       渲染后只剩 1.935:1（对面板面），够不着 1.4.11 的 3:1。宽度升到 1px、
+       声明即渲染（不再被混合稀释）：rgb(136,133,126) 对面板面 3.150、对纸 3.444。
+       深色副本 theme-dark.css 同名规则 rgb(124,122,116)（3.298/3.612）。 */
+    width: 1px;
+    background-color: rgb(136, 133, 126);
+}
+
+/* R1-23：三栏必须有"面差"。
+   原先侧栏与编辑区同为 --b3-theme-background，整页采样三栏都是 #FAF7F1，
+   导航区与正文区在扫视时连成一张纸，--b3-theme-surface 这个 token 从未落地。
+   现在：侧栏（dockl/dockr/dockb）用 surface（纸的正面），
+   编辑区保持 background（更亮的纸面），栏间由 body-background 的案几缝分隔，
+   形成"纸叠纸"的层级而非纯色平铺。 */
+.layout__dockl,
+.layout__dockr,
+.layout__dockb {
+    border-radius: var(--b3-border-radius-b);
+    background-color: var(--b3-theme-surface);
+}
+
+.layout__dockl {
+    /* MAJ-05：简写会把前面 C2 注入的 background-color 过渡抹掉，
+       故此处必须显式带上 background-color（DESIGN 动效契约 180ms）。 */
+    transition: width var(--yj-dur-base) var(--yj-ease-out), margin-right var(--yj-dur-base) var(--yj-ease-out),
+                background-color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+.layout__dockr {
+    transition: width var(--yj-dur-base) var(--yj-ease-out), margin-left var(--yj-dur-base) var(--yj-ease-out),
+                background-color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+.layout__dockb {
+    transition: width var(--yj-dur-base) var(--yj-ease-out),
+                height var(--yj-dur-base) var(--yj-ease-out),
+                margin-top var(--yj-dur-base) var(--yj-ease-out),
+                background-color var(--yj-dur-base) var(--yj-ease-out);
+}
+
+.layout__empty {
+    color: var(--b3-empty-color);
+}
+
+.dock__item {
+    border-radius: var(--b3-border-radius);
+    color: var(--b3-theme-on-surface-light);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.dock__item:hover:not(.dock__item--activefocus),
+.dock__item--active {
+    background-color: var(--b3-toolbar-hover);
+    color: var(--b3-theme-on-background);
+}
+
+.dock__item--activefocus {
+    color: var(--b3-theme-on-primary);
+    background-color: var(--b3-theme-primary);
+}
+
+.dock__split::after {
+    background-color: var(--b3-border-color);
+}
+
+.toolbar__item {
+    border-radius: var(--b3-border-radius);
+    color: var(--b3-toolbar-color);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.toolbar__item:not(.toolbar__item--disabled):not(.toolbar__item--close):hover,
+.toolbar__item--active {
+    background-color: var(--b3-toolbar-hover);
+    color: var(--b3-theme-on-background);
+}
+
+.toolbar__item--disabled,
+.toolbar__item--disabled.toolbar__item--disabled {
+    /* C18 + G09：官方 `.toolbar__item--disabled{opacity:.54}`（0,1,0）与本节
+       同权重；真实加载顺序是官方 base.css 先、主题后（模板 baseStyle →
+       themeDefaultStyle → themeStyle），同权重本已由后置的主题胜出。
+       重复类名把权重抬到 (0,2,0) 只是**防御性**兜底（防加载序被改/用户再引入
+       官方样式），不是"官方后加载"的证据。显式归 1 与 DESIGN §7「不使用 opacity」
+       的枯墨语言一致。 */
+    opacity: 1;
+    color: var(--b3-theme-on-surface-lighter);
+    cursor: not-allowed;
+}
+
+.toolbar__item--close:hover {
+    color: var(--b3-theme-on-error);
+    background-color: var(--b3-theme-error);
+}
+
+.toolbar__text {
+    /* R3-10：`--b3-toolbar-color` = on-surface-light，那是**图标层**（12px 时间戳）
+       的档位；但工具栏文字在移动端是菜单标题（「页签」「文档树」，17px/400）。
+       17px 标题用图标层颜色，浅色纸面只有 3.40:1（深色 6.94，纯属 token 更亮）。
+       改 on-surface：纸 5.05 / 案几 5.04，两底都过 AA，深浅语义一致。 */
+    color: var(--b3-theme-on-surface);
+}
+
+/* C13：窗口标题 #drag 是可读文本（12px），不是图标层。
+   on-surface-light 在案几底上只有 3.00:1，低于 AA 4.5；
+   与同一条 chrome 里的状态栏（5.04）形成两档可读性。
+   改用 --yj-status-color（同底色 5.04:1），同一 chrome 内统一。 */
+.toolbar #drag {
+    color: var(--yj-status-color);
+}
+
+/* R1-05：状态栏落在更深的"案几"底 --b3-body-background(#EDE9DF) 上，
+   on-surface #6E6A5E 在此只有 4.46:1（差 0.04）。用专用 token 提到 5.04:1，
+   而不是把次级文字整体压深（那会破坏正文/面板的既有层级）。 */
+.status {
+    color: var(--yj-status-color);
+}
+
+.status__msg {
+    color: var(--yj-status-color);
+}
+
+.status__counter,
+.status__backgroundtask {
+    color: var(--yj-status-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.status__format-painter {
+    color: var(--b3-theme-primary);
+}
+
+/* ==========================================================================
+   6b. 移动外壳（官方 app/src/mobile/ 结构）
+   --------------------------------------------------------------------------
+   思源移动端不是缩小版桌面，而是独立外壳：mobile-safe-area / mobile-topbar /
+   #editor / mobile-bottom-bar / .side-panel 抽屉 / .side-mask 遮罩
+   （app/src/assets/template/mobile/index.tpl；样式见 main/_mobile.scss）。
+   官方这些部件只有几何，没有主题级状态色；此处补齐颜色、按下反馈与触控下限，
+   让移动端与桌面端保持同一套三色秩序。
+   ========================================================================== */
+
+/* 顶部安全区与顶部工具栏：纸色通栏，与编辑区同一张纸 */
+.mobile-safe-area,
+.mobile-topbar {
+    background-color: var(--b3-theme-background);
+}
+
+.mobile-topbar {
+    border-bottom: 1px solid var(--b3-border-color);
+}
+
+/* 顶栏文字按钮：48px 见方，按下即反馈（官方 toolbar__button 已定尺寸） */
+.toolbar__button {
+    color: var(--b3-theme-on-surface);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.toolbar__button:not([disabled]):active {
+    background-color: var(--b3-theme-primary-lightest);
+    color: var(--b3-theme-on-background);
+}
+
+.toolbar__button[disabled] {
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+/* 侧栏工具条图标（.toolbar__icon，官方 mobile 用 svg 直接充当标签按钮） */
+.side-panel .toolbar__icon {
+    color: var(--b3-theme-on-surface);
+    border-radius: var(--b3-border-radius);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+/* C20：当前 tab 必须有靛青。原来这条只在浅色文件里、且没有深色副本，
+   dark-only 加载时深色侧栏当前 tab 仍是灰白 → 看不出"我在哪一页"。 */
+.side-panel .toolbar__icon:hover,
+.side-panel .toolbar__icon--active {
+    background-color: var(--b3-theme-primary-lightest);
+    color: var(--b3-theme-primary);
+}
+
+/* 抽屉面板：面纸比底纸亮一档，靠 1px 砚沿与遮罩分层。
+   Z1-01：这条 border 才是用户实际看到的「抽屉边界」，原先用 --b3-border-color
+   对抽屉面只有 1.19（渲染后 1.12），深色触屏用户关闭抽屉时纯背景区几乎
+   分不清抽屉与遮罩热区。改 --b3-theme-on-background：交付 PNG 逐列扫描实测
+   浅色 3.55、深色 4.04，两模式相差 1.14 倍，独立过 WCAG 1.4.11 的 3:1。
+   （名义值：浅 11.11 / 深 9.66；1px 线经亚像素抗锯齿后实际覆盖率约六成，
+   所以以像素实测为准，断言见 verify-r3 的 R3-08 与 R3-08/png。） */
+.side-panel {
+    background-color: var(--b3-theme-surface);
+    border-right: 1px solid var(--b3-theme-on-background);
+    box-shadow: 8px 0 24px var(--b3-dock-shadow-color);
+}
+
+.side-panel--right {
+    border-right: 0;
+    border-left: 1px solid var(--b3-theme-on-background);
+    box-shadow: -8px 0 24px var(--b3-dock-shadow-color);
+}
+
+/* 遮罩：蒙纸，点击关闭（官方 JS 只切 opacity，动画时长由本主题统一） */
+.side-mask {
+    background-color: var(--b3-mask-background);
+    transition: opacity var(--yj-dur-base) var(--yj-ease-out);
+}
+
+/* C11：抽屉外那条 56px 遮罩带是"点这里关闭"的唯一热区，
+   浅色 --b3-mask-background(rgba(219,213,198,.45)) 叠在纸面上与页面
+   只有 1.14:1、与抽屉面 1.05 —— 热区视觉上不可发现。
+   浅色单独加深到 26% 墨色（对纸面 1.63），让"这里有一条可点的遮罩"成立。
+   Z1-01：这条遮罩**不需要** border-left。实测（浏览器探针）遮罩铺满整个手机框
+   （left:0），它的 border-left 落在 x≈0.7 处、且 z-index 6 低于抽屉的 7，
+   被抽屉整块盖住，一个像素都渲染不出来；用户看到的抽屉边界是
+   `.side-panel` 自己的 border-right（已在上方改为 on-background）。
+   留着这条假边线只会让"边线已达标"的断言指着一条看不见的线，故删除。
+   作用域用结构选择器 `.side-panel ~ .side-mask`（移动外壳的真实结构）而不是
+   媒体查询：预览页把手机框放在 1440 视口里（真实设备宽度由框决定），
+   只写 @media 会让同一条规则在预览与真机上表现不同。 */
+.side-panel ~ .side-mask {
+    /* F5（2026-10-28，Z3-N5）：遮罩带对页面的可见性从 1.63 提到 3:1
+       （1.4.11 对「点这里关闭」唯一热区的要求）。26% 墨不够，实测 53% 墨
+       合成 (145,142,137) 对纸 3.06:1；顺带把遮罩带下的半截正文残字压到
+       3:1 以下（Z5-N8 的「残字 7.46」随之消解）。状态栏同步抬到遮罩之上
+       （见下一条），遮罩加深的代价不再由「字数」小字承担。
+       D4（2026-10-29）：53% 对抽屉面只有 2.972，差 3:1 一口气；提到 57% →
+       带合成 (133,133,133)：对抽屉面 3.156、对纸 3.451（1.4.11 两侧同达标），
+       残字进一步压暗。深色不改：带再亮需降遮罩（会重新暴露残字），深色
+       边界由 1px 描边承担（对抽屉面 4.22，verify-r3 R3-08 每轮机测）。 */
+    background-color: rgba(51, 49, 44, .57);
+}
+
+/* F5（2026-10-28，Z1-N6）：状态栏是常驻应用条，不随抽屉遮罩压暗。
+   官方 .status 无 z-index（静态流内），被 z=6 的遮罩盖住，「字数」
+   合成对比只剩 3.50。抬到 6：与遮罩同层但 DOM 靠后 → 遮罩之上、
+   抽屉（z=7）之下。 */
+.status {
+    z-index: 6;
+}
+
+/* C1：移动端正文滚到底时，最后一行会钻进悬浮底栏（764.7–812.7）与状态栏
+   （820.7–844.7）之间——引述首行被底栏下缘横切 6.7px、次行整行落在状态栏后面，
+   "字数"又叠在同一条水平线上，与页面自述"不能遮挡正文"直接矛盾。
+   官方只给了 `.protyle-content::after` 的 80px 占位（滚动空间够），但滚动到中间
+   位置时内容仍会从底栏下方穿过，视觉上没有"内容到此为止"的过渡。
+   这里在 #editor 底部叠一条 80px 的纸色渐隐：内容进入底栏之前先淡出，
+   底栏与状态栏保持完全不透明可读。渐隐层落在底栏之下（z-index 1 < 官方 3），
+   不拦截点击；`pointer-events:none` 双保险。 */
+@media (max-width: 768px) {
+    #editor {
+        position: absolute;
+    }
+
+    #editor::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 80px;
+        z-index: 1;
+        pointer-events: none;
+        background-image: linear-gradient(
+            to bottom,
+            transparent 0,
+            var(--b3-theme-background) 68%
+        );
+    }
+}
+
+/* 移动文件列表：16px 字号 + 40px 行高（官方 main/_mobile.scss:76-140），
+   但行内动作按钮要补足触控热区 */
+.b3-list--mobile .b3-list-item {
+    color: var(--b3-theme-on-background);
+    border-radius: var(--b3-border-radius);
+}
+
+/* Z2-03（移动列表副本）：抽屉里的选中行同样是 12% 靛青底，
+   第二通道与桌面一致——左缘 2px 主色墨条（对选中底 4.98），
+   内框保留作纸边质感。 */
+.b3-list--mobile .b3-list-item--focus {
+    background-color: var(--b3-theme-primary-lightest);
+    box-shadow: inset 2px 0 0 var(--b3-theme-primary),
+                inset 0 0 0 1px var(--b3-theme-primary-lighter);
+}
+
+.b3-list--mobile .b3-list-item__icon {
+    color: var(--b3-theme-on-surface);
+}
+
+.b3-list--mobile .b3-list-item__action {
+    min-width: 44px;
+    min-height: 44px;
+    /* F5（2026-10-28，Z6-N8）：脚手架给动作钮 padding:12px 且默认 content-box，
+       min-height:44 落在 content 上 → 盒 44+24=68px，整行跟着 68px，
+       高于 44px 触控契约。改 border-box + 水平内距：盒恰 44×44，
+       内容宽 44-24=20 仍装得下 16px 图标，行高回到 44。 */
+    box-sizing: border-box;
+    padding: 0 12px;
+    justify-content: center;
+    color: var(--b3-theme-on-surface-light);
+    border-radius: var(--b3-border-radius);
+}
+
+/* R3-11：展开/折叠箭头是行内最高频的触控目标之一，官方给
+   `.b3-list-item__toggle{min-width:28px;padding:0 2px}` → 实测 32×44，
+   宽不足 44（F1 只补了高）。这里把宽度也补到 44，图标保持原尺寸居中；
+   `.b3-list-item__toggle--hl` 是同一元素的修饰类，一并覆盖。
+   Z3-02：**必须 content-box**。官方用 padding-left 表达文档树层级
+   （子行 inline `padding-left:18px`），原先写成 border-box 后，这 18px
+   被并进 44px 的盒宽里、不向外推——实测四行（根/子/子/子）的
+   `.b3-list-item__icon` 左缘全部落在 x=56.7，父/子层级在图上完全消失，
+   移动端唯一导航入口丢了最核心的层级信息。
+   改 content-box 后：根行（padding 2px）48px、子行（padding 18px）64px，
+   图标 x=60.7 / 76.7（差 16px，层级恢复），热区仍 ≥44×44（宽只增不减）。 */
+.b3-list--mobile .b3-list-item__toggle,
+.b3-list--mobile .b3-list-item__toggle--hl {
+    box-sizing: content-box;
+    min-width: 44px;
+    justify-content: center;
+}
+
+/* 底部工具栏：悬浮圆角纸片，当前无选中态（官方不加 active 类） */
+.mobile-bottom-bar {
+    border-color: var(--b3-border-color);
+    background-color: var(--b3-theme-background);
+    box-shadow: var(--b3-point-shadow);
+}
+
+.mobile-bottom-bar__item {
+    color: var(--b3-theme-on-surface-light);
+    /* 官方 48px 高的圆条里 40px 是最小宽度；这里抬到 44px，保证单手拇指热区 */
+    min-width: 44px;
+}
+
+.mobile-bottom-bar__item:not([disabled]):active {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+/* C12：底栏当前页签的计数徽标只有 10px，文字 on-surface 叠 12% 靛青底后
+   4.26:1，比未选中项（5.05）更难读——当前项反而不如非当前项清楚。
+   选中/按下态显式提到 on-background（合成底 7.5+），未选中态保持 on-surface。
+   当前项在真实应用里没有稳定类名（官方 `.mobile-bottom-bar__item` 只有
+   `:active` 与 `[disabled]`），宿主用内联主色底标记，因此同时覆盖：
+   `:active`、内联 `primary-lightest`、以及 `--active` / `[aria-current]` 两种常见约定。 */
+.mobile-bottom-bar__item:active:not([disabled]) .toolbar__tabs-count,
+.mobile-bottom-bar__item--active .toolbar__tabs-count,
+.mobile-bottom-bar__item[aria-current] .toolbar__tabs-count,
+.mobile-bottom-bar__item[style*="primary-lightest"] .toolbar__tabs-count {
+    color: var(--b3-theme-on-background);
+}
+
+.mobile-bottom-bar__item[disabled] {
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+/* 页签计数徽标：细线小方块，与桌面 counter 区分（官方用 1.5px 边框）
+   R2-02：计数是数字文本，与 .b3-list-item__number 同性质 → on-surface */
+.toolbar__tabs-count {
+    color: var(--b3-theme-on-surface);
+    border-color: currentColor;
+    border-radius: var(--b3-border-radius-s);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 移动状态栏：与桌面同一行高节奏，字号收小。
+   D1-08（2026-10-29，mobile:status-under-mask）：浅色状态栏被抽屉遮罩压暗
+   （「字数 642」实测 2.89:1，11px 文本需 4.5），深色正常——因为 scaffold 的
+   `.mobile-frame .status{z-index:2}`（0,2,0）压过了上面 `.status{z-index:6}`
+   的 (0,1,0)，只有深色那条带 `:root[data-theme-mode="dark"]` 前缀的规则拿到 6。
+   在这里按同一档权重补 z-index：`.mobile-frame .status` 与 scaffold 同权重
+   且后置 → 预览页生效；`#status.status` 的 (1,1,0) 覆盖真实应用的 `#status`。
+   与遮罩同层（6）但 DOM 更靠后 → 遮罩之上、抽屉（7）之下，深浅同值。 */
+.mobile-frame .status,
+#status.status {
+    color: var(--b3-theme-on-surface);
+    z-index: 6;
+}
+
+/* ==========================================================================
+   7. 对话框 / 遮罩 / 浮窗
+   ========================================================================== */
+
+.b3-dialog__scrim {
+    background-color: var(--b3-mask-background);
+    transition: opacity var(--yj-dur-base) var(--yj-ease-out);
+}
+
+.b3-dialog__container {
+    border-radius: var(--b3-border-radius-b);
+    border: 1px solid var(--b3-border-color);
+    background-color: var(--b3-theme-surface);
+    box-shadow: var(--b3-dialog-shadow);
+    transform: scale(.98);
+    transition: opacity var(--yj-dur-enter) var(--yj-ease-out),
+                transform var(--yj-dur-enter) var(--yj-ease-out);
+}
+
+.b3-dialog--open .b3-dialog__container {
+    transform: none;
+    opacity: 1;
+}
+
+/* R1-22：对话框内距使用 --yj-space-* token（DESIGN 5.1 的 16px 面板内距）。
+   用户覆写 --yj-space-4 即可统一收紧/放宽所有面板内距，token 不再空转。 */
+.b3-dialog__header {
+    border-bottom: 1px solid var(--b3-border-color);
+    font-weight: 600;
+    padding: var(--yj-space-3) var(--yj-space-6);
+}
+
+.b3-dialog__content {
+    padding: var(--yj-space-4);
+}
+
+.b3-dialog__action {
+    border-top: 1px solid var(--b3-border-color);
+    padding: var(--yj-space-3) var(--yj-space-4);
+}
+
+.b3-dialog__close:hover {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-hover);
+}
+
+.block__popover {
+    border-radius: var(--b3-border-radius-b);
+    border: 1px solid var(--b3-border-color);
+    box-shadow: var(--b3-dialog-shadow);
+    transition: opacity var(--yj-dur-enter) var(--yj-ease-out),
+                transform var(--yj-dur-enter) var(--yj-ease-out);
+    transform: translateY(4px);
+}
+
+.block__popover--open {
+    transform: none;
+}
+
+.protyle-hint,
+.protyle-util {
+    border-radius: var(--b3-border-radius);
+    border: 1px solid var(--b3-border-color);
+    box-shadow: var(--b3-dialog-shadow);
+}
+
+/* ==========================================================================
+   8. 通知：snackbar（保存成功脉冲 / 失败横幅）
+   ========================================================================== */
+
+.b3-snackbar__content {
+    border-radius: var(--b3-border-radius);
+    background-color: var(--b3-tooltips-background);
+    color: var(--b3-tooltips-color);
+    box-shadow: var(--b3-tooltips-shadow);
+    position: relative;
+}
+
+/* R1-10 / R2-06：「保存成功」的盖章脉冲。
+   —— 真实信号核实（app/src/dialog/message.ts:37-91）：
+   官方 showMessage() 只产出 b3-snackbar 与 b3-snackbar--error 两个类，
+   **不存在 b3-snackbar--success**；因此成功态不能靠类名判定。
+   官方同步成功改用 use 图标 href 表示（dialog/processSystem.ts:450-451
+   把 #barSync use 设为 #iconCloudSucc）。这里据此把"盖章"脉冲绑到
+   真实可观察的两个位置：
+   ① 同步成功时顶栏图标 #iconCloudSucc 一次性回锋脉冲（真实生效）
+   ② 若宿主/插件确实下发了 .b3-snackbar--success，提示条左侧出现
+   石绿印章圆点并由它脉冲（向前兼容，不误伤 info 提示） */
+:root #barSync use[href="#iconCloudSucc"] {
+    transform-origin: 50% 50%;
+    animation: yj-save-pulse var(--yj-dur-pulse) var(--yj-ease-spring);
+}
+
+.b3-snackbar--success .b3-snackbar__content {
+    padding-left: 32px;
+}
+
+/* C9：印章圆点永远落在「反向墨底」--b3-tooltips-background(#332F27) 上，
+   与纸底无关。浅色的 --b3-theme-success(#3E7D4E) 在该底上只有 2.69:1，
+   低于 WCAG 1.4.11 的 3:1——而这是成功态的唯一反馈（DESIGN §2.2 的"盖章"）。
+   改用灯照态绿 #A9D2AE（7.94:1），与深色同族，不再各取一档。 */
+.b3-snackbar--success .b3-snackbar__content::before {
+    content: "";
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    width: 11px;
+    height: 11px;
+    margin-top: -5.5px;
+    border-radius: 50%;
+    background-color: #A9D2AE;
+    transform-origin: 50% 50%;
+    animation: yj-save-pulse var(--yj-dur-pulse) var(--yj-ease-spring);
+}
+
+/* 保存失败：朱砂横幅，与正文区分；停留时长由应用逻辑控制 */
+.b3-snackbar--error .b3-snackbar__content {
+    background-color: var(--b3-card-error-background);
+    color: var(--b3-card-error-color);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-error), var(--b3-tooltips-shadow);
+}
+
+.b3-snackbar--error .b3-snackbar__content a,
+.b3-snackbar--error .b3-snackbar__close {
+    color: var(--b3-card-error-color);
+}
+
+.b3-snackbar__close {
+    transition: opacity var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+/* 提示气泡 */
+.tooltip,
+.b3-tooltips::after {
+    border-radius: var(--b3-border-radius);
+    background-color: var(--b3-tooltips-background);
+    color: var(--b3-tooltips-color);
+    box-shadow: var(--b3-tooltips-shadow);
+}
+
+.b3-tooltips::after {
+    transition: opacity var(--yj-dur-micro) var(--yj-ease-out),
+                transform var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+/* ==========================================================================
+   9. 标签 / 卡片
+   ========================================================================== */
+
+.b3-chip {
+    border-radius: var(--b3-border-radius-s);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.b3-chip--current {
+    background-color: var(--b3-theme-primary-lightest);
+    color: var(--b3-theme-primary);
+}
+
+.b3-card {
+    border-radius: var(--b3-border-radius);
+    background-color: var(--b3-theme-surface);
+    box-shadow: var(--yj-shadow-card);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                box-shadow var(--yj-dur-base) var(--yj-ease-out);
+}
+
+.b3-card:hover {
+    background-color: var(--b3-theme-surface-lighter);
+    box-shadow: var(--b3-dialog-shadow);
+}
+
+.b3-card--current {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+/* ==========================================================================
+   10. 编辑器：排版 / 标题 / 行内标记 / 块状态
+   ========================================================================== */
+
+/* CJK 正文行高 1.75（DESIGN 4.3，覆盖官方 1.625） */
+.protyle-wysiwyg > p,
+.protyle-wysiwyg li > p,
+.protyle-wysiwyg blockquote > p,
+.protyle-wysiwyg [data-node-id],
+.protyle-wysiwyg [data-table-cell-node],
+.b3-typography > p,
+.b3-typography li > p,
+.b3-typography blockquote > p,
+.b3-typography [data-node-id],
+.table__cell-rich [data-node-id] {
+    line-height: 1.75;
+}
+
+/* R1-21：块间距必须分级，否则长文的段落、标题、引用上下间距完全一样
+   （实测原先 14 组相邻块全部 4.0px），标题无法形成"章节停顿"。
+   全部由 --yj-space-* 派生（R1-22 要求 token 真实可用）：
+   - 段落之间 8px
+   - 标题上 24px / 下 8px（标题是段落级锚点，上方留白更大）
+   - 引用/代码/标注等容器块 上下 12px
+   - 首个块不留上边距（避免文档顶部出现空洞） */
+.protyle-wysiwyg > [data-node-id],
+.b3-typography > [data-node-id] {
+    margin-block: var(--yj-block-gap);
+}
+
+.protyle-wysiwyg > [data-node-id]:first-child,
+.b3-typography > [data-node-id]:first-child {
+    margin-top: 0;
+}
+
+.protyle-wysiwyg [data-type="NodeHeading"],
+.b3-typography .h1,
+.b3-typography .h2,
+.b3-typography .h3,
+.b3-typography .h4,
+.b3-typography .h5,
+.b3-typography .h6 {
+    margin-top: var(--yj-heading-gap-before);
+    margin-bottom: var(--yj-heading-gap-after);
+}
+
+/* 标题紧跟容器顶边（如引用块内首个标题）时不要顶出 24px 空洞 */
+.protyle-wysiwyg .bq > [data-type="NodeHeading"]:first-child,
+.protyle-wysiwyg .callout-content > [data-type="NodeHeading"]:first-child,
+.protyle-wysiwyg .li > [data-type="NodeHeading"]:first-child {
+    margin-top: 0;
+}
+
+.protyle-wysiwyg .bq,
+.protyle-wysiwyg blockquote,
+.protyle-wysiwyg .callout,
+.protyle-wysiwyg .code-block,
+.protyle-wysiwyg .render-node,
+.b3-typography .bq,
+.b3-typography blockquote,
+.b3-typography .callout,
+.b3-typography .code-block {
+    margin-block: var(--yj-container-gap);
+}
+
+.protyle-wysiwyg,
+.b3-typography {
+    font-family: var(--b3-font-family-protyle);
+}
+
+/* R2-10：已完成待办的正文是**阅读信息**，不是图标层，必须 ≥4.5。
+   官方给它 on-surface-light：浅色纸上只有 3.40（深色恰好 6.94，纯属 token 更亮）。
+   主题显式接管并两模式同写 on-surface（浅 5.05 / 深 5.67）；
+   "已完成"的第二通道由删除线承担，不靠把文字调淡。 */
+.protyle-wysiwyg .protyle-task--done:not([data-task="/"]) > div[data-node-id].p,
+.b3-typography .protyle-task--done:not([data-task="/"]) > div[data-node-id].p {
+    color: var(--b3-theme-on-surface);
+    text-decoration: line-through;
+}
+
+/* 标题行高阶梯：随字号收窄（DESIGN 4.3：1.75/1.58/1.42/1.28/1.15/1.05） */
+.protyle-wysiwyg [data-type="NodeHeading"].h1,
+.b3-typography .h1,
+.b3-typography h1 {
+    line-height: 1.75;
+}
+
+.protyle-wysiwyg [data-type="NodeHeading"].h2,
+.b3-typography .h2,
+.b3-typography h2 {
+    line-height: 1.58;
+}
+
+.protyle-wysiwyg [data-type="NodeHeading"].h3,
+.b3-typography .h3,
+.b3-typography h3 {
+    line-height: 1.42;
+}
+
+.protyle-wysiwyg [data-type="NodeHeading"].h4,
+.b3-typography .h4,
+.b3-typography h4 {
+    line-height: 1.28;
+}
+
+.protyle-wysiwyg [data-type="NodeHeading"].h5,
+.b3-typography .h5,
+.b3-typography h5 {
+    line-height: 1.15;
+}
+
+.protyle-wysiwyg [data-type="NodeHeading"].h6,
+.b3-typography .h6,
+.b3-typography h6 {
+    line-height: 1.05;
+}
+
+/* 标题阶梯：字号沿用官方比例，字重按**平台可兑现的字面**分层（DESIGN 4.2）。
+   R2-03：Windows 的 Microsoft YaHei 只有 Regular(400) 与 Bold(700) 两个字面，
+   请求 500/600 都会被合成到这两档（getPlatformFontsForNode 实测 h1–h4 全部落在
+   MicrosoftYaHei-Bold，正文落在 MicrosoftYaHei）。与其宣称一条渲染不出来的
+   五档阶梯，不如按两档排布，再用**字号 + 字距 + 墨色**补出 H3→H4、H5→H6 的层级。 */
+.protyle-wysiwyg .h1,
+.protyle-wysiwyg h1,
+.b3-typography .h1,
+.b3-typography h1 {
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.protyle-wysiwyg .h2,
+.protyle-wysiwyg h2,
+.b3-typography .h2,
+.b3-typography h2 {
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.protyle-wysiwyg .h3,
+.protyle-wysiwyg h3,
+.protyle-wysiwyg .h4,
+.protyle-wysiwyg h4,
+.b3-typography .h3,
+.b3-typography h3,
+.b3-typography .h4,
+.b3-typography h4 {
+    /* 与 H2 同为 700，靠负字距（大字收紧）与墨色区分层级 */
+    font-weight: 700;
+    letter-spacing: -.005em;
+}
+
+.protyle-wysiwyg .h4,
+.protyle-wysiwyg h4,
+.b3-typography .h4,
+.b3-typography h4 {
+    /* H4 比 H3 淡一档（on-surface 对纸 5.05，仍是正文级可读）——第三通道 */
+    color: var(--b3-theme-on-surface);
+}
+
+.protyle-wysiwyg .h5,
+.protyle-wysiwyg h5,
+.b3-typography .h5,
+.b3-typography h5 {
+    /* 500：有真 Medium 的平台（macOS PingFang / Noto）用得上；
+       Windows 会合成到 Regular，H5 与正文由 1.13em 字号区分 */
+    font-weight: 500;
+    letter-spacing: .01em;
+}
+
+.protyle-wysiwyg .h6,
+.protyle-wysiwyg h6,
+.b3-typography .h6,
+.b3-typography h6 {
+    /* R2-03：H6 与正文同大，"仅加粗"必须是真 700；
+       Windows 上写 500 会与正文完全同形。 */
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+/* 块标行高与 1.75 行高同步，标题在列表内按分频收窄。
+   F5（2026-10-28，Z6-N16）：补 [data-node-id] 提到 (0,4,0)。脚手架
+   `.protyle-wysiwyg [data-node-id].li > .protyle-action` 是 (0,3,1)，
+   主题原选择器 (0,3,0) 在浅色压不过它 → 项目符号块标浅 34 / 深 36
+   （深色靠 :root 前缀胜出）。浅深同高后都是 calc(1.75em+8px)=36px。 */
+.protyle-wysiwyg [data-node-id].li > .protyle-action {
+    height: calc(1.75em + 8px);
+    line-height: calc(1.75em + 8px);
+}
+
+.protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h1 {
+    line-height: calc(1.75em / 1.75);
+}
+
+.protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h2 {
+    line-height: calc(1.75em / 1.55);
+}
+
+.protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h3 {
+    line-height: calc(1.75em / 1.38);
+}
+
+.protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h4 {
+    line-height: calc(1.75em / 1.25);
+}
+
+.protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h5 {
+    line-height: calc(1.75em / 1.13);
+}
+
+/* 文档标题 */
+.protyle-title__input {
+    color: var(--b3-theme-on-background);
+    font-weight: 700;
+    letter-spacing: .01em;
+    /* C2 + R2-01：官方给标题 `transition: all`（无时长 → 瞬时），纸面走 180ms
+       渐变时翻转帧会出现"已变亮的标题压在还偏浅的纸上"（实测该帧 2.85:1）。
+       但**不能**在这里单独写 `transition: color`——那会让标题再追一层父级的
+       变化中取值，把 180ms 叠加成秒级。正确做法是清掉官方的 `all`，
+       让标题的颜色直接继承 body 那条唯一的 color 过渡（整棵树同一条曲线）。 */
+    transition: none;
+}
+
+/* THEME-CSS-07（2026-10-29 评审）：标题聚焦原先画「左缘 2px 主色墨条」——
+   正是 D9-2 因「读作一道重蓝」从页签/编辑中移除的形态。改为与「编辑中」
+   （.protyle-wysiwyg--navigation）同一语言：2px 淡靛整圈 outline、无底色、
+   几何不外扩（outline-offset:-2px），不再单侧加重。 */
+.protyle-title:focus-within {
+    outline: 2px solid var(--b3-theme-primary-lighter);
+    outline-offset: -2px;
+    border-radius: var(--b3-border-radius);
+}
+
+.protyle-title__icon {
+    color: var(--b3-theme-on-surface-lighter);
+    border-radius: var(--b3-border-radius-s);
+    transition: opacity var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.protyle-title__icon:hover {
+    color: var(--b3-theme-on-surface);
+}
+
+/* 面包屑 */
+.protyle-breadcrumb {
+    background-color: var(--b3-theme-background);
+    border-radius: var(--b3-border-radius-b) var(--b3-border-radius-b) 0 0;
+}
+
+.protyle-breadcrumb__item {
+    border-radius: var(--b3-border-radius);
+    color: var(--b3-theme-on-surface);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.protyle-breadcrumb__item:hover,
+.protyle-breadcrumb__item--active {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-hover);
+}
+
+.protyle-breadcrumb__arrow {
+    /* C6：层级箭头是路径指示（非文本信息），WCAG 1.4.11 需 ≥3:1。
+       on-surface-lighter 在纸上仅 1.64 → 改 on-surface（5.05）。 */
+    color: var(--b3-theme-on-surface);
+}
+
+/* F5（2026-10-28，Z6-N7）：移动面包屑入口（「面包屑」按钮）与当前文档 chip
+   同底同色不可辨（实测两者 bg 都是 rgba(51,49,44,.06)、文字同色）——
+   脚手架 preview-base.css:760 给入口铺了 --b3-list-hover 底。入口是"工具"，
+   当前文档 chip 是"位置"：入口改透明底 + on-surface，chip 保留 6% 底 +
+   on-background，两个通道（底色 + 文字色）都区分开。 */
+.protyle-breadcrumb__icon {
+    color: var(--b3-theme-on-surface);
+    background-color: transparent;
+}
+
+/* 块标：悬停 100ms 淡入（DESIGN 6.2）
+   R1-13：不用 var(--b3-transition)（= all .18s），否则焦点环的 box-shadow
+   也会被过渡，键盘焦点要 ~0.4s 才长到 2px。枚举属性，把焦点环排除在外。 */
+.block__icon {
+    border-radius: var(--b3-border-radius-s);
+    color: var(--b3-theme-on-surface-light);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out),
+                opacity var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+/* R2-03（2026-10-28）：悬停不再掩盖激活态——原 .block__icon--active 与
+   :hover 共用本声明块，激活块标被鼠标扫过时与其余悬停块标同貌。
+   hover 排除 --active；激活态改常驻主色淡底 + 主色图标（第二通道=色相），
+   悬停扫过激活块标时激活底不被替换。 */
+.block__icon:not([disabled]):hover:not(.block__icon--active) {
+    color: var(--b3-theme-on-background);
+    background-color: var(--b3-list-icon-hover);
+}
+
+.block__icon.block__icon--active {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+/* R2-03：悬停扫过激活块标时保持激活样式——脚手架 preview-base.css:1662 的
+   通用 hover（(0,3,0)）仍会命中 --active 图标，这里用 (0,4,0) 压回。 */
+.block__icon.block__icon--active:not([disabled]):hover {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+.block__icon[disabled],
+.block__icon[disabled][disabled] {
+    /* R3-07 + G09：官方 `base.css` 的 `.block__icon[disabled]{opacity:.38}`
+       与本节同权重；真实加载顺序是官方 base.css 先、主题后（模板
+       baseStyle → themeDefaultStyle → themeStyle），同权重时后置的主题已胜出。
+       不归 1 时图标仍按官方的 38% 合成，浅色 1.16:1 / 深色 1.23:1，几乎消失。
+       重复属性选择器把权重抬到 (0,3,0) 只是防御性兜底；显式归 1 与 DESIGN §7
+       的枯墨语言一致。 */
+    opacity: 1;
+    color: var(--b3-theme-on-surface-lighter);
+    cursor: not-allowed;
+}
+
+.block__logo {
+    color: var(--b3-theme-on-background);
+}
+
+/* protyle 块操作图标 */
+.protyle-icon {
+    border-radius: var(--b3-border-radius-s);
+    color: var(--b3-theme-on-surface-light);
+    background-color: var(--b3-theme-surface);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                color var(--yj-dur-micro) var(--yj-ease-out),
+                opacity var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.protyle-icon:hover {
+    color: var(--b3-theme-on-surface);
+    background-color: var(--b3-theme-surface-lighter);
+}
+
+.protyle-gutters svg {
+    color: var(--b3-theme-on-surface-lighter);
+    transition: color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.protyle-gutters button:hover svg {
+    color: var(--b3-theme-on-surface);
+}
+
+/* G06（深色同步修）：翻滚按钮是 UI 组件，1.4.11 需 ≥3:1；
+   on-surface-lighter 对纸只有 1.6，抬到 on-surface（5.05），hover 到浓墨。 */
+.protyle-scroll__up,
+.protyle-scroll__down {
+    color: var(--b3-theme-on-surface);
+}
+
+.protyle-scroll__up:hover,
+.protyle-scroll__down:hover {
+    color: var(--b3-theme-on-background);
+}
+
+.protyle-attr {
+    color: var(--b3-theme-on-surface-lighter);
+}
+
+/* 行内链接 */
+.protyle-wysiwyg span[data-type~="a"],
+.b3-typography span[data-type~="a"] {
+    color: var(--b3-protyle-inline-link-color);
+    /* F5（2026-10-28，Z6-N11）：下划线从 54% 主色提到实色主色——半透明值对纸
+       只有 2.42:1（1.4.11 非文本需 ≥3），实色 rgb(47,93,138) 对纸 4.98:1。 */
+    border-bottom: 1px solid var(--b3-theme-primary);
+    text-decoration: none;
+    transition: color var(--yj-dur-micro) var(--yj-ease-out),
+                border-color var(--yj-dur-micro) var(--yj-ease-out);
+}
+
+.protyle-wysiwyg span[data-type~="a"]:hover,
+.b3-typography span[data-type~="a"]:hover {
+    /* G04：链接 hover 由主色派生（88% 混黑，与按钮按下态同一档），
+       不再是写死的 #264E77——覆写主色后跟随。 */
+    color: color-mix(in srgb, var(--b3-theme-primary) 88%, #000);
+    border-bottom-color: color-mix(in srgb, var(--b3-theme-primary) 88%, #000);
+}
+
+/* 引文笺：块引用 = 左缘 2px 黛紫 + 8% 底（DESIGN 2.2） */
+.protyle-wysiwyg span[data-type~="block-ref"]:not(.av__celltext),
+.b3-typography span[data-type~="block-ref"]:not(.av__celltext) {
+    background-image: none;
+    /* R2-05：底色跟文字同色相（#705596），8% 不变 */
+    background-color: rgba(112, 85, 150, .08);
+    border-left: 2px solid var(--b3-protyle-inline-blockref-color);
+    border-radius: var(--b3-border-radius-s);
+    padding: 0 3px;
+    color: var(--b3-protyle-inline-blockref-color);
+    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
+                border-left-width var(--yj-dur-micro) var(--yj-ease-out);
+    /* C15：官方预览/应用脚手架把行内元素设为 box-decoration-break:clone
+       （preview-base.css:1150-1152 / 官方 inline.scss），对虚线底纹是必要的；
+       但本主题已把块引用换成"实底 + 左边框"，clone 会在跨行时把 2px 左边框
+       一起克隆到第二行行首，看起来像多出一个「|」字符。
+       这里显式改 slice：背景与边框只画首段，跨行不再复制竖条。 */
+    box-decoration-break: slice;
+    -webkit-box-decoration-break: slice;
+}
+
+.protyle-wysiwyg span[data-type~="block-ref"]:not(.av__celltext):hover,
+.b3-typography span[data-type~="block-ref"]:not(.av__celltext):hover {
+    /* R2-05：hover 底从 14% 收到 12%（与 DESIGN §2.2 的"8% 底"同一档内加深）——
+       14% 会把 #705596 的文字压到 4.80 以下；12% 时 5.02，仍在 AA 之上，
+       加深感由 2px→3px 的左缘线承担。 */
+    background-color: rgba(112, 85, 150, .12);
+    border-left-width: 3px;
+    padding-left: 2px;
+}
+
+/* 文件引用：苔绿 */
+.protyle-wysiwyg span[data-type~="file-annotation-ref"],
+.b3-typography span[data-type~="file-annotation-ref"] {
+    background-image: none;
+    background-color: rgba(71, 113, 77, .08);
+    border-left: 2px solid var(--b3-protyle-inline-fileref-color);
+    border-radius: var(--b3-border-radius-s);
+    padding: 0 3px;
+    color: var(--b3-protyle-inline-fileref-color);
+}
+
+.protyle-wysiwyg span[data-type="virtual-block-ref"]:hover,
+.b3-typography span[data-type="virtual-block-ref"]:hover {
+    background-color: var(--b3-theme-primary-lightest);
+    border-radius: var(--b3-border-radius-s);
+}
+
+/* 标签 · 七成墨（72%；六成仅 3.68:1 不足 AA） */
+.protyle-wysiwyg span[data-type~="tag"],
+.b3-typography span[data-type~="tag"] {
+    color: var(--b3-protyle-inline-tag-color);
+    border-bottom-color: var(--b3-protyle-inline-tag-color);
+}
+
+.protyle-wysiwyg span[data-type~="tag"]:hover,
+.b3-typography span[data-type~="tag"]:hover {
+    color: var(--b3-theme-on-background);
+    border-bottom-color: var(--b3-theme-on-background);
+}
+
+/* 高亮标记 / 搜索结果 */
+.protyle-wysiwyg span[data-type~="mark"],
+.b3-typography span[data-type~="mark"],
+.b3-list mark {
+    background-color: var(--b3-protyle-inline-mark-background);
+    color: var(--b3-protyle-inline-mark-color);
+    border-radius: var(--b3-border-radius-s);
+}
+
+.protyle-wysiwyg span[data-type~="search-mark"] {
+    background-color: var(--b3-highlight-background);
+    color: var(--b3-highlight-color);
+    border-radius: var(--b3-border-radius-s);
+}
+
+.protyle-wysiwyg span[data-type~="search-mark"].search-mark--hl {
+    background-color: var(--b3-theme-primary-lighter);
+    box-shadow: 0 0 0 .5px var(--b3-theme-on-background);
+}
+
+/* 行内代码 / 键盘键 */
+/* Z2-04：行内代码是**阅读文本**（类名、变量名、命令），不是图标层也不是
+   次级说明。它继承父级颜色时会落到 on-surface，而 chip 底是 5% 墨的
+   半透明叠色：实测说明行里 10.2px 的 .fn__code 仅 4.10–4.26（<4.5）。
+   这里显式给 on-background（对 5% 墨底 10.2，对纸 11.1），
+   底色与字号都不动——字形不变，只把墨提浓。 */
+.fn__code {
+    border-radius: var(--b3-border-radius-s);
+    background-color: var(--b3-protyle-code-background);
+    color: var(--b3-theme-on-background);
+}
+
+/* F5（2026-10-28，Z2-N9/R3-20）：行内代码整 token 不在连字符处折行。
+   官方给 code 的 white-space:pre-wrap + word-break:break-word 会让
+   `--yj-measure: calc(var(--b3-font-size-editor, 16px) * 46)` 这类 40+ 字符
+   的标识符在连字符处被劈成两行（`--b3-font-` / `size-editor`）。
+   桌面档（≥769px）整段下移不会溢出 46em 行长（R3-20 实测单行 465px
+   < 736px 版心）；390 档实测会被裁，故限定 ≥769px，移动端维持官方换行。 */
+@media (min-width: 769px) {
+    .fn__code,
+    .b3-typography code:not(.hljs),
+    .b3-typography span[data-type~="code"],
+    .protyle-wysiwyg code:not(.hljs),
+    .protyle-wysiwyg span[data-type~="code"] {
+        white-space: nowrap;
+    }
+}
+
+.fn__kbd {
+    border-radius: var(--b3-border-radius-s);
+    background-color: var(--b3-theme-surface);
+    border-color: var(--b3-border-color);
+}
+
+/* 代码块 · 碑帖 */
+.b3-typography .code-block,
+.protyle-wysiwyg .code-block {
+    background-color: var(--b3-protyle-code-background);
+    border-radius: var(--b3-border-radius);
+    /* R1-21/R1-22：容器块上下 12px，用 token 而非硬编码 */
+    padding: var(--yj-space-2);
+}
+
+.protyle-wysiwyg .code-block .protyle-action__language {
+    /* R2-02：语言标签是文本（代码块"碑帖"的唯一标识），改 on-surface */
+    color: var(--b3-theme-on-surface);
+}
+
+/* R1-22：DESIGN 2.2「碑帖」承诺"行号用淡墨"，原先没有任何对应规则，
+   代码块只是换了个底色。这里同时覆盖 hljs 的行号插件类
+   （highlightjs-line-numbers 生成 .hljs-ln-numbers / .hljs-ln-n）
+   与数据属性形式，保证"代码是拓下来的东西"这层表达真实成立。 */
+.protyle-wysiwyg .code-block .hljs-ln-numbers,
+.protyle-wysiwyg .code-block .hljs-ln-n,
+.protyle-wysiwyg .code-block [data-line-number],
+.b3-typography .code-block .hljs-ln-numbers,
+.b3-typography .code-block .hljs-ln-n,
+.b3-typography .code-block [data-line-number] {
+    color: var(--b3-theme-on-surface-lighter);
+    border-right: 1px solid var(--b3-border-color);
+    padding-right: var(--yj-space-2);
+    margin-right: var(--yj-space-2);
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 引述块 */
+/* R1-03：引用块竖线是「哪一块是引用」的形态线索，按 WCAG 1.4.11 需 ≥3:1。
+   原用 on-surface-lighter（纸上 1.64:1）几乎不可见 → 改用 on-surface（5.05），
+   并把线宽 2px → 3px，让引用在缩略图与深色下也保有形态差异（不只靠文字变灰）。 */
+.protyle-wysiwyg .bq::before,
+.protyle-wysiwyg blockquote::before,
+.b3-typography .bq::before,
+.b3-typography blockquote::before {
+    background-color: var(--b3-theme-on-surface);
+    border-radius: var(--b3-border-radius-s);
+    width: 3px;
+}
+
+.protyle-wysiwyg .bq,
+.protyle-wysiwyg blockquote,
+.b3-typography .bq,
+.b3-typography blockquote {
+    color: var(--b3-theme-on-surface);
+}
+
+/* Callout · 笺注：左缘色条 + 功能色淡底。
+   MAJ-07（2026-10-29）：内文原先继承官方 `.callout{color:on-surface}`
+   （#6E6A5E），对功能色淡底合成值 IMPORTANT 4.457 / CAUTION 4.434 <4.5
+   （TIP/WARNING/NOTE 4.519/4.522/4.648 亦压线）。内文是阅读文字，统一提到
+   --yj-status-color（#666254）：五类合成底 5.01–5.25 全过；标题与行内代码
+   仍走 Z4-02 的 on-background，不改。 */
+.protyle-wysiwyg .callout,
+.b3-typography .callout {
+    /* G04：callout 淡底由主色派生，覆写主色后跟随 */
+    background-color: color-mix(in srgb, var(--b3-theme-primary) 6%, transparent);
+    border-radius: var(--b3-border-radius);
+    color: var(--yj-status-color);
+}
+
+.protyle-wysiwyg .callout[data-subtype="TIP"],
+.b3-typography .callout[data-subtype="TIP"] {
+    background-color: rgba(62, 125, 78, .09);
+}
+
+.protyle-wysiwyg .callout[data-subtype="WARNING"],
+.b3-typography .callout[data-subtype="WARNING"] {
+    background-color: rgba(233, 199, 126, .28);
+}
+
+.protyle-wysiwyg .callout[data-subtype="IMPORTANT"],
+.b3-typography .callout[data-subtype="IMPORTANT"] {
+    background-color: rgba(122, 95, 160, .10);
+}
+
+.protyle-wysiwyg .callout[data-subtype="CAUTION"],
+.b3-typography .callout[data-subtype="CAUTION"] {
+    background-color: rgba(179, 54, 42, .09);
+}
+
+/* Z4-02：callout 标题与内嵌行内代码必须达 AA 4.5:1。
+   官方 base.css 给 `.callout` 设 `color: var(--b3-theme-on-surface)`，
+   又给 `.callout-title` 叠 `opacity: .86`——两者相乘后实测：
+   浅色三张标题 3.50 / 3.49 / 3.58，深色 3.88 / 3.78 / 4.12；标题 18.24px/500
+   在 Windows 落 regular，不享有「大字号 3:1」豁免。callout 内行内代码
+   浅 4.15 / 深 3.69，同样不足。
+   这几处都是**阅读文字**（「已知边界」这类标签恰恰是要被读到的），
+   所以标题直接用 on-background 并把 opacity 归 1 —— 形态由字号/字重承担，
+   不靠降透明度做层级。 */
+.protyle-wysiwyg .callout-title,
+.b3-typography .callout-title {
+    color: var(--b3-theme-on-background);
+    opacity: 1;
+}
+
+/* callout 内的行内代码：容器把 color 设成 on-surface，代码又会继承它。
+   与全局 .fn__code（Z2-04）同一条口径：代码是阅读文字，用 on-background。 */
+.protyle-wysiwyg .callout [data-type~="code"],
+.b3-typography .callout [data-type~="code"] {
+    color: var(--b3-theme-on-background);
+}
+
+/* 表格 */
+.b3-typography table th,
+.protyle-wysiwyg table th {
+    background-color: var(--b3-theme-surface);
+    font-weight: 600;
+}
+
+.b3-typography table td,
+.protyle-wysiwyg table td {
+    font-variant-numeric: tabular-nums;
+}
+
+/* 嵌入块 */
+.protyle-wysiwyg [data-type="NodeBlockQueryEmbed"].render-node {
+    background-color: var(--b3-theme-surface);
+    border: 1px dashed var(--b3-theme-on-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+
+/* 选中块 · 朱批底（12% 靛青 + 1px 靛青细框） */
+.protyle-wysiwyg--select::after,
+.protyle-wysiwyg--select-mode::after {
+    background-color: var(--b3-theme-primary-lightest);
+    box-shadow: inset 0 0 0 1px var(--b3-theme-primary);
+    border-radius: var(--b3-border-radius);
+}
+
+/* R1-09：--yj-dur-spring 不再空置。
+   思源在块被选中/多选落定时会给块加 .protyle-wysiwyg--select（见
+   protyle/wysiwyg/index.ts 的 classList.add），这是主题能可靠观察到的
+   "块级操作已生效"信号。用回锋曲线给选中框一次极轻的 1→1.008→1 缩放，
+   提供"落子"的实体感；幅度刻意压到几乎不可察觉（>1.02 会显得晃）。
+   拖拽落定的 1.00→1.02 与闪卡翻面需要应用层在 drop 后加类/触发翻转，
+   主题侧无法可靠绑定——已在 README 的"未实现"清单中如实标注。 */
+.protyle-wysiwyg--select::after {
+    animation: yj-settle var(--yj-dur-spring) var(--yj-ease-spring);
+}
+
+@keyframes yj-settle {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.008); }
+    100% { transform: scale(1); }
+}
+
+.protyle-wysiwyg--hl::after {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+/* 编辑中（D9，2026-10-29 用户指令「完全对齐官方」）：原「研墨条」（左缘 2px 实色 +
+   8% 底）改为官方做法——2px 淡靛整圈描边（primary-lighter、outline-offset:-2px），
+   无底色。真机截图里左缘实色条读作一道重蓝，用户要求回到原版观感。 */
+.protyle-wysiwyg [data-node-id].protyle-wysiwyg--navigation {
+    outline: 2px solid var(--b3-theme-primary-lighter);
+    outline-offset: -2px;
+    border-radius: var(--b3-border-radius);
+}
+
+/* 引用/双链跳转落点：左缘线 0→100% 展开，1.5s 后顿笔淡出（DESIGN 6.2）
+   R3-02：原先排除 .li / .list / .sb / .bq / .callout / 标题，导致**标题与列表
+   这些最高频锚点完全没有落点反馈**。
+   为什么不用 ::after / outline / box-shadow（F2 优先方案的取舍）：
+   - ::after：官方 base.css 用 `.protyle-wysiwyg--hl::after` 铺整块淡青高亮
+     （`position:absolute;width:100%;height:100%;z-index:3`），主题若要复用
+     必须整块重写官方高亮，代价与回归风险都高于换载体；
+   - outline：`.protyle-wysiwyg [data-node-id].protyle-wysiwyg--navigation`
+     已用 outline:none + inset box-shadow 做「研墨条」，块在编辑中/跳转中
+     可能同时命中；outline 也无法做"从顶部生长"的 scaleY 动画；
+   - box-shadow：选中块（--select::after 的 1px 内框）与导航块（inset 2px）
+     已占用，同一元素上叠两条 inset 阴影只能靠逗号并列，且无法单独淡出。
+   因此改用**未被占用的 background-image 载体**（下面 B 实现）。
+   两套实现：
+   A) 伪元素空闲的块 → 仍用 ::before + scaleY（合成层，最省）
+   B) 伪元素被占用的块 → background-image 竖条：
+      不碰任何伪元素，用 @property 注册的 --yj-ref-alpha 驱动渐变透明度，
+      同时动画 background-size 做"从顶部生长"。视觉与 A 完全一致
+      （2px 主色线 + 1.5s 后淡出），只是载体不同。
+      color-mix 与 @property 由 @supports 门控；不支持时优雅退化为无线（不破版）。
+   R1-11：动画走合成层/可动画属性，不用 height（避免布局重排）。 */
+.protyle-wysiwyg--hl:not(.li):not(.list):not(.sb):not(.bq):not(.callout):not([data-type="NodeHeading"])::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    border-radius: var(--b3-border-radius-s);
+    background-color: var(--b3-theme-primary);
+    transform-origin: top center;
+    animation: yj-ref-line var(--yj-dur-enter) var(--yj-ease-out) both,
+               yj-ref-fade var(--yj-dur-pulse) var(--yj-ease-in) var(--yj-dur-hold) both;
+    pointer-events: none;
+}
+
+/* ---- 落点线 B 实现：伪元素被官方占用的块型（标题 / 列表 / 超级块 / 引述 / 标注） ---- */
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+    @property --yj-ref-alpha {
+        syntax: "<number>";
+        inherits: false;
+        initial-value: 1;
+    }
+
+    .protyle-wysiwyg--hl:is(.li, .list, .sb, .bq, .callout, [data-type="NodeHeading"]) {
+        background-image: linear-gradient(
+            to bottom,
+            color-mix(in srgb, var(--b3-theme-primary) calc(var(--yj-ref-alpha) * 100%), transparent) 0 100%
+        );
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-size: 2px 100%;
+        animation: yj-ref-grow var(--yj-dur-enter) var(--yj-ease-out) both,
+                   yj-ref-alpha-out var(--yj-dur-pulse) var(--yj-ease-in) var(--yj-dur-hold) both;
+    }
+
+    @keyframes yj-ref-grow {
+        from { background-size: 2px 0%; --yj-ref-alpha: 1; }
+        to { background-size: 2px 100%; --yj-ref-alpha: 1; }
+    }
+
+    @keyframes yj-ref-alpha-out {
+        from { --yj-ref-alpha: 1; }
+        to { --yj-ref-alpha: 0; }
+    }
+}
+
+/* AI 生成内容 · 铅笔稿（淡墨底 + 虚线边） */
+.ai-editor-panel {
+    background-color: rgba(51, 49, 44, .03);
+    border: 1px dashed var(--b3-theme-on-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+
+.agent-chat__msg--ai .agent-chat__body {
+    background-color: rgba(51, 49, 44, .03);
+    border: 1px dashed var(--b3-theme-on-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+
+/* 闪卡 */
+.card__main {
+    background-color: var(--b3-theme-surface);
+    border-radius: var(--b3-border-radius-b);
+    box-shadow: var(--yj-shadow-card);
+}
+
+.card__empty {
+    color: var(--b3-empty-color);
+    line-height: 1.75;
+}
+
+/* 数据库 */
+.av__row:hover {
+    background-color: var(--b3-list-hover);
+}
+
+.av__row--select,
+.av__row--hl {
+    background-color: var(--b3-theme-primary-lightest);
+}
+
+.av__cell {
+    font-variant-numeric: tabular-nums;
+}
+
+.av__gallery-item {
+    border-radius: var(--b3-border-radius);
+    box-shadow: var(--b3-av-gallery-shadow);
+}
+
+.av__gallery-item:hover {
+    box-shadow: var(--b3-dialog-shadow);
+}
+
+/* ==========================================================================
+   11. 状态：搜索当前项 / 加载 / 自动保存 / 空状态
+   ========================================================================== */
+
+/* 搜索命中当前项 · 藤黄当前条
+   Z2-03 边界：搜索当前项用的是 C8 的「藤黄命中条」语言（不是导航当前位置的
+   靛青墨条）。.search__list 同时带 .b3-list--background，会连带吃到
+   Z2-03 的 inset 2px 主色墨条——那会在藤黄条左缘多出一根靛青竖线，
+   与「青色=可点、藤黄=命中」的三色秩序打架。这里显式收回墨条。 */
+.search__list .b3-list-item--focus {
+    background-color: var(--b3-highlight-current-background);
+    color: var(--b3-highlight-color);
+    box-shadow: none;
+}
+
+.search__list .b3-list-item--focus .b3-list-item__meta,
+.search__list .b3-list-item--focus .b3-list-item__number {
+    color: var(--b3-highlight-color);
+}
+
+/* C8：当前条本身已是藤黄 #E9C77E，条内 <mark> 再铺一格淡藤黄 #F2DFA4
+   两者只有 1.23:1 —— 命中词完全看不出。当前条内改"去底 + 深藤黄字 + 下划线"：
+   #6E4900 对 #E9C77E 是 4.94:1（≥4.5；原候选 #7A5200 只有 4.26，不足），
+   下划线再提供形状第二通道，不靠颜色单通道。
+   深色同理去底，用 on-background（对暗藤黄 5.22），避免高亮块反成全页最亮。 */
+.search__list .b3-list-item--focus mark {
+    background-color: transparent;
+    color: #6E4900;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+}
+
+/* G08：此处原有一条 .search__empty{color/line-height}，被下方同名规则
+   （font-size/line-height/color:on-surface）整体覆盖，属同权重后置失效旧条，已删。 */
+.search__tip {
+    /* R2-02：搜索快捷键提示是文本 → on-surface */
+    color: var(--b3-theme-on-surface);
+    border-top-color: var(--b3-border-color);
+}
+
+/* 加载：主色旋转，1s linear（DESIGN 7） */
+.fn__loading {
+    color: var(--b3-theme-primary);
+}
+
+.fn__rotate {
+    animation: yj-spin 1s linear infinite;
+}
+
+/* 自动保存中 · 顶栏同步图标呼吸。
+   F6：循环动画的真实清单只有两处，均为状态指示、无装饰性循环：
+   ① .fn__rotate 的 1s linear 旋转（加载/同步进行中）
+   ② 本节的 2s ease-in-out 呼吸（后台同步、加载进行中）
+   原文"唯一的循环动画"不实——两处同存，已在本注释与 DESIGN §6.2 同步更正。
+   R1-12：官方同步按钮在不同外壳里的容器不同——
+   桌面是 #barSync，移动端顶栏是 #toolbarSync，插件/证据页可能用 .yj-sync。
+   三个都覆盖，保证"同一状态同一语言"。
+   补充：移动顶栏的同步图标可能没有 id 只有 .fn__rotate，
+   用 .mobile-topbar 作用域兜住，避免移动端退回官方 1s 匀速旋转。
+   注意：本段必须只有一个完整的块注释——R3-06 那次改写曾在注释块外留下
+   一条游离的注释终止符，CSS 解析器会把紧随其后的整条呼吸规则丢弃
+   （浅色下实测退化为 1s 旋转）。改动本段请确认注释成对闭合。 */
+#barSync svg.fn__rotate,
+#toolbarSync svg.fn__rotate,
+.yj-sync svg.fn__rotate,
+.mobile-topbar svg.fn__rotate {
+    animation: yj-breathe 2s ease-in-out infinite;
+}
+
+/* 空状态（官方类名：scss/component/_list.scss:95 .b3-list--empty、
+   scss/protyle/_wysiwyg.scss:53 .protyle-wysiwyg--empty、
+   scss/business/_search.scss:199 .search__empty） */
+.b3-list--empty,
+.protyle-wysiwyg--empty:empty::before {
+    color: var(--b3-empty-color);
+}
+
+.protyle-wysiwyg--empty:empty::before {
+    line-height: 1.75;
+}
+
+/* 空状态图形：DESIGN 7「空状态」要求 24px 淡墨线性墨点。
+   官方没有对应元素，用 CSS 伪元素画一个“砚池”圆点，
+   不新增 DOM、不改应用结构。
+   R1-06：原来用 on-surface-lighter（纸上 1.64:1 / 深 1.97:1），
+   低于 WCAG 1.4.11 的非文本 3:1，深色下几乎不可见。
+   改用 on-surface（5.05 / 5.67），并按 DESIGN 的"墨点"语义
+   把中心点做成实心、外环保持 1.5px 细线（外环用 alpha 稍弱，
+   但主轮廓由 on-surface 承担，保证可辨识）。 */
+.b3-list--empty::before,
+.search__empty::before {
+    content: "";
+    display: block;
+    /* F7（2026-10-28，R3-07 state:dot-caption-size）：题注与 DESIGN §7 都写
+       「24px 淡墨圆点」，但伪元素是 content-box——width:24px 之外再加 1.5px
+       描边两侧，实际外径 27px（Playwright 实测圆点直径 27px），图文不符。
+       加 box-sizing:border-box 后外径恰为 24px（内径 21px），题注「24px」
+       逐字成立，DESIGN 的 24px 契约也不必改；描边仍在，只是从
+       「24px 内容 + 3px 边」变成「24px 含边」。 */
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    /* R2-01（2026-10-28）：墨点与文案同轴居中（回退 Z6-N4 的左对齐）。
+       Z6-N4 的前提「两处空态文案均无 text-align」失实——官方轴就是居中：
+       preview-base.css:2062 .search__empty{text-align:center}、:1482
+       .b3-list--empty{justify-content:center}。墨点 margin:0 auto 回归居中轴，
+       .b3-list--empty 文案补 text-align:center（见上一条规则）使四张空态卡
+       （浅深 × 搜索/反链）墨点与文案同轴。 */
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    border: 1.5px solid var(--b3-theme-on-surface);
+    background-image: radial-gradient(circle at 50% 50%,
+        var(--b3-theme-on-surface) 0 3px,
+        transparent 3px);
+}
+
+.search__empty::before {
+    margin-bottom: 16px;
+}
+
+/* R1-08：搜索无结果要能"回答为什么 + 下一步"。
+   主行「未找到「查询词」」回显查询词；建议行用 12px 次级色给两条动作。
+   states 预览页把建议行放在 .search__empty-sub 里（不影响真实应用）。 */
+.search__empty {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--b3-theme-on-surface);
+}
+
+.search__empty-sub {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.6;
+    /* R2-02：这是 DESIGN §7 要求"下一步做什么"的引导行，必须达 4.5:1；
+       on-surface-light 仅 3.40 → on-surface（5.05） */
+    color: var(--b3-theme-on-surface);
+}
+
+/* ==========================================================================
+   12. 关键帧（DESIGN 6.1 运笔曲线）
+   ========================================================================== */
+
+/* R1-09：文档树展开的子节点渐显 + 4px 下移（DESIGN 6.2）。
+   官方给展开后的容器加 .protyle-wysiwyg--animate（protyle/_wysiwyg.scss:858
+   的 bottom2Top）。主题用自己的回锋曲线重写它，方向一致但更克制。 */
+.protyle-wysiwyg--animate {
+    animation: yj-tree-in var(--yj-dur-base) var(--yj-ease-out);
+}
+
+@keyframes yj-tree-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes yj-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(359deg); }
+}
+
+@keyframes yj-breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .6; }
+}
+
+@keyframes yj-save-pulse {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* D7（2026-10-29，真机核查）：入场动画必须只动 opacity。原先带
+   translateY(-4px) scale(.99)，而 animation-fill-mode:both 让该动画永久处于
+   filling 状态——Chromium 对「正在动画 transform 的元素」启用 containing-block，
+   官方 JS 以视口坐标给子菜单写的 position:fixed left 被劫持成相对菜单左缘解析，
+   实测子菜单右漂 = 菜单左缘坐标（真机 left:489px 渲染在 639.9px，gap 300.7px），
+   接缝修复被整体架空。opacity 动画不产生 containing-block，淡入观感不变。 */
+@keyframes yj-menu-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes yj-ref-line {
+    from { transform: scaleY(0); opacity: 1; }
+    to { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes yj-ref-fade {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* ==========================================================================
+   13. 响应式：1280 / 1024 / 768 三档（DESIGN 8）
+   说明：官方桌面端唯一样式断点为 750px（util/_responsive.scss:1），
+   移动端为独立结构；此处按任务要求提供 1280/1024/768，并保留 750 兜底。
+   ========================================================================== */
+
+/* 全书房：默认档 >1280px 用 46em 行长（:root 已定义），此处不重复声明 */
+
+/* 桌面：编辑区按行长度量居中，两侧留白即"案几"
+   官方 .protyle-content 已用 container query 设置 --b3-protyle-padding-*，
+   这里以更高特异性（:not([data-fullwidth])）改用行长度量接管。 */
+.protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .protyle-top,
+.protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .protyle-wysiwyg,
+.protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .sy__backlink--bottom {
+    /* R1-22：最小边距走 token（--yj-space-4 = 16px，DESIGN 5.1/8）。
+       R3-05 结论：两侧**本来就是同一个表达式**，百分比按 `clientWidth`
+       （已排除滚动条）解析，因此版心在可见区域内精确居中——
+       1440 档实测左右各 54px、1024 档各 16px（相对 .protyle-content 的
+       clientWidth 量取）。审查看到的"左 24 / 右 32"是把外框（含 8px
+       滚动条槽）当基准量的结果：那 8px 是滚动条本身占的，不是 padding 偏移。
+       因此这里保持统一表达式，不再额外加减槽宽（加了反而让行宽变 744）。 */
+    --b3-protyle-padding-left: max(var(--yj-space-4), calc((100% - var(--yj-measure)) / 2));
+    --b3-protyle-padding-right: max(var(--yj-space-4), calc((100% - var(--yj-measure)) / 2));
+}
+
+/* F5（2026-10-28，Z2-N8）：题头簇节奏断档——文档图标(mt 34)→标签 8px→
+   标签→标题 48px→标题→正文 16px，48px 把「图标+标签」簇掏空。题头上边距降到
+   --yj-space-6（24px，记录期望 16–24px 的中值），题头簇回到 8/24/16 的
+   同一栅格节奏。
+   G08（2026-10-29 评审）：原注释称「编辑区顶部 48px」由 .protyle-content 的
+   padding 承担，但该 padding 从未写入——`--yj-space-12` 全仓 0 消费点。
+   本轮删掉这个空转 token，编辑区顶部留白就是「面包屑 + 题头 24px」实测值，
+   DESIGN 5.1 同步改为实测口径，不再承诺不存在的 48px。 */
+.protyle-title {
+    margin-top: var(--yj-space-6);
+}
+
+/* R1-16：行长切换点与"窄桌面"断点解耦。
+   DESIGN §8 承诺 ≥1200px 用 46em、750–1199px 用 44em，但原实现把
+   --yj-measure 的 44 倍写在 max-width:1280px 里，导致 1200–1280 的
+   用户拿到 44 字/行。现在：
+   - 1280px 块只负责浮层/对话框/面包屑宽度（任务要求保留该断点）
+   - 行长切换单独落到 1200px 边界，与文档一致 */
+@media (max-width: 1200px) {
+    :root {
+        --yj-measure: calc(var(--b3-font-size-editor, 16px) * 44);
+    }
+}
+
+@media (max-width: 1280px) {
+    .b3-dialog__container {
+        max-width: min(88vw, 720px);
+    }
+
+    .block__popover {
+        width: 72vw;
+    }
+
+    /* R2-04：面包屑不再用固定像素上限。原 88/72/112px 在留白充裕时也照样截断
+       （1024 下只剩「日光下的…」，右侧到功能区还有 568px 空白）。
+       改弹性 min(240px, 42vw)：优先按可用宽度给足信息，text-overflow:ellipsis
+       继续兜底；42vw 保证窄屏时给功能区图标留位。 */
+    .protyle-breadcrumb__text--ellipsis {
+        max-width: min(240px, 42vw);
+    }
+}
+
+@media (max-width: 1024px) {
+    .b3-dialog__container {
+        max-width: min(92vw, 640px);
+    }
+
+    .block__popover {
+        width: 80vw;
+    }
+
+    /* G08：面包屑省略宽度在 1280 已声明同值，1024/768 两处重复已删
+       （1280 规则对更窄视口同样命中，行为不变）。 */
+    .dock__item {
+        margin: 4px;
+        padding: 4px;
+    }
+
+    /* R1-17：页签上限从 148px 放宽到 176px（实测 148px 时文本可视区
+       只剩 99px、完整标题 254px，两条同前缀文档截断后无法区分）。
+       C16：排除只读操作条（`.layout-tab-bar--readonly`）。它是窗口切换/新建
+       这类主操作的容器，子项被 176px 卡住时"更多"下拉停在条中部（1024 实测
+       x≈649，右侧留 330px 空带），与 1440 的右端行为不一致。
+       只限普通页签条，只读条恢复自适应宽度。 */
+    .layout-tab-bar:not(.layout-tab-bar--readonly) .item {
+        max-width: 176px;
+    }
+
+    .layout-tab-bar--readonly .item {
+        max-width: none;
+    }
+
+
+    .status__msg {
+        max-width: 46vw;
+    }
+}
+
+/* 移动 · 另一张纸：触控目标 >= 44px，hover 退场，行长 36em */
+/* D11（2026-10-29，用户报「缩小界面错位」）+ G01（2026-10-29 评审）：
+   本块是**手机外壳**规则（全部控件 ≥44px）。判定「是不是手机」不能靠输入设备
+   （pointer: coarse）：触屏笔记本/二合一在 ≤768px 窗口仍是桌面外壳，D11 只加
+   pointer: coarse 后它们照旧被套手机排版（评审实测 700px+hasTouch：正文 15px、
+   工具栏 44px）。改为**结构钩子**——真实移动前端 index.html 的 body 下有
+   `#mobileTopBar`（桌面构建没有；实测 desktop/index.html 命中 0 次），本块
+   全部规则挂在 `body:has(#mobileTopBar)` 之下，媒体查询只保留宽度兜底。
+   `:where()` 把结构门控的特异性归零，深色文件的 `:root[data-theme-mode="dark"]`
+   前缀副本仍按原层级覆盖（深浅逐条对应）。
+   :has() 需 Chromium 105+；思源 3.8 的 Electron/WebView2 远高于此。 */
+@media (max-width: 768px) {
+    html:has(#mobileTopBar) {
+        --yj-measure: calc(var(--b3-font-size-editor, 16px) * 36);
+    }
+
+    body:has(#mobileTopBar) {
+        font-size: 15px;
+    }
+
+    :where(body:has(#mobileTopBar)) .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .protyle-top,
+    :where(body:has(#mobileTopBar)) .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .protyle-wysiwyg,
+    :where(body:has(#mobileTopBar)) .protyle-content[data-padding-mode="responsive"]:not([data-fullwidth]) > .sy__backlink--bottom {
+        /* G01 / THEME-CSS-02：原先写死 12px，把本块声明的 36em 行长
+           （--yj-measure）整个盖掉，36em 永不生效。恢复桌面同款度量表达式，
+           12px 仍是下限（--yj-space-3）：390px 手机仍得 12px（(100%-576)/2<0），
+           ≥600px 的手机外壳/触屏平板才真正按 36em 居中。 */
+        --b3-protyle-padding-left: max(var(--yj-space-3), calc((100% - var(--yj-measure)) / 2));
+        --b3-protyle-padding-right: max(var(--yj-space-3), calc((100% - var(--yj-measure)) / 2));
+    }
+
+    :where(body:has(#mobileTopBar)) .protyle-title {
+        margin: 20px 12px 0;
+    }
+
+    :where(body:has(#mobileTopBar)) .protyle-title__input {
+        font-size: 1.75em;
+    }
+
+    /* 触控目标 */
+    :where(body:has(#mobileTopBar)) .b3-list-item {
+        min-height: 44px;
+        line-height: 44px;
+    }
+
+    :where(body:has(#mobileTopBar)) .b3-menu__item {
+        line-height: 44px;
+    }
+
+    :where(body:has(#mobileTopBar)) .toolbar__item {
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    :where(body:has(#mobileTopBar)) .dock__item {
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    :where(body:has(#mobileTopBar)) .block__icon {
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    /* R3-01：移动端**所有** .b3-button 一律 44px 高，不再区分主/次操作。
+       原先普通按钮 40px、只有闪卡与页签操作抬到 44px，与预览页
+       "所有触控目标 ≥ 44 × 44" 的声明矛盾，且对话框里的确认/删除
+       （高风险操作）恰恰落 40px。Apple HIG 44pt / Material 48dp 是共识下限。
+       min-width 同时给 44px，保证"取消"这类两字按钮的横向热区也达标。 */
+    :where(body:has(#mobileTopBar)) .b3-button {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px 12px;
+    }
+
+    /* F1：输入类控件同样是触控目标。移动预览页的搜索框内联 height:40px，
+       与"所有触控目标 ≥ 44 × 44"的声明仍然矛盾；用 min-height 收口
+       （min-height 优先于内联 height），深浅两文件同步。 */
+    :where(body:has(#mobileTopBar)) .b3-text-field,
+    :where(body:has(#mobileTopBar)) .b3-select {
+        min-height: 44px;
+    }
+
+    /* F1：移动外壳的 .toolbar__icon 也是可点目标。官方移动样式是
+       `.toolbar__icon{width:20px;height:20px;padding:10px;margin:4px}`
+       （热区 40px、外框 48px）；抽屉里
+       `#sidebar .toolbar__icon{width/height:18px;padding:11px;margin:2px}`；
+       历史面板是 36px 无内距。
+       这里统一改成 border-box 的 44×44 外框 + 对应内距（内容盒仍是官方图标
+       尺寸 20 / 18 / 36px），并把 margin 收到 2px——面板工具条里
+       44 + 2×2 = 48px，与官方 40 + 4×2 = 48px 的占位完全一致，
+       不会把 48px 高的工具条撑出 4px 溢出。 */
+    :where(body:has(#mobileTopBar)) .toolbar__icon {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 12px;
+        margin: 2px;
+    }
+
+    :where(body:has(#mobileTopBar)) #sidebar .toolbar__icon,
+    :where(body:has(#mobileTopBar)) #sidebar2 .toolbar__icon,
+    :where(body:has(#mobileTopBar)) #sidebarRight .toolbar__icon {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 13px;
+        margin: 2px;
+    }
+
+    :where(body:has(#mobileTopBar)) .toolbar__icon--history {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 4px;
+        margin: 2px;
+    }
+
+    /* F1：官方移动页签总览里 `.mobile-tabs__item` 只有 min-height:40px，
+       `.mobile-tabs__close` 是 34×30（拖动把手 28×40）。这三者同样是可点目标，
+       补齐后"所有触控目标 ≥ 44 × 44"在页签总览页也成立。
+       关闭钮视觉图标仍 16px，用透明内距把热区撑到 44×44（与提示条关闭钮同法）。 */
+    :where(body:has(#mobileTopBar)) .mobile-tabs__item {
+        min-height: 44px;
+    }
+
+    :where(body:has(#mobileTopBar)) .mobile-tabs__drag {
+        width: 44px;
+        height: 44px;
+        margin-right: 0;
+    }
+
+    :where(body:has(#mobileTopBar)) .mobile-tabs__close {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 14px;
+    }
+
+    /* F5（2026-10-28，Z6-N9）：当前页签在总览里原本只有 primary 描边一个通道
+       （shadow rgba(47,93,138,.12) 0 0 0 1px，字重 400）。补形状第二通道：
+       2px 主色左墨条 + 主色内框 + 700 字重，与桌面
+       `.layout-tab-bar .item--focus` / 文档树 `--focus` 是同一套语言。
+       F2（2026-10-28，R3-02）：原第三条 `0 0 0 1px primary-lightest` 是**非 inset
+       外环**——它把元素的可视边界向外扩 1px，与「当前项不外扩改变几何」的设计
+       规则（DESIGN 7.1「页签焦点态的设计规则」）冲突，且父容器
+       `.mobile-tabs__list` 是 overflow:auto，外环在滚动边界处会被裁掉一条。
+       改为 inset：1px primary-lightest 并入内框层（透明度不变、几何不变），
+       与 focus 页签的 inset 口径一致。深浅逐字对应。 */
+    :where(body:has(#mobileTopBar)) .mobile-tabs__item--active {
+        box-shadow: inset 2px 0 0 var(--b3-theme-primary),
+                    inset 0 0 0 1px var(--b3-theme-primary-lighter),
+                    inset 0 0 0 2px var(--b3-theme-primary-lightest);
+        font-weight: 700;
+    }
+
+    /* F5（2026-10-28，Z6-N9）：总览面板标题（17px）原先随 .toolbar__text 取
+       on-surface（纸上 5.28），低于列表项的 on-background（12.15）——层级倒挂。
+       标题提到 on-background，让「标题 ≥ 内容」的对比关系成立。 */
+    :where(body:has(#mobileTopBar)) .mobile-topbar .toolbar__text {
+        color: var(--b3-theme-on-background);
+    }
+
+    :where(body:has(#mobileTopBar)) .b3-dialog__container {
+        max-width: 96vw;
+        max-height: 88vh;
+    }
+
+    :where(body:has(#mobileTopBar)) .block__popover {
+        width: 92vw;
+        max-width: none;
+    }
+
+    /* 移动端触控热区：官方移动外壳的面包屑按钮只有 24px 行高，
+       侧栏图标只有 40px（20 + 10×2），都低于 44px 下限。 */
+    :where(body:has(#mobileTopBar)) .protyle-breadcrumb__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        box-sizing: border-box;
+        padding: 0 8px;
+    }
+
+    /* F1：面包屑条目本身（点击可回到上级文档）在官方移动样式里是
+       `height/line-height:24px`，与 44px 下限矛盾。整条面包屑的高度由
+       `--mobile-breadcrumb-height`（官方 42px）决定，这里一起抬到 44px，
+       条目、箭头、条内按钮才有 44px 的纵向空间；正文的顶部占位
+       （官方 `#editor>.protyle-content::before` 用同一变量计算）随之同步，
+       不会出现"面包屑变高盖住首行"。 */
+    body:has(#mobileTopBar),
+    :where(body:has(#mobileTopBar)) .mobile-frame {
+        --mobile-breadcrumb-height: 44px;
+    }
+
+    :where(body:has(#mobileTopBar)) .protyle-breadcrumb__item {
+        height: 44px;
+        line-height: 44px;
+        margin: 0;
+    }
+
+    :where(body:has(#mobileTopBar)) .side-panel .toolbar__icon {
+        box-sizing: border-box;
+        width: 44px;
+        height: 44px;
+        padding: 12px;
+    }
+
+    /* R1-14：底部工具条（--b3-ui-dock-bottom-height/48px）+ 状态栏（32px）
+       都要避让。原来 bottom:16px 会把提示条压在底栏图标上，
+       且 snackbars z-index 更高，直接吃掉点击。 */
+    :where(body:has(#mobileTopBar)) .b3-snackbars {
+        left: 12px;
+        right: 12px;
+        top: auto;
+        bottom: calc(48px + 32px + 8px);
+        align-items: center;
+    }
+
+    :where(body:has(#mobileTopBar)) .b3-snackbar {
+        text-align: center;
+        justify-self: center;
+    }
+
+    :where(body:has(#mobileTopBar)) .b3-snackbar__content {
+        max-width: calc(100vw - 24px);
+    }
+
+    /* R1-14：提示条内控件也要满足 44px 触控目标。
+       关闭按钮视觉图标保持 18px，用透明 padding 把热区撑到 44×44。 */
+    :where(body:has(#mobileTopBar)) .b3-snackbar__close {
+        width: 44px;
+        height: 44px;
+        right: 2px;
+        top: 50%;
+        margin-top: -22px;
+        padding: 13px;
+        box-sizing: border-box;
+    }
+
+    :where(body:has(#mobileTopBar)) .b3-snackbar--error .b3-button {
+        min-height: 44px;
+        min-width: 44px;
+        /* F5（2026-10-28，Z6-N6）：重试钮与错误文案末字实测只隔 3.89px。
+           「重试」二字 + padding 10/14 = 52px 宽、无外距；改 padding-inline 8px
+           （52→44，仍 ≥44 触控契约）并加 margin-inline-start 8px，
+           文案与按钮的实测间距 3.89 → 8+8=16px。 */
+        padding: 10px 8px;
+        margin-inline-start: 8px;
+    }
+
+    /* R1-18：移动端标题左侧的文档图标按官方定位是 left:-22px，
+       在 12px 边距下会被视口裁掉半截。触屏无 hover 语义、该入口不可达，
+       直接不显示，避免"残缺图形"。 */
+    :where(body:has(#mobileTopBar)) .protyle-title__icon {
+        display: none;
+    }
+
+    :where(body:has(#mobileTopBar)) .status__msg {
+        max-width: 60vw;
+    }
+}
+
+/* R1-15：移动断点统一到单一 768px 区间。
+   原先 768px（移动排版）与 750px（官方兜底）两套并存，产生 751–768px
+   的"双规则带"——桌面骨架配 15px 正文/44px 行高/36em 行长，越过 769px
+   又整体跳回，拖动窗口会看到两次跳变。现在把原 750px 的三条规则并入
+   768px 块，主题只有**一个**移动断点（详见 README 与 DESIGN §8 的实测说明）。
+   注意：`.toolbar__text` 在桌面端是顶栏文字，但在移动端是菜单/设置面板的标题
+   （app/src/mobile/menu/mainMenu.ts 的 `toolbar__text mobile-main-menu__title`），
+   因此只隐藏桌面顶栏里的那一份（#toolbar 作用域），不能全局隐藏。 */
+@media (max-width: 768px) {
+    #toolbar .toolbar__text {
+        display: none;
+    }
+
+    .av__cell {
+        font-size: 90%;
+    }
+}
+
+/* 触控设备：按下反馈替代悬停（DESIGN 8）
+   (hover: none) 时悬停语义不存在，故用 !important 关闭 hover 底色，
+   否则官方高特异性选择器（如 .b3-list--background .b3-list-item:hover:not(...)）
+   会压过本块的同名规则。注意：触控点击会同时命中 :hover 与 :active，
+   因此 :active 反馈也必须 !important 且置于其后，才能盖住 hover 的透明。 */
+@media (hover: none) {
+    /* D1-09（2026-10-29，mobile:press-feedback）：这组清零规则必须排除 `:active`。
+       触控按下会**同时**命中 :hover 与 :active，而 :not(.b3-list-item--focus):hover
+       的 (0,3,0) 高于下面 `:active` 清单里 `.b3-list-item:active` 的 (0,2,0)——
+       两条都 !important 时按权重决胜负，按下态被清成透明，实测 bg 与静止态
+       逐字相同（rgba(0,0,0,0)），读作「没点中」。加 `:not(:active)` 后按下瞬间
+       清零规则不匹配，交给下一条 :active 上色。 */
+    .b3-list-item:not(.b3-list-item--focus):not(:active):hover,
+    .b3-menu__item:not(.b3-menu__item--current):not(:active):hover,
+    .av__gallery-item:not(:active):hover,
+    .b3-list-item__icon:not(:active):hover,
+    .b3-list-item__action:not(:active):hover,
+    .block__icon:not(:active):hover {
+        background-color: transparent !important;
+    }
+
+    .b3-card:hover {
+        /* G07 / THEME-CSS-10：触屏没有 hover，卡片原先仍常驻 surface-lighter
+           底，指尖点按后整卡留一块"悬停面"。底色一并复位（阴影语义保留），
+           与下面 :active 的即时反馈配合。 */
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* D1-09：补 .mobile-tabs__item（页签总览行）与 .protyle-breadcrumb__icon
+       （面包屑图标）——这两处原先不在清单里，强制 :active 后 bg/shadow/transform
+       与静止态逐字相同，触屏上点它们没有任何确认。 */
+    .b3-list-item:active,
+    .b3-menu__item:active,
+    .b3-list-item__icon:active,
+    .b3-list-item__action:active,
+    .block__icon:active,
+    .dock__item:active,
+    .toolbar__item:active,
+    .mobile-tabs__item:not(.mobile-tabs__item--active):active,
+    .protyle-breadcrumb__icon:active,
+    .b3-button:not(:disabled):active,
+    .b3-card:active {
+        background-color: var(--b3-theme-primary-lightest) !important;
+        transition-duration: var(--yj-dur-micro);
+    }
+
+    .block__icon {
+        opacity: 1;
+    }
+
+    /* R3-09：`.b3-list-item--hide-action` 的行级动作（重命名/删除/移动）
+       默认 `display:none`，只在 `:hover` 时出现。触屏没有 hover，
+       这个 44px 按钮永久不可达——移动端行级操作等于没有入口。
+       触屏上改为常显（不用 :active，因为 `:active` 只在按住的瞬间成立，
+       用户需要先看见才能按）。
+       Z1-02：常显之后的可见性。原先沿用基类的 on-surface-light × opacity .75，
+       浅色有效对比普通行 2.23、选中行 1.99——低于 WCAG 1.4.11 非文本 3:1，
+       而这是行级操作在触屏上的唯一入口（交付图上 ⋮ 需放大数倍才可辨）。
+       浅色改 on-surface + opacity 1（普通行 4.62、选中行底 3.91，均 ≥3）；
+       深色由 theme-dark.css 的带前缀同名规则接管（on-surface-light × .75，
+       实测 4.28/3.42 仍 ≥3），不受本条影响。 */
+    .b3-list-item--hide-action > .b3-list-item__action {
+        display: flex;
+        color: var(--b3-theme-on-surface);
+        opacity: 1;
+    }
+
+    .b3-list-item--hide-action:active > .b3-list-item__action {
+        opacity: 1;
+    }
+
+    .b3-tooltips::after {
+        content: none;
+    }
+}
+
+/* 无障碍：尊重减少动效，状态指示改为静态半透明（DESIGN 6.3）
+   R1-11：光把 duration 压到 .01ms 不够——带 fill:both + 1.5s delay 的
+   淡出动画会在 2.2s 后把线藏起来，反而盖掉"静态可见"的本意。
+   因此对被动画元素直接 animation:none，并显式给出终态。 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        animation-delay: 0ms !important;
+        transition-duration: .01ms !important;
+        transition-delay: 0ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    #barSync svg.fn__rotate,
+    #toolbarSync svg.fn__rotate,
+    .yj-sync svg.fn__rotate,
+    .mobile-topbar svg.fn__rotate {
+        animation: none !important;
+        opacity: .6;
+    }
+
+    /* G07：通用加载/同步旋转（.fn__rotate 不在上面四个外壳作用域内）——
+       仅靠 animation-duration:.01ms 会把它冻结在某一帧，读作「卡住的转圈」；
+       这里显式停转。图标本身仍在（.fn__loading 给主色），「正在加载」的语义
+       由图标的可见存在承担，不靠旋转。 */
+    .fn__rotate {
+        animation: none !important;
+    }
+
+    /* 保存成功印章：静态显示为实心绿点，不再脉冲 */
+    .b3-snackbar--success .b3-snackbar__content::before {
+        animation: none !important;
+    }
+
+    /* 双链落点线 A 实现（伪元素空闲的块）：静态常显（不再展开/淡出） */
+    .protyle-wysiwyg--hl:not(.li):not(.list):not(.sb):not(.bq):not(.callout):not([data-type="NodeHeading"])::before {
+        animation: none !important;
+        transform: none;
+        opacity: 1;
+    }
+
+    /* F2/N7：落点线 B 实现（标题/列表/列表项/超级块/引述/标注）同样要静态常显。
+       B 的载体是 background-image + @property --yj-ref-alpha，R1-11 所述的
+       "压 duration 反而更糟"在这里更严重：animation-duration:.01ms 会让
+       yj-ref-alpha-out 立刻走到终态 alpha:0，减少动效用户跳转到标题/列表时
+       反而完全没有落点提示。这里直接关动画并显式给出终态（线常显、全长）。 */
+    .protyle-wysiwyg--hl:is(.li, .list, .sb, .bq, .callout, [data-type="NodeHeading"]) {
+        animation: none !important;
+        background-size: 2px 100% !important;
+        --yj-ref-alpha: 1;
+    }
+}
