@@ -297,6 +297,16 @@
     /* R3-06：落点线"停留后再淡出"的保持时长，单独 token 化
        （原本 1.5s 是字面量，用户覆写时长契约时不会跟随） */
     --yj-dur-hold: 1.5s;
+    /* 1.0.1：昼夜切换外壳过度。原用 --yj-dur-base(180ms)，而集市面板/卡片
+       自身无过渡 → 面板已到终态、外壳还在半灰中间帧（实测面板变化 0 次）。
+       缩短到 80ms 把错位窗口压到不足 5 帧；不铺过渡到 .b3-card（那会给
+       59/610 张卡再加批量过渡）。 */
+    --yj-dur-mode: 80ms;
+    /* 1.0.1：集市卡片只过渡底色且 ≤60ms。原先另挂 180ms 的 box-shadow 过渡，
+       主题样式表换入时 59 张卡在同一次重算里同帧起步，投影过渡与底色过渡
+       叠加；本机实测（59 卡同批换入，`reports/fix-101-measure.json`）
+       卡片过渡 120 → 60 条、全页 129 → 69 条。 */
+    --yj-dur-card: 60ms;
 
     /* 阴影 */
     --yj-shadow-card: 0 1px 2px rgba(60, 55, 40, .06), 0 4px 12px rgba(60, 55, 40, .08);
@@ -383,9 +393,12 @@ body {
     -webkit-font-smoothing: antialiased;
     /* R1-09：主题亮暗切换的全局颜色过渡（DESIGN 6.2「时辰流动感」）。
        只过渡 color/background-color，绝不写 all——否则任何属性变化
-       （含焦点环、布局）都会被拖成 180ms。 */
-    transition: background-color var(--yj-dur-base) var(--yj-ease-out),
-                color var(--yj-dur-base) var(--yj-ease-out);
+       （含焦点环、布局）都会被拖成 180ms。
+       1.0.1：时长 180ms → var(--yj-dur-mode)=80ms。集市面板/卡片自身无过渡，
+       180ms 会让面板已到终态、外壳仍停在半灰中间帧（错位窗口约 180ms）；
+       80ms 把它压到 5 帧以内，而不是把过渡铺到 59/610 张卡上。 */
+    transition: background-color var(--yj-dur-mode) var(--yj-ease-out),
+                color var(--yj-dur-mode) var(--yj-ease-out);
 }
 
 /* 主要承载背景的容器同步过渡，切换昼夜时不出现"半张纸" */
@@ -393,7 +406,8 @@ body {
    这两处，原清单漏掉它们 → 亮暗切换的第一帧纸面已跳到终态、顶栏仍是旧色，
    出现"浅色顶栏 + 深色纸面 + 半灰正文"的割裂帧（实测正文瞬时对比 1.67:1）。
    清单里必须包含所有"自己画 background-color 的容器"，不只是外壳祖先。
-   R2-01：这里**只列 background-color**，不列 color——理由见上一条注释。 */
+   R2-01：这里**只列 background-color**，不列 color——理由见上一条注释。
+   1.0.1：与 body 同步改走 --yj-dur-mode(80ms)，否则外壳与纸面错开一帧。 */
 .layout,
 .layout__center,
 .layout__center .layout-tab-container,
@@ -411,7 +425,7 @@ body {
 .b3-dialog__container,
 .toolbar,
 .status {
-    transition: background-color var(--yj-dur-base) var(--yj-ease-out);
+    transition: background-color var(--yj-dur-mode) var(--yj-ease-out);
 }
 
 a {
@@ -1802,8 +1816,12 @@ select.b3-select:disabled:disabled {
     border-radius: var(--b3-border-radius);
     background-color: var(--b3-theme-surface);
     box-shadow: var(--yj-shadow-card);
-    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
-                box-shadow var(--yj-dur-base) var(--yj-ease-out);
+    /* G2（1.0.1）：只过渡底色，不挂 box-shadow。官方 base.css 的 .b3-card
+       本来就只有 var(--b3-background-transition)（底色 .1s）；主题额外加的
+       180ms 投影过渡让 59 张集市卡在样式重算时同帧多起 59 条过渡——本机实测
+       卡片过渡 120 → 60 条（`reports/fix-101-measure.json`）。
+       桌面 hover 投影因此改为瞬切（未做主观复核）。 */
+    transition: background-color var(--yj-dur-card) var(--yj-ease-out);
 }
 
 .b3-card:hover {
@@ -1930,6 +1948,22 @@ select.b3-select:disabled:disabled {
 .b3-typography .h6,
 .b3-typography h6 {
     line-height: 1.05;
+}
+
+/* D14（1.0.1 根因修复）：折叠标记锚在**块盒**中线（官方
+   `div[fold="1"][data-type=NodeHeading]::before{top:50%;margin-top:-8px}`），
+   而文字行盒贴在内层 [spellcheck] 盒顶。官方给内层钉 `min-height:1.625em`，
+   主题行高阶梯 1.58/1.42/1.28/1.15/1.05 在 H2–H6 全部小于 1.625em，多出的
+   高度全落在文字下方 → 标记随块盒中线一起下坠 (1.625em − 行高)/2
+   （修前实测 H2–H6 依次 +0.74/+3.06/+3.93/+4.94/+5.48px，浅色对照 ≤0.6px）。
+   把内层高度钉到行盒本身（1lh）后，块高 = 行高 + 8px，标记与文字同轴，
+   标题下方 2–5px 空隙一并消失。1lh 需 Chromium ≥121，前一行 1.625em 是
+   旧内核兜底（等同修复前，不回归）。列表内标题由官方的
+   `.li>.protyle-action~[data-type=NodeHeading]>[spellcheck]{min-height:1lh}`
+   另外覆盖（(0,6,0) 高于本条，且官方已是 1lh），不需要再补 li 规则。 */
+.protyle-wysiwyg [data-type="NodeHeading"] > [spellcheck] {
+    min-height: 1.625em;
+    min-height: 1lh;
 }
 
 /* 标题阶梯：字号沿用官方比例，字重按**平台可兑现的字面**分层（DESIGN 4.2）。
@@ -3199,12 +3233,29 @@ select.b3-select:disabled:disabled {
         background-color: transparent !important;
     }
 
-    .b3-card:hover {
-        /* G07 / THEME-CSS-10：触屏没有 hover，卡片原先仍常驻 surface-lighter
-           底，指尖点按后整卡留一块"悬停面"。底色一并复位（阴影语义保留），
-           与下面 :active 的即时反馈配合。 */
-        background-color: transparent !important;
-        box-shadow: none !important;
+    .b3-card:not(.b3-card--current):not(:active):hover {
+        /* G07 / THEME-CSS-10（1.0.1 根因修复）：触屏没有 hover，但点按会命中
+           :hover 并常驻到下一次点按。卡片在集市里的可辨识度**只**靠 surface
+           底色 + 1px 描边两条线索；原规则把底色清成 transparent、又把
+           box-shadow 清成 none（两条都 !important），整卡退化为一片文字。
+           正确做法是只把底色复位到**静止态**的 surface，投影/描边一律不动：
+           浅色静止描边来自官方 --b3-point-shadow，深色来自本文件
+           inset 1px surface-lighter，硬写 box-shadow 会与静止态不一致。
+           **必须 `:not(:active)`（与上面列表项同一根因，D1-09）**：触屏按下
+           同时命中 hover 与 active，本条 (0,4,0) 带 !important 会压过下面
+           `.b3-card:active` 的 (0,2,0)，按下态被复位成静止色 → 触屏卡片
+           零反馈（实测强制 hover+active 时浅色 bg=静止 rgb(241,237,227)、
+           深色 rgb(45,43,37)）。加 `:not(:active)` 后按下瞬间本条不匹配。 */
+        background-color: var(--b3-theme-surface) !important;
+    }
+
+    .b3-card--current:not(:active):hover {
+        /* G07：排除 --current 还不够——官方/主题的 `.b3-card:hover`((0,2,0))
+           本来就能压过 `.b3-card--current`((0,1,0))，实测触屏点按已应用主题卡
+           后底色会变成 surface-lighter（浅 rgb(228,223,210) / 深 rgb(59,56,49)），
+           选中态丢失。这里把当前卡钉回选中底（浅/深由 token 各自给值）。
+           同样加 `:not(:active)`，让按下态由下面的 :active 规则负责。 */
+        background-color: var(--b3-theme-primary-lightest) !important;
     }
 
     /* D1-09：补 .mobile-tabs__item（页签总览行）与 .protyle-breadcrumb__icon

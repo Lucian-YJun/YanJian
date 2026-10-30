@@ -312,6 +312,9 @@
     /* R3-06：落点线"停留后再淡出"的保持时长，单独 token 化
        （原本 1.5s 是字面量，用户覆写时长契约时不会跟随） */
     --yj-dur-hold: 1.5s;
+    /* 1.0.1（与浅色 theme.css 同值）：昼夜外壳过渡 80ms、集市卡片底色 60ms */
+    --yj-dur-mode: 80ms;
+    --yj-dur-card: 60ms;
 
     --yj-shadow-card: 0 1px 2px rgba(0, 0, 0, .24), 0 4px 12px rgba(0, 0, 0, .3);
 
@@ -451,10 +454,11 @@
    清单与 theme.css 同名同序，含真正绘纸面的 `.protyle` 与
    `.layout__center .layout-tab-container`。
    R2-01：`color` 只在 body 过渡（color 是继承属性；逐层各写一条会把
-   180ms 叠成秒级，深色首帧正文停在 35% 合成）。容器只过渡 background-color。 */
+   180ms 叠成秒级，深色首帧正文停在 35% 合成）。容器只过渡 background-color。
+   1.0.1：时长随浅色改走 --yj-dur-mode(80ms)，两模式同上同下。 */
 :root[data-theme-mode="dark"] body {
-    transition: background-color var(--yj-dur-base) var(--yj-ease-out),
-                color var(--yj-dur-base) var(--yj-ease-out);
+    transition: background-color var(--yj-dur-mode) var(--yj-ease-out),
+                color var(--yj-dur-mode) var(--yj-ease-out);
 }
 
 :root[data-theme-mode="dark"] .layout,
@@ -474,7 +478,7 @@
 :root[data-theme-mode="dark"] .b3-dialog__container,
 :root[data-theme-mode="dark"] .toolbar,
 :root[data-theme-mode="dark"] .status {
-    transition: background-color var(--yj-dur-base) var(--yj-ease-out);
+    transition: background-color var(--yj-dur-mode) var(--yj-ease-out);
 }
 
 /* C6：面包屑层级箭头是"我在文档树哪一层"的唯一路径指示，
@@ -1552,8 +1556,9 @@
     background-color: var(--b3-theme-surface);
     border-radius: var(--b3-border-radius);
     box-shadow: inset 0 0 0 1px var(--b3-theme-surface-lighter);
-    transition: background-color var(--yj-dur-micro) var(--yj-ease-out),
-                box-shadow var(--yj-dur-base) var(--yj-ease-out);
+    /* G2（1.0.1，与浅色同修）：只保留底色过渡；投影过渡在深色没有载体
+       （静止/悬停都是同一条 inset 描边），留着只会让每次重算多起一条空过渡。 */
+    transition: background-color var(--yj-dur-card) var(--yj-ease-out);
 }
 
 :root[data-theme-mode="dark"] .b3-card:hover {
@@ -1727,6 +1732,14 @@
 :root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"].h6,
 :root[data-theme-mode="dark"] .b3-typography .h6 {
     line-height: 1.05;
+}
+
+/* D14（1.0.1，与 theme.css 同值）：深色文件可单独加载（预览 dark-only 路径），
+   所以这条几何规则必须自带一份。内层 [spellcheck] 钉 1lh → 块高 = 行高 + 8px，
+   折叠标记（::before top:50%）与文字行盒同轴。1.625em 是旧内核兜底。 */
+:root[data-theme-mode="dark"] .protyle-wysiwyg [data-type="NodeHeading"] > [spellcheck] {
+    min-height: 1.625em;
+    min-height: 1lh;
 }
 
 :root[data-theme-mode="dark"] .protyle-wysiwyg .li > .protyle-action ~ [data-type="NodeHeading"].h1 {
@@ -2774,15 +2787,23 @@
         background-color: transparent !important;
     }
 
-    :root[data-theme-mode="dark"] .b3-card:hover {
-        /* G07（深色副本，THEME-CSS-10）：触屏没有 hover，卡片不应常驻悬停面底；
-           底色清空，描边/投影一并复位（深色靠砚沿表达层级，不用投影）。 */
-        background-color: transparent !important;
-        box-shadow: none !important;
+    :root[data-theme-mode="dark"] .b3-card:not(.b3-card--current):not(:active):hover {
+        /* G07（深色副本，THEME-CSS-10；1.0.1 与浅色同修）：触屏点按后 :hover
+           常驻，原先把底色清成 transparent、描边清成 none——而深色卡的唯一
+           轮廓就是静止态的 inset 1px surface-lighter，清掉后整卡只剩文字。
+           只复位底色到静止态 surface，描边/投影不动。
+           `:not(:active)` 与浅色同因：触屏按下同时命中 hover/active，本组
+           (0,5,0) 带 !important 会压过 :active 的 (0,3,0)，按下态被复位成
+           静止色、深色下静止/悬停/按下三者完全相同（零反馈）。 */
+        background-color: var(--b3-theme-surface) !important;
     }
 
-    /* 与浅色 .b3-card:hover { box-shadow: var(--yj-shadow-card) } 等价意图：
-       触控设备上取消卡片悬停的"抬起"感（深色用描边，不叠加投影） */
+    :root[data-theme-mode="dark"] .b3-card--current:not(:active):hover {
+        /* G07（深色）：`.b3-card:hover`((0,4,0)) 压过 `.b3-card--current`((0,3,0))，
+           实测点按后已应用主题卡变成 surface-lighter(#3B3831)、选中态丢失；
+           这里钉回 primary-lightest，按下态交给 :active。 */
+        background-color: var(--b3-theme-primary-lightest) !important;
+    }
 
     /* D1-09：补页签总览行与面包屑图标（与浅色同清单）。 */
     :root[data-theme-mode="dark"] .b3-list-item:active,

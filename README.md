@@ -101,6 +101,7 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 | | `--yj-ease-in`（顿笔） | `cubic-bezier(.4, 0, 1, 1)` |
 | | `--yj-ease-spring`（回锋） | `cubic-bezier(.34, 1.3, .64, 1)` |
 | 时长 | `--yj-dur-micro/base/enter/spring/pulse` | 100 / 180 / 240 / 260 / 400 ms |
+| | `--yj-dur-mode` / `--yj-dur-card` | 80 ms（昼夜外壳过渡）/ 60 ms（集市卡片底色） |
 | 阴影 | `--yj-shadow-card` | 暖色纸叠纸（深色为深投影） |
 | 行长 | `--yj-measure` | `calc(字体px × 46)`，随断点收为 44 / 36 |
 | 焦点 | `--yj-focus-ring` | 2px 间隙 + 2px 主色环 |
@@ -165,7 +166,7 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 | **空状态** | `--b3-empty-color` 文字、行高 1.75；配一枚 24px 淡墨「砚池」圆点（CSS 伪元素，不新增 DOM） | `.b3-list--empty`、`.protyle-wysiwyg--empty:empty::before`、`.search__empty` |
 | **搜索当前项** | 藤黄当前条 `#E9C77E`（深 `#5A5340`） | `.search__list .b3-list-item--focus` |
 | **移动外壳** | 顶栏/底栏/抽屉/遮罩补上主题色：底栏悬浮胶囊、抽屉面纸亮一档 + 单侧砚沿、遮罩用蒙纸色；抽屉图标与面包屑按钮抬到 ≥44px | `.mobile-topbar`、`.mobile-bottom-bar`、`.side-panel`、`.side-mask`、`.protyle-breadcrumb__icon` |
-| **触控按下** | `(hover: none)` 时关闭全部 hover 底色，改为 `:active` 即时反馈 | `@media (hover: none)` |
+| **触控按下** | `(hover: none)` 时关闭全部 hover 底色，改为 `:active` 即时反馈；**集市卡片例外**：只把 hover 底色复位到静止态 `surface`（当前卡复位到 `primary-lightest`），投影/描边不动——清成 transparent + `box-shadow:none` 会让卡片只剩文字 | `@media (hover: none)` |
 | **减少动效** | `prefers-reduced-motion: reduce` 下动效近零，保存呼吸改静态半透明 | 同媒体查询 |
 
 ### 焦点可达性实测注记（2026-10-29，3.8.8 桌面真机）
@@ -234,7 +235,7 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 | **≤ 1280px** | 对话框 ≤ 720px；悬浮预览 72vw；面包屑省略宽度 min(240px, 42vw) |
 | **≤ 1024px** | 对话框 ≤ 640px；悬浮预览 80vw；dock 图标内距收紧；页签上限 176px；状态栏消息 46vw |
 | **≤ 768px（且 `body:has(#mobileTopBar)` 移动外壳）** | 行长 36em（`max(12px, (100%−36em)/2)` 居中，390px 手机仍为 12px）；正文 15px；`#editor` 底部 80px 纸色渐隐（正文不钻到悬浮底栏/状态栏下面）；触控目标 ≥ 44×44（列表项/工具栏/dock/块标/闪卡按钮/全部 `.b3-button` 含对话框确认与删除/输入框与下拉/面包屑条目与按钮/侧栏与面板工具图标/页签项与关闭钮/拖动把手/提示条关闭钮与重试钮；行内标签按 WCAG 2.5.5 inline 豁免不撑高）；对话框 96vw；snackbar 抬到底栏+状态栏之上；面包屑弹性上限 min(240px,42vw)；抽屉展开/折叠箭头补足 44×44；隐藏移动端标题左侧图标；隐藏桌面顶栏文字、数据库字号 90% |
-| **(hover: none)** | 关闭所有 hover 底色，改为 `:active` 即时反馈（两者均需 `!important`，因触控点击同时命中 `:hover` 与 `:active`）；块标常显；关闭 tooltip 伪元素 |
+| **(hover: none)** | 关闭所有 hover 底色，改为 `:active` 即时反馈（两者均需 `!important`，因触控点击同时命中 `:hover` 与 `:active`）；集市卡片只复位底色不复位描边（卡片层级只靠 surface + 1px 描边）；块标常显；关闭 tooltip 伪元素 |
 | **(prefers-reduced-motion: reduce)** | 动效近零**且 `animation:none`**：保存呼吸改静态半透明、印章圆点静止、双链落点线常显（原来只压 duration，`fill:both` + 1.5s delay 会让线在 2.2s 后消失；标题/列表等 `background-image` 实现同理，只压 duration 会瞬间给到 `alpha:0`） |
 
 > 断点说明：官方桌面端唯一样式断点是 `max-width: 750px`（`app/src/assets/scss/util/_responsive.scss:1`），
@@ -277,7 +278,7 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 | 块拖拽落定 1.00→1.02→1.00 | 思源 drop 后不会再给目标块加可识别的类（`protyle/wysiwyg/index.ts` 只有 `--select` / `--hl` / `--attr` / `--hiderange`），主题无法判断"刚放下"。已改为给**选中落定**做 1→1.008→1 的微脉冲（同样是回锋曲线、同样是块级操作语义）。 |
 | 闪卡 rotateY 180° 翻面 | 复习容器没有翻面状态类；翻面时机完全由应用 JS 控制。 |
 | 文档树子节点 +4px 下移 | 已用官方 `.protyle-wysiwyg--animate` 实现编辑器侧渐显；**文档树**节点展开由 `b3-list-item__arrow` 旋转表达，未加位移动画（官方无展开态类可挂）。 |
-| 主题亮暗切换全局过渡 | **已实现**：`body` + 主要容器只过渡 `color`/`background-color` 180ms（不写 `all`）。清单必须含真正绘纸面的 `.protyle` / `.layout__center .layout-tab-container`，且标题等文字自身也要有 color 过渡——否则纸面渐变而文字瞬时跳变，翻转帧会出现半张纸、标题只剩 1.87:1。 |
+| 主题亮暗切换全局过渡 | **已实现**：`body` + 主要容器只过渡 `color`/`background-color` 80ms（`--yj-dur-mode`；1.0.1 由 180ms 收紧，不写 `all`）。清单必须含真正绘纸面的 `.protyle` / `.layout__center .layout-tab-container`，且标题等文字自身也要有 color 过渡——否则纸面渐变而文字瞬时跳变，翻转帧会出现半张纸、标题只剩 1.87:1。集市面板/卡片官方结构不铺过渡，切换时面板会略早到位，中间帧由 9 帧降到 4 帧。 |
 
 配套文件：
 
