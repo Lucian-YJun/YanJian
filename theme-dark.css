@@ -5,8 +5,29 @@
    （暖墨底 #26241F）、灯下的纸边（暖米白文字 #DAD5C8）、灯照下的青
    （亮靛 #82A7CC）。功能色全部提亮到"灯照态"。
    作用域：:root[data-theme-mode="dark"]（官方 reset.scss 13–19 行机制）
+   例外：字体变量与模式无关，必须留在普通 :root（见下方「字体契约」，D13）。
    由 theme.css 首行 @import 载入；也可单独作为 dark-only 主题的补充样式。
    ========================================================================== */
+
+/* 字体契约：字体变量与模式无关，必须停留在 (0,1,0)。
+   思源 3.8.9 把用户全局字体注入为 :root:root{--b3-font-family:…}（(0,2,0)）；
+   若在 :root[data-theme-mode="dark"] 重声明（同为 (0,2,0)），胜负只由样式表
+   插入顺序决定——切换主题后 themeStyle 排在 siyuanStyle 之后，深色下用户
+   字体被整条覆盖（D13：reports/d13-font-mode-switch.md）。官方 midnight 的
+   字体变量同样写在普通 :root。主题栈经 var(--b3-font-family-default) 继续
+   作为兜底，故没有用户字体时行为不变。
+   与 theme.css 的 :root 逐字同值（9/9），经 @import 载入浅色下也无视觉差。 */
+:root {
+    --b3-font-family-emoji-reset: "Emojis Additional", "Emojis Reset";
+    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans CJK SC", "Microsoft YaHei", "Source Han Sans SC", arial, sans-serif, emojis;
+    --b3-font-family: var(--b3-font-family-default);
+    --b3-font-family-protyle: var(--b3-font-family);
+    --b3-font-family-code: var(--b3-font-family-emoji-reset), "JetBrainsMono-Regular", "JetBrains Mono", "Cascadia Code", Consolas, mononoki, "Liberation Mono", var(--b3-font-family), monospace;
+    --b3-font-family-graph: arial;
+    --b3-font-family-emoji: "Emojis Additional", emojis;
+    --b3-font-family-math: KaTeX_Math;
+    --b3-font-family-kbd: var(--b3-font-family-protyle);
+}
 
 :root[data-theme-mode="dark"] {
     color-scheme: dark;
@@ -34,19 +55,8 @@
     --b3-theme-on-surface-lighter: #55514A;
     --b3-theme-on-error: #1C120E;
 
-    /* 字体：与浅色同栈（拉丁在前，CJK 在后）。
-       C14：CJK 里 Microsoft YaHei 排在 Source Han Sans SC 之前——理由同浅色：
-       后者在某些机器只有 Medium 单字面，会让 400/500、600/700 塌成两级。
-       两文件必须逐字一致，否则深浅字重阶梯不同。 */
-    --b3-font-family-emoji-reset: "Emojis Additional", "Emojis Reset";
-    --b3-font-family-default: var(--b3-font-family-emoji-reset), BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans CJK SC", "Microsoft YaHei", "Source Han Sans SC", arial, sans-serif, emojis;
-    --b3-font-family: var(--b3-font-family-default);
-    --b3-font-family-protyle: var(--b3-font-family);
-    --b3-font-family-code: var(--b3-font-family-emoji-reset), "JetBrainsMono-Regular", "JetBrains Mono", "Cascadia Code", Consolas, mononoki, "Liberation Mono", var(--b3-font-family), monospace;
-    --b3-font-family-graph: arial;
-    --b3-font-family-emoji: "Emojis Additional", emojis;
-    --b3-font-family-math: KaTeX_Math;
-    --b3-font-family-kbd: var(--b3-font-family-protyle);
+    /* 字体栈不在此声明（C14 的栈与浅色逐字一致，且模式无关）——
+       见文件顶部「字体契约」与 D13。此处只保留与模式相关的字号。 */
     --b3-font-size: 14px;
 
     /* 背景 · 夜案深处 */

@@ -66,8 +66,10 @@ themes/
 
 **加载顺序**（G09，已按客户端模板核对）：`baseStyle`（官方 base.css）→
 `themeDefaultStyle`（主题 `theme.css`）→ `${themeStyle}`。即官方基础样式先、
-主题后；深色规则都带 `:root[data-theme-mode="dark"]` 前缀、特异性更高，
-因此深色能完整覆盖浅色。
+主题后；深色规则基本都带 `:root[data-theme-mode="dark"]` 前缀、特异性更高，
+因此深色能完整覆盖浅色。**例外（D13）**：`--b3-font-family*` 与模式无关，写在裸
+`:root`（0,1,0）——一旦加模式前缀就与思源注入的用户字体同权（0,2,0），胜负改由
+样式表插入顺序决定，切换主题后深色会整条丢掉用户字体。
 
 > 若你只用其中一种模式：把 `theme.json` 的 `modes` 改成 `["light"]` 或 `["dark"]` 即可。
 
@@ -130,7 +132,12 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
   --b3-border-radius-b: 12px;
 }
 
-/* 可选「书卷」衬线正文（只影响编辑器正文，UI 保持黑体） */
+/* 可选「书卷」衬线正文（只影响编辑器正文，UI 保持黑体）。
+   作用范围：规则只落在 .protyle-wysiwyg 元素上——元素级声明替换该元素从
+   :root 继承来的 --b3-font-family-protyle，不参与 :root 级联，所以 UI 字体
+   不变，也不与「用户全局字体」的 :root:root (0,2,0) 注入竞争。注意：启用这段
+   时编辑器正文按此衬线栈显示（元素级覆写优先于用户全局字体），UI 仍用用户
+   所选字体；不需要时整段删掉即恢复。 */
 .protyle-wysiwyg {
   --b3-font-family-protyle: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", SimSun, serif;
 }
@@ -197,6 +204,16 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
   `BlinkMacSystemFont → Helvetica Neue → PingFang SC → HarmonyOS Sans SC → MiSans →
   Noto Sans CJK SC → Source Han Sans SC → Microsoft YaHei → arial`。
   并按 `:root:lang(zh-CN / zh-TW / ja)` 提供分语言变体（官方 daylight 同款挂钩）。
+- **用户全局字体优先，主题栈兜底**：`--b3-font-family*` 只声明在普通 `:root`
+  （特异性 0,1,0）。思源把「设置 → 外观 → 全局默认字体」注入为
+  `:root:root { --b3-font-family: … }`（0,2,0），所以用户选的字体在任何加载
+  顺序、明暗两种模式下都会赢；主题栈经 `var(--b3-font-family-default)` 继续
+  作兜底，没选用户字体时表现与主题默认完全一致。（例外：`:root:lang(…)` 变体
+  只声明 `--b3-font-family-default`，不声明 `--b3-font-family` 本身，故不影响
+  用户字体的优先级。）**字体变量不得写进
+  `:root[data-theme-mode="dark"]` 等模式作用域**——同权（0,2,0）时胜负只由
+  样式表插入顺序决定，切换主题后深色会整条丢掉用户字体（D13，见
+  `reports/d13-font-mode-switch.md`）。
 - **行高**：正文（含列表项内段落、引用内段落、表格单元格）统一 **1.75**（覆盖官方 1.625）；
   列表块标高度同步改为 `calc(1.75em + 8px)`，标题在列表内按官方「分频」算法折算。
 - **标题**：字号沿用官方 1.75 / 1.55 / 1.38 / 1.25 / 1.13 / 1 em；H1–H2 字重 700 + `letter-spacing: .02em`，H3–H4 600，H5–H6 500。
@@ -281,7 +298,7 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 |---|---|
 | `theme.json` | 主题清单：`name`（须与文件夹名一致）、`author`、`url`、`version`、`minAppVersion`、`frontends`、`modes`、`displayName`、`description`、`readme`、`icon`、`preview`、`keywords` |
 | `theme.css` | 浅色 `:root` 全套变量 + 全部组件/状态/动效/断点；首行 `@import` 深色文件 |
-| `theme-dark.css` | `:root[data-theme-mode="dark"]` 深色独立色板 + 对应组件覆盖（含独立的行长度量规则） |
+| `theme-dark.css` | `:root[data-theme-mode="dark"]` 深色独立色板 + 对应组件覆盖（含独立的行长度量规则）；文件顶部另有裸 `:root`（`--b3-font-family*`，与模式无关）与 `:lang()` 分语言变体 |
 | `icon.png` / `preview.png` | 集市展示资产（图标 160×160、预览 1024×768，尺寸对齐官方 theme-sample），仅集市页使用，运行不需要；由 `tools/gen_market_assets.py` 从预览源图生成 |
 | `README.md` / `README.en.md` | 中文 / 英文说明（`theme.json` 的 `readme.zh-CN` / `readme.default`） |
 
