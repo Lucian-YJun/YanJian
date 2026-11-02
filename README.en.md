@@ -57,7 +57,7 @@ callouts' functional colours) are deliberately independent of the primary.
 
 Editor measure: `--yj-measure` (`calc(16px × 46)`, 44 / 36 at narrower
 breakpoints). Spacing, easing and duration tokens are listed in the
-technical documentation ([`docs/TECHNICAL.md`](docs/TECHNICAL.md) section 三).
+technical documentation ([`docs/TECHNICAL.md`](https://github.com/Lucian-YJun/YanJian/blob/master/docs/TECHNICAL.md) section 三).
 
 ## Preview pages
 

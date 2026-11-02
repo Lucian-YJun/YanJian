@@ -67,7 +67,7 @@
 ## 规格与说明
 
 - **兼容版本**：思源笔记 v3.8.0 及以上版本（支持桌面端与移动端前端）。
-- **底层架构**：遵循思源官方 `--b3-*` 变量体系构建，保证后续版本更新兼容；进阶开发者与实现细节请参阅项目内 [`docs/TECHNICAL.md`](docs/TECHNICAL.md) 技术规范。
+- **底层架构**：遵循思源官方 `--b3-*` 变量体系构建，保证后续版本更新兼容；进阶开发者与实现细节请参阅 [`docs/TECHNICAL.md`](https://github.com/Lucian-YJun/YanJian/blob/master/docs/TECHNICAL.md) 技术规范。
 
 ---
 
