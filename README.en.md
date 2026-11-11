@@ -11,7 +11,7 @@ The two palettes are designed independently — not an inversion.
 
 ## Requirements
 
-- SiYuan **3.8.0 or later** (declared via `minAppVersion`).
+- SiYuan **3.8.0 or later** (declared via `minAppVersion`; adapted and reviewed against 3.8.10).
 - Desktop and mobile frontends are both supported (`frontends: ["all"]`).
 
 ## Install
@@ -56,8 +56,10 @@ via `color-mix()`. **Semantic** colours (inline links, code, block references,
 callouts' functional colours) are deliberately independent of the primary.
 
 Editor measure: `--yj-measure` (`calc(16px × 46)`, 44 / 36 at narrower
-breakpoints). Spacing, easing and duration tokens are listed in the
-technical documentation ([`docs/TECHNICAL.md`](https://github.com/Lucian-YJun/YanJian/blob/master/docs/TECHNICAL.md) section 三).
+breakpoints). Spacing, easing and duration tokens are defined in the theme
+source (`theme.css`); the full technical contract lives with the source
+repository and is not part of the distributed package
+([github.com/Lucian-YJun/YanJian](https://github.com/Lucian-YJun/YanJian)).
 
 ## Preview pages
 

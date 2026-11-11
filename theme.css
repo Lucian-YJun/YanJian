@@ -51,7 +51,8 @@
     --b3-font-family-protyle: var(--b3-font-family);
     --b3-font-family-code: var(--b3-font-family-emoji-reset), "JetBrainsMono-Regular", "JetBrains Mono", "Cascadia Code", Consolas, mononoki, "Liberation Mono", var(--b3-font-family), monospace;
     --b3-font-family-graph: arial;
-    --b3-font-family-emoji: "Emojis Additional", emojis;
+    /* 3.8.10适配：图标位加 "Emojis Icon"（仅 Win11 声明、其余平台回退 emojis，官方 daylight/midnight 同款，值跨平台安全） */
+    --b3-font-family-emoji: "Emojis Additional", "Emojis Icon", emojis;
     --b3-font-family-math: KaTeX_Math;
     --b3-font-family-kbd: var(--b3-font-family-protyle);
     --b3-font-size: 14px;
@@ -137,7 +138,7 @@
     --b3-font-color6: var(--b3-theme-primary);
     --b3-font-color7: var(--b3-theme-secondary);
     --b3-font-color8: var(--b3-theme-error);
-    --b3-font-color9: #7A5FA0;
+    --b3-font-color9: #705596; /* R2-05 黛紫加深档（原 #7A5FA0 对内 4.23 <4.5）：对内 4.90、对纸 5.73，AA（DESIGN 3.4） */
     --b3-font-color10: #47714D;
     --b3-font-color11: #2E6B3F;
     --b3-font-color12: #8C6114;
@@ -146,7 +147,7 @@
     --b3-font-background2: var(--b3-card-warning-background);
     --b3-font-background3: var(--b3-card-info-background);
     --b3-font-background4: var(--b3-card-success-background);
-    --b3-font-background5: #E4DFD2;
+    --b3-font-background5: #F1EDE3; /* 复用面板现值 --b3-theme-surface（原 #E4DFD2 对内 4.06 <4.5）：与 color5 对内 4.62 */
     --b3-font-background6: #DCE6F0;
     --b3-font-background7: #F5EAD1;
     --b3-font-background8: #F6E3DE;
@@ -272,6 +273,8 @@
 
     /* 其他官方变量 */
     --b3-icon-star-fill: currentColor;
+    /* 3.8.10适配：.b3-loading 取色 var(--b3-loading-color,…)（官方 base.css 偏移 29816，官方零声明纯回退 on-surface 灰），声明主色防加载指示器退化 */
+    --b3-loading-color: var(--b3-theme-primary);
 
     /* ======================================================================
        第二层：--yj-* 扩展 token（允许用户整体覆写做个性化）
@@ -422,7 +425,8 @@ body {
 .b3-typography,
 .b3-list,
 .b3-menu,
-.b3-dialog__container,
+/* 3.8.10适配：容器成员 :not 排除底滑面板，官方 .15s transform 过渡不被本条 background-color 过渡置换（深色 484 同） */
+.b3-dialog__container:not(.mobile-bottom-sheet),
 .toolbar,
 .status {
     transition: background-color var(--yj-dur-mode) var(--yj-ease-out);
@@ -1288,6 +1292,13 @@ select.b3-select:disabled:disabled {
     background-color: var(--b3-theme-surface);
 }
 
+/* 3.8.10适配：浮动 dock（.layout--float）官方已带 8px 0 24px var(--b3-dock-shadow-color)（token 主题化：浅 rgba(60,55,40,.18)）；深色已有 1px 砚沿描边（theme-dark.css §12），浅色补 1px surface-lighter 描边对偶，纸叠纸边缘不靠阴影单通道。另：官方新增 .dock__backdrop 的背景图层 --b3-window-background-image 回退 --b3-body-background-gradient，主题置 none → 图层为空、backdrop 呈纯色案几（--b3-body-background）——这正是主题有意设计，无需处理。 */
+.layout--float.layout__dockl,
+.layout--float.layout__dockr,
+.layout--float.layout__dockb {
+    border: 1px solid var(--b3-theme-surface-lighter);
+}
+
 .layout__dockl {
     /* MAJ-05：简写会把前面 C2 注入的 background-color 过渡抹掉，
        故此处必须显式带上 background-color（DESIGN 动效契约 180ms）。 */
@@ -1656,12 +1667,13 @@ select.b3-select:disabled:disabled {
    7. 对话框 / 遮罩 / 浮窗
    ========================================================================== */
 
-.b3-dialog__scrim {
+/* 3.8.10适配：官方把 .b3-dialog__container 复用为底滑面板 .mobile-bottom-sheet（mobile base @624163/@624857：translateY(100%)→translateY(0) 滑入滑出 + 自带 .15s transform 过渡 + 自绘 surface 底/border:0/上圆角；@623966 scrim 透明）。主题对容器的缩放/位移过渡/边框/圆角与 scrim 着色用 :not 限定于普通对话框，sheet 的动画通道与外观回归官方；scrim 的包裹类是 .mobile-bottom-sheet-dialog（在父级），容器上是 .mobile-bottom-sheet */
+.b3-dialog__scrim:not(.mobile-bottom-sheet-dialog *) {
     background-color: var(--b3-mask-background);
     transition: opacity var(--yj-dur-base) var(--yj-ease-out);
 }
 
-.b3-dialog__container {
+.b3-dialog__container:not(.mobile-bottom-sheet) {
     border-radius: var(--b3-border-radius-b);
     border: 1px solid var(--b3-border-color);
     background-color: var(--b3-theme-surface);
@@ -1671,7 +1683,7 @@ select.b3-select:disabled:disabled {
                 transform var(--yj-dur-enter) var(--yj-ease-out);
 }
 
-.b3-dialog--open .b3-dialog__container {
+.b3-dialog--open .b3-dialog__container:not(.mobile-bottom-sheet) {
     transform: none;
     opacity: 1;
 }
@@ -1906,11 +1918,19 @@ select.b3-select:disabled:disabled {
 /* R2-10：已完成待办的正文是**阅读信息**，不是图标层，必须 ≥4.5。
    官方给它 on-surface-light：浅色纸上只有 3.40（深色恰好 6.94，纯属 token 更亮）。
    主题显式接管并两模式同写 on-surface（浅 5.05 / 深 5.67）；
-   "已完成"的第二通道由删除线承担，不靠把文字调淡。 */
+   "已完成"的第二通道由删除线承担，不靠把文字调淡。
+   3.8.10适配：官方 done 色改走 var(--b3-task-completed-color,…) 九选择器共享规则，NodeTabs 页签形态 .tabs-task[data-task="-"]~.tabs-tab-label 并入本组（选择器逐字同官方、后置生效）。 */
 .protyle-wysiwyg .protyle-task--done:not([data-task="/"]) > div[data-node-id].p,
-.b3-typography .protyle-task--done:not([data-task="/"]) > div[data-node-id].p {
+.b3-typography .protyle-task--done:not([data-task="/"]) > div[data-node-id].p,
+.protyle-wysiwyg .tabs-task[data-task="-"] ~ .tabs-tab-label,
+.b3-typography .tabs-task[data-task="-"] ~ .tabs-tab-label {
     color: var(--b3-theme-on-surface);
     text-decoration: line-through;
+}
+
+/* 3.8.10适配：官方 .mindmap-view 把 --b3-task-completed-color 重置 initial，思维导图节点/页签的 done 文字退 on-surface-light（浅 3.40，破 R2-10 ≥4.5）；同选择器后置改回 on-surface，三种 mindmap 形态一并接住，colored 节点语义色由官方 .mindmap-view__node--colored 元素级重声明保留 */
+.mindmap-view {
+    --b3-task-completed-color: var(--b3-theme-on-surface);
 }
 
 /* 标题行高阶梯：随字号收窄（DESIGN 4.3：1.75/1.58/1.42/1.28/1.15/1.05） */
@@ -2351,9 +2371,11 @@ select.b3-select:disabled:disabled {
     border-color: var(--b3-border-color);
 }
 
-/* 代码块 · 碑帖 */
+/* 代码块 · 碑帖
+   3.8.10适配：官方 daylight:270 给底色组新增 .mindmap-view__content .code-block（base.css 四条 .code-block 规则均无底色兜底），思维导图代码块并入本组拿同款碑帖底。 */
 .b3-typography .code-block,
-.protyle-wysiwyg .code-block {
+.protyle-wysiwyg .code-block,
+.mindmap-view__content .code-block {
     background-color: var(--b3-protyle-code-background);
     border-radius: var(--b3-border-radius);
     /* R1-21/R1-22：容器块上下 12px，用 token 而非硬编码 */
@@ -2591,6 +2613,13 @@ select.b3-select:disabled:disabled {
 }
 
 .agent-chat__msg--ai .agent-chat__body {
+    background-color: rgba(51, 49, 44, .03);
+    border: 1px dashed var(--b3-theme-on-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+
+/* 3.8.10适配：新增 AI 记忆面板（desktop main.js @534286 模板 .b3-dialog__content.memory-manager > .memory-manager__content.b3-typography；官方 13 条 .memory-manager* 规则零底色/虚线）并入铅笔稿组，与上两条 AI 选择器同值（DESIGN §2「AI=淡墨底+虚线」语义） */
+.memory-manager__content {
     background-color: rgba(51, 49, 44, .03);
     border: 1px dashed var(--b3-theme-on-surface-lighter);
     border-radius: var(--b3-border-radius);
@@ -2966,6 +2995,12 @@ select.b3-select:disabled:disabled {
         font-size: 1.75em;
     }
 
+    /* 3.8.10适配：官方 mobile 新增 .toolbar__title--readonly>.mobile-document-title-editor .protyle-title__input{font-size:17px;font-weight:inherit}（(0,3,0)），压掉 (0,1,0) 的 1.75em 并削掉标题 700 字重（浅 17px/深 26px 深浅分裂）；toolbar__title--readonly 经查恒在（index.html 静态类），镜像同形选择器 (0,3,0) 后置改回，浅深一致（对齐上方标题契约） */
+    :where(body:has(#mobileTopBar)) .toolbar__title--readonly > .mobile-document-title-editor .protyle-title__input {
+        font-size: 1.75em;
+        font-weight: 700;
+    }
+
     /* 触控目标 */
     :where(body:has(#mobileTopBar)) .b3-list-item {
         min-height: 44px;
@@ -3104,8 +3139,10 @@ select.b3-select:disabled:disabled {
     }
 
     /* 移动端触控热区：官方移动外壳的面包屑按钮只有 24px 行高，
-       侧栏图标只有 40px（20 + 10×2），都低于 44px 下限。 */
-    :where(body:has(#mobileTopBar)) .protyle-breadcrumb__icon {
+       侧栏图标只有 40px（20 + 10×2），都低于 44px 下限。
+       3.8.10适配：官方 mobile 新增 .protyle-breadcrumb>.protyle-breadcrumb__icon{min-width:0/24px}（(0,2,0)，仅触 min-width/overflow/text-overflow）压掉 (0,1,0) 的本条；镜像官方同形选择器提权 (0,2,0) 后置取胜，:where 包装保留（同块权重平衡不变），原选择器继续覆盖 __bar/__actions 内图标。 */
+    :where(body:has(#mobileTopBar)) .protyle-breadcrumb__icon,
+    :where(body:has(#mobileTopBar)) .protyle-breadcrumb > .protyle-breadcrumb__icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -3141,12 +3178,17 @@ select.b3-select:disabled:disabled {
 
     /* R1-14：底部工具条（--b3-ui-dock-bottom-height/48px）+ 状态栏（32px）
        都要避让。原来 bottom:16px 会把提示条压在底栏图标上，
-       且 snackbars z-index 更高，直接吃掉点击。 */
+       且 snackbars z-index 更高，直接吃掉点击。
+       3.8.10适配：48px/32px 字面量换官方 mobile 变量——底栏高度
+       var(--mobile-bottom-bar-height,48px)+var(--android-navigation-bar-height,0px)
+       （与官方 .toolbar--bottom 同源，Android 全面屏 1:1 避让）、
+       var(--mobile-bottom-bar-bottom,32px)（官方=max(状态栏 24px,底部安全区)+8px，
+       iPhone 安全区自动流入）；保留底部放置（TECHNICAL.md:237）与 8px 呼吸距，默认仍 88px。 */
     :where(body:has(#mobileTopBar)) .b3-snackbars {
         left: 12px;
         right: 12px;
         top: auto;
-        bottom: calc(48px + 32px + 8px);
+        bottom: calc(var(--mobile-bottom-bar-height, 48px) + var(--android-navigation-bar-height, 0px) + var(--mobile-bottom-bar-bottom, 32px) + 8px);
         align-items: center;
     }
 
@@ -3359,5 +3401,12 @@ select.b3-select:disabled:disabled {
         animation: none !important;
         background-size: 2px 100% !important;
         --yj-ref-alpha: 1;
+    }
+}
+
+/* 3.8.10适配：高对比 opt-in（prefers-contrast: more）——分割线加深至非文字 3:1（DESIGN 1.4.11）；不支持该查询的引擎整块不匹配，默认外观零变化 */
+@media (prefers-contrast: more) {
+    :root {
+        --b3-border-color: #827C6C; /* 对纸 3.89 / 面 3.56 / 案几 3.43，≥3:1（1.4.11），opt-in */
     }
 }

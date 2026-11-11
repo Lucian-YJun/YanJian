@@ -24,9 +24,15 @@
     --b3-font-family-protyle: var(--b3-font-family);
     --b3-font-family-code: var(--b3-font-family-emoji-reset), "JetBrainsMono-Regular", "JetBrains Mono", "Cascadia Code", Consolas, mononoki, "Liberation Mono", var(--b3-font-family), monospace;
     --b3-font-family-graph: arial;
-    --b3-font-family-emoji: "Emojis Additional", emojis;
+    /* 3.8.10适配：图标位加 "Emojis Icon"（仅 Win11 声明、其余平台回退 emojis，官方 daylight/midnight 同款，值跨平台安全） */
+    --b3-font-family-emoji: "Emojis Additional", "Emojis Icon", emojis;
     --b3-font-family-math: KaTeX_Math;
     --b3-font-family-kbd: var(--b3-font-family-protyle);
+}
+
+/* 3.8.10适配：.b3-loading 取色变量（官方零声明，纯回退 on-surface 灰）；值随 --b3-theme-primary 按模式解析，与模式无关，按深色文件自足契约留裸 :root（同字体契约理由），dark-only 单载时加载指示器同样得主色 */
+:root {
+    --b3-loading-color: var(--b3-theme-primary);
 }
 
 :root[data-theme-mode="dark"] {
@@ -153,7 +159,7 @@
     --b3-font-color6: var(--b3-theme-primary);
     --b3-font-color7: var(--b3-theme-secondary);
     --b3-font-color8: var(--b3-theme-error);
-    --b3-font-color9: #A98FD1;
+    --b3-font-color9: #B39BDB; /* R2-05 黛紫加深档（原 #A98FD1 对内 4.44 贴线）：对内 5.09、裸砚 6.37 */
     --b3-font-color10: #8FBE96;
     --b3-font-color11: #A9D2AE;
     --b3-font-color12: #E8C48A;
@@ -162,10 +168,10 @@
     --b3-font-background2: var(--b3-card-warning-background);
     --b3-font-background3: var(--b3-card-info-background);
     --b3-font-background4: var(--b3-card-success-background);
-    --b3-font-background5: #3B3831;
+    --b3-font-background5: #332F29; /* 原 #3B3831 对内 4.27 <4.5；压暗一档后对内 4.86 */
     --b3-font-background6: #2B3948;
     --b3-font-background7: #4A3D26;
-    --b3-font-background8: #46302B;
+    --b3-font-background8: #3C2621; /* 原 #46302B 对内仅 4.20（C4 横幅同源教训）；压暗一档后对内 4.84，弃仅 4.55 的 #3F2B27 */
     --b3-font-background9: #3A3048;
     --b3-font-background10: #2E3A2E;
     --b3-font-background11: #33402F;
@@ -475,7 +481,8 @@
 :root[data-theme-mode="dark"] .b3-typography,
 :root[data-theme-mode="dark"] .b3-list,
 :root[data-theme-mode="dark"] .b3-menu,
-:root[data-theme-mode="dark"] .b3-dialog__container,
+/* 3.8.10适配：容器成员 :not 排除底滑面板，官方 .15s transform 过渡不被本条 (0,3,0) 置换（浅色 428 同） */
+:root[data-theme-mode="dark"] .b3-dialog__container:not(.mobile-bottom-sheet),
 :root[data-theme-mode="dark"] .toolbar,
 :root[data-theme-mode="dark"] .status {
     transition: background-color var(--yj-dur-mode) var(--yj-ease-out);
@@ -1414,12 +1421,13 @@
     border-left: 1px solid var(--b3-theme-on-background);
 }
 
-:root[data-theme-mode="dark"] .b3-dialog__scrim {
+/* 3.8.10适配：底滑面板 .mobile-bottom-sheet 复用容器——本节缩放/位移过渡/边框/圆角与 scrim 着色 :not 限定于普通对话框（官方 mobile @624163/@624857/@623966 同 theme.css 第 7 节注释） */
+:root[data-theme-mode="dark"] .b3-dialog__scrim:not(.mobile-bottom-sheet-dialog *) {
     background-color: var(--b3-mask-background);
     transition: opacity var(--yj-dur-base) var(--yj-ease-out);
 }
 
-:root[data-theme-mode="dark"] .b3-dialog__container {
+:root[data-theme-mode="dark"] .b3-dialog__container:not(.mobile-bottom-sheet) {
     background-color: var(--b3-theme-surface);
     border: 1px solid var(--b3-theme-surface-lighter);
     border-radius: var(--b3-border-radius-b);
@@ -1429,7 +1437,7 @@
                 transform var(--yj-dur-enter) var(--yj-ease-out);
 }
 
-:root[data-theme-mode="dark"] .b3-dialog--open .b3-dialog__container {
+:root[data-theme-mode="dark"] .b3-dialog--open .b3-dialog__container:not(.mobile-bottom-sheet) {
     transform: none;
     opacity: 1;
 }
@@ -1696,11 +1704,19 @@
 
 /* R2-10（深色副本）：已完成待办正文是阅读信息，用 on-surface（深色 5.67）。
    深色原本恰好因 token 更亮而达标，但仍是同一语义——两模式显式同写，
-   避免以后改 token 时又分裂。第二通道仍是删除线。 */
+   避免以后改 token 时又分裂。第二通道仍是删除线。
+   3.8.10适配：NodeTabs 页签形态 .tabs-task[data-task="-"]~.tabs-tab-label 并入本组（同官方选择器、前缀抬权）。 */
 :root[data-theme-mode="dark"] .protyle-wysiwyg .protyle-task--done:not([data-task="/"]) > div[data-node-id].p,
-:root[data-theme-mode="dark"] .b3-typography .protyle-task--done:not([data-task="/"]) > div[data-node-id].p {
+:root[data-theme-mode="dark"] .b3-typography .protyle-task--done:not([data-task="/"]) > div[data-node-id].p,
+:root[data-theme-mode="dark"] .protyle-wysiwyg .tabs-task[data-task="-"] ~ .tabs-tab-label,
+:root[data-theme-mode="dark"] .b3-typography .tabs-task[data-task="-"] ~ .tabs-tab-label {
     color: var(--b3-theme-on-surface);
     text-decoration: line-through;
+}
+
+/* 3.8.10适配：同 theme.css——.mindmap-view 的 done 文字（节点/页签）走 on-surface（官方 initial 重置由同选择器后置覆盖），colored 节点语义色保留 */
+:root[data-theme-mode="dark"] .mindmap-view {
+    --b3-task-completed-color: var(--b3-theme-on-surface);
 }
 
 /* 标题行高阶梯（DESIGN 4.3） */
@@ -2023,8 +2039,10 @@
     box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
 }
 
+/* 3.8.10适配：思维导图代码块并入碑帖组（官方 daylight:270 同款新增形态，官方深色无任何底色），底/圆角/内边距与浅色镜像 */
 :root[data-theme-mode="dark"] .b3-typography .code-block,
-:root[data-theme-mode="dark"] .protyle-wysiwyg .code-block {
+:root[data-theme-mode="dark"] .protyle-wysiwyg .code-block,
+:root[data-theme-mode="dark"] .mindmap-view__content .code-block {
     background-color: var(--b3-protyle-code-background);
     border-radius: var(--b3-border-radius);
     padding: var(--yj-space-2);
@@ -2220,6 +2238,13 @@
     border-radius: var(--b3-border-radius);
 }
 
+/* 3.8.10适配：AI 记忆面板并入铅笔稿组，与上两条 AI 选择器同值（淡纸底 + 虚线） */
+:root[data-theme-mode="dark"] .memory-manager__content {
+    background-color: rgba(250, 247, 241, .03);
+    border: 1px dashed var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+
 /* 闪卡 */
 :root[data-theme-mode="dark"] .card__main {
     background-color: var(--b3-theme-surface);
@@ -2373,8 +2398,9 @@
    .b3-dialog__container」那组里**移出**——那组把 border-top-color 覆盖成
    surface-lighter(#3B3831)，正好抹掉第 762 行给菜单设的砚沿淡线：实测
    computed border-top 仍是 rgb(59,56,49)，渲染对菜单底 1.02:1，等于没有边线。
-   现在菜单四边统一由第 762 行那条规则给出。 */
-:root[data-theme-mode="dark"] .b3-dialog__container {
+   现在菜单四边统一由第 762 行那条规则给出。
+   3.8.10适配：容器成员 :not 排除底滑面板（官方 sheet border:0，不留主题上缘线）。 */
+:root[data-theme-mode="dark"] .b3-dialog__container:not(.mobile-bottom-sheet) {
     border-top-color: var(--b3-theme-surface-lighter);
 }
 
@@ -2543,6 +2569,12 @@
         font-size: 1.75em;
     }
 
+    /* 3.8.10适配：同 theme.css——官方 (0,3,0) 17px/inherit 压掉 1.75em 并削掉 700 字重；镜像同形选择器前缀抬权 (0,5,0) 改回，浅深一致 */
+    :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .toolbar__title--readonly > .mobile-document-title-editor .protyle-title__input {
+        font-size: 1.75em;
+        font-weight: 700;
+    }
+
     /* R2-01：R1-19 面包屑 112px / R1-18 标题图标隐藏，
        深色文件原先缺失，dark-only 加载时窄屏适配退化。 */
     :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .protyle-breadcrumb__text--ellipsis {
@@ -2697,12 +2729,14 @@
     }
 
     /* R1-14：避让底部工具栏（48px）+ 状态栏（32px）+ 8px 间隙。
-       原先 bottom:16px 会把提示条压在底栏图标上，且 z-index 更高直接吃掉点击。 */
+       原先 bottom:16px 会把提示条压在底栏图标上，且 z-index 更高直接吃掉点击。
+       3.8.10适配：同 theme.css——底栏与安全区改官方 mobile 变量
+       （--mobile-bottom-bar-height + --android-navigation-bar-height + --mobile-bottom-bar-bottom），默认仍 88px。 */
     :root[data-theme-mode="dark"]:where(:has(#mobileTopBar)) .b3-snackbars {
         left: 12px;
         right: 12px;
         top: auto;
-        bottom: calc(48px + 32px + 8px);
+        bottom: calc(var(--mobile-bottom-bar-height, 48px) + var(--android-navigation-bar-height, 0px) + var(--mobile-bottom-bar-bottom, 32px) + 8px);
         align-items: center;
     }
 
@@ -3008,4 +3042,11 @@
 :root[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="virtual-block-ref"]:hover,
 :root[data-theme-mode="dark"] .b3-typography span[data-type="virtual-block-ref"]:hover {
     border-radius: var(--b3-border-radius-s);
+}
+
+/* 3.8.10适配：高对比 opt-in（prefers-contrast: more）——砚沿加深至非文字 3:1（DESIGN 1.4.11）；(0,2,0) 与本文件线条声明同特异度、靠后必胜，且高于浅色 :root 块，深浅互不污染 */
+@media (prefers-contrast: more) {
+    :root[data-theme-mode="dark"] {
+        --b3-border-color: #847F76; /* 对砚 3.90 / 面 3.56 / body 4.28；对 surface-lighter 2.94 为已知残留 */
+    }
 }

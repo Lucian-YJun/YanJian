@@ -52,8 +52,8 @@ themes/
 
 `theme.json` 声明 **`"minAppVersion": "3.8.0"`**：思源据此拦截低于 3.8.0 的安装
 （官方规则是「包未声明该字段则不拦截」，因此必须显式声明才有一道版本闸）。
-样式基于 **v3.8.x** 的 DOM 与 CSS 变量体系（含 `--b3-ui-*` 密度变量、
-`data-theme-mode` 属性）；更早的 3.x 客户端在集市与手动安装时都会被此字段拦下。
+样式以 **v3.8.10** 为适配基线核对（3.8.8→3.8.10 适配项见 `reports/compat-3.8.10-review.md`
+与 `theme/SYNC-LOG.md`）；`minAppVersion: 3.8.0` 只作安装下限闸，3.8.0–3.8.9 不在逐版本实测范围。
 
 ---
 
@@ -79,13 +79,61 @@ themes/
 
 ### 第一层：官方 `--b3-*`（兼容性承诺层）
 
-共 **207 个**变量声明，覆盖官方 `daylight/theme.css` 的全部 **185 个** `--b3-*` 变量
-（脚本比对：`missing in light: (none)`），并按官方分组排列：主色 / 文字 / 字体 /
+浅色 `theme.css` 与深色 `theme-dark.css` **各 199 条** `--b3-*` 变量声明，去重后**同为
+193 个**变量名（两文件声明集合完全一致），覆盖官方 `daylight/theme.css` 的全部 **185 个**
+声明变量（官方为 188 条声明 / 185 个变量，主题缺失 0 个），并按官方分组排列：主色 / 文字 / 字体 /
 背景 / 工具栏 / 线条 / 滚动条 / 列表 / 脑图 / 菜单 / 提示 / 遮罩 / 卡片 /
 自定义文字 / 动画 / 高亮 / switch / 阴影 / 图表 / 代码块 / 行内元素 / PDF /
-callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
+callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。193 − 185 = **8 个**为官方内置主题未声明、
+由本主题补齐或扩展的变量：`--b3-protyle-padding-left/right`、`--b3-protyle-inline-link`、
+`--b3-focus-halo`、`--b3-icon-star-fill`、`--b3-body-background-gradient`，
+以及 3.8.10 新增的 `--b3-loading-color`（声明于 `:root`）与
+`--b3-task-completed-color`（声明于 `.mindmap-view`）。
 
-主题升级不改名；官方新增变量时本主题不会失效（未覆盖的变量回落到官方默认值）。
+主题升级不改名；官方新增变量时本主题不会失效，但「未覆盖的变量回落到官方默认值」
+仅对官方 CSS 里**有 `--b3-x:` 声明**的变量成立（层联回落到官方值）。3.8.10 相对 3.8.8
+新增 22 个 `--b3-*` 变量（见 `reports/compat-3.8.10-deltas.json` 的 `newB3Vars`），主题现声明
+其中 2 个；以下 **9 个**在 3.8.10 全部官方 CSS（桌面/移动 base.css ×3、daylight、midnight）里
+**没有任何 `--b3-x:` 声明**，只以 `var(--b3-x, 字面量)` 内联回退或 JS `setProperty` 注入存在——
+默认值由各消费点的回退字面量或 JS 决定，不适用层联回落（主题已接管其中的
+`--b3-loading-color`）：`--b3-loading-size`、`--b3-loading-color`、`--b3-loading-width`、
+`--b3-loading-duration`、`--b3-dock-right-width`、`--b3-dock-background-y`、
+`--b3-menu-items-max-height`、`--b3-database-attr-columns`、`--b3-database-attr-column-flow`。
+
+> **计数口径与复核命令（2026-11-11 实测；在仓库根目录运行，`R=` 按本机思源安装路径替换）**
+>
+> 口径：声明 = 剥除 `/* */` 注释后匹配 `--b3-x:`；`var(--b3-x, …)` 消费点不计（其名称后是逗号）。
+>
+> ```bash
+> node -e "
+> const fs=require('fs');
+> const d=p=>{const t=fs.readFileSync(p,'utf8').replace(/\/\*[\s\S]*?\*\//g,'');
+>   const n=[...t.matchAll(/(--b3-[a-z0-9-]+)\s*:/g)].map(m=>m[1]);return{n:n.length,s:new Set(n)};};
+> const R='E:/思源笔记/SiYuan/resources';
+> const L=d('theme/theme.css'),D=d('theme/theme-dark.css'),O=d(R+'/appearance/themes/daylight/theme.css');
+> const u=new Set([...L.s,...D.s]);
+> const v22=JSON.parse(fs.readFileSync('reports/compat-3.8.10-deltas.json','utf8')).newB3Vars;
+> console.log('theme 条数:',L.n,D.n,'| 去重:',u.size,'| daylight:',O.n,O.s.size,
+>  '| 主题缺失:',[...O.s].filter(x=>!u.has(x)).length,'| 22新已声明:',v22.filter(x=>u.has(x)).length);
+> "
+> ```
+>
+> 实测输出：`theme 条数: 199 199 | 去重: 193 | daylight: 188 185 | 主题缺失: 0 | 22新已声明: 2`
+>
+> ```bash
+> node -e "
+> const fs=require('fs');
+> const nine='--b3-loading-size --b3-loading-color --b3-loading-width --b3-loading-duration --b3-dock-right-width --b3-dock-background-y --b3-menu-items-max-height --b3-database-attr-columns --b3-database-attr-column-flow'.split(' ');
+> const R='E:/思源笔记/SiYuan/resources/stage/build';
+> const files=[R+'/desktop/base.6c4a84183d50f913e848.css',R+'/mobile/base.ebb2c2c1b6b00890938d.css',R+'/mobile/base.d76a96ec6dd709a5db92.css','E:/思源笔记/SiYuan/resources/appearance/themes/daylight/theme.css','E:/思源笔记/SiYuan/resources/appearance/themes/midnight/theme.css'];
+> const css=files.map(p=>fs.readFileSync(p,'utf8').replace(/\/\*[\s\S]*?\*\//g,''));
+> for(const v of nine)console.log(v,'| --x:声明',css.map(t=>t.split(v+':').length-1).join('/'),'| var()消费',css.map(t=>t.split('var('+v).length-1).join('/'));
+> "
+> ```
+>
+> 实测输出：9 行 `--x:声明` 列全为 `0`、`var()消费` 列 ≥1；其中 `--b3-loading-size`、
+> `--b3-dock-background-y`、`--b3-dock-right-width`、`--b3-menu-items-max-height` 4 个另由桌面
+> main.js `setProperty` 动态赋值（grep 实测）。
 
 > **`--b3-font-color13` 是反白专用、与背景色 13 成对使用**（官方 token 语义，
 > daylight/midnight 同款）：它与 `--b3-theme-background` 同值，官方指南样例都是
@@ -157,7 +205,7 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 | **触屏行级动作** | `(hover: none)` 下 `.b3-list-item--hide-action` 的更多按钮常显——触屏没有 hover，否则该入口永久不可达。浅色 on-surface 全不透明（有效对比 4.62/选中行 3.91，Z1-02：原 on-surface-light × .75 只有 2.23/1.99 不达 1.4.11 的 3:1），深色 on-surface-light × .75（4.22/3.76，≥3）；按下提满 | `@media (hover: none)` |
 | **输入悬停** | 描边 `on-surface-light`（浅 3.40:1）/ `on-surface`（深 5.67:1），线宽统一 1px；`--text` 变体改用极淡底纹（保持无框形态） | `.b3-text-field:hover`、`.b3-select:hover` |
 | **页签当前态** | 靛青 12%/16% 底 + 字重 500（D9-2 起：1px 内框与 2px 底墨条均已移除）；当前页签宽度放宽到 min(420px,42vw)，其它页签仍 176px | `.layout-tab-bar .item--focus` |
-| **加载** | 主色旋转 1s linear；按钮进度条用主色淡底推进 | `.fn__rotate`、`.b3-button--progress` |
+| **加载** | 主色旋转 1s linear（3.8.10 起 `.b3-loading` 经 `--b3-loading-color: var(--b3-theme-primary)` 同获主色，官方 1s 动画节奏与减弱动效处理原样生效）；按钮进度条用主色淡底推进 | `.fn__rotate`、`.b3-loading`、`.b3-button--progress` |
 | **编辑中** | 当前块 2px 淡靛整圈描边（官方做法，D9 起；原「研墨条」左缘实线+8% 底已按用户指令移除） | `.protyle-wysiwyg--navigation` |
 | **选中块** | 12%（深 16%）靛青底 + 1px 靛青细框 | `.protyle-wysiwyg--select::after` |
 | **自动保存** | 顶栏 `#barSync` 图标 2s 呼吸（循环动画仅两处之一，另一处是加载旋转 `.fn__rotate`） | `#barSync svg.fn__rotate` |
@@ -183,7 +231,7 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 |---|---|
 | 颜色/背景/悬停 | 100ms 落墨 |
 | 面板折叠、页签、菜单进场 | 180ms 落墨 |
-| 对话框、悬浮预览 | 240ms 落墨（缩放 0.98→1 / 上移 4px） |
+| 对话框（移动端底部面板 sheet 除外，走官方滑入通道）、悬浮预览 | 240ms 落墨（缩放 0.98→1 / 上移 4px） |
 | 块拖拽落定、闪卡 | 260ms 回锋（曲线已备，实际落定由应用逻辑触发） |
 | 保存/闪卡确认脉冲 | 400ms 回锋 |
 | 双链跳转落点 | 左缘线 `--yj-dur-enter`(240ms) 展开 → `--yj-dur-hold`(1.5s) 停留 → `--yj-dur-pulse`(400ms) 顿笔淡出 |
@@ -194,7 +242,8 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 - **引文笺**：块引用 = 左缘 2px 黛紫竖线 + 8% 黛紫底，悬停竖线加粗至 3px（官方默认是虚线下划线，本主题以 `background-image: none` 覆盖）。
 - **碑帖**：代码块 5% 墨底（深 7% 暖白）。
 - **笺注**：Callout 左缘色条沿用官方结构，加对应的功能色淡底（6–12%）。
-- **铅笔稿**：AI 面板 / AI 消息 = 3% 墨底 + 1px 虚线边。
+- **铅笔稿**：AI 面板 / AI 消息 / AI 长期记忆面板（3.8.10 `.memory-manager__content`）= 3% 墨底 + 1px 虚线边。
+- **浮动 dock（3.8.10）**：浅色为三栏浮动面板补 1px 案几描边（深色原有）；背景图层保持纯色案几——`--b3-body-background-gradient: none` 是主题有意关闭壁纸层，非缺陷。
 - **编辑中**：当前块 2px 淡靛整圈 `outline`（`primary-lighter`，`outline-offset:-2px`，无底色）——D9 起对齐官方；原「研墨条」（左缘实线 + 8% 底）已按用户指令移除，与「选中块」（有外框、底色略重）在明度上区分。
 
 ---
@@ -234,9 +283,10 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 | **≤ 1200px** | 行长 44em（与 DESIGN §8「≥1200px 用 46em」一致；实测 1201px = 736px、1200px = 704px） |
 | **≤ 1280px** | 对话框 ≤ 720px；悬浮预览 72vw；面包屑省略宽度 min(240px, 42vw) |
 | **≤ 1024px** | 对话框 ≤ 640px；悬浮预览 80vw；dock 图标内距收紧；页签上限 176px；状态栏消息 46vw |
-| **≤ 768px（且 `body:has(#mobileTopBar)` 移动外壳）** | 行长 36em（`max(12px, (100%−36em)/2)` 居中，390px 手机仍为 12px）；正文 15px；`#editor` 底部 80px 纸色渐隐（正文不钻到悬浮底栏/状态栏下面）；触控目标 ≥ 44×44（列表项/工具栏/dock/块标/闪卡按钮/全部 `.b3-button` 含对话框确认与删除/输入框与下拉/面包屑条目与按钮/侧栏与面板工具图标/页签项与关闭钮/拖动把手/提示条关闭钮与重试钮；行内标签按 WCAG 2.5.5 inline 豁免不撑高）；对话框 96vw；snackbar 抬到底栏+状态栏之上；面包屑弹性上限 min(240px,42vw)；抽屉展开/折叠箭头补足 44×44；隐藏移动端标题左侧图标；隐藏桌面顶栏文字、数据库字号 90% |
+| **≤ 768px（且 `body:has(#mobileTopBar)` 移动外壳）** | 行长 36em（`max(12px, (100%−36em)/2)` 居中，390px 手机仍为 12px）；正文 15px；`#editor` 底部 80px 纸色渐隐（正文不钻到悬浮底栏/状态栏下面）；触控目标 ≥ 44×44（列表项/工具栏/dock/块标/闪卡按钮/全部 `.b3-button` 含对话框确认与删除/输入框与下拉/面包屑条目与按钮/侧栏与面板工具图标/页签项与关闭钮/拖动把手/提示条关闭钮与重试钮；行内标签按 WCAG 2.5.5 inline 豁免不撑高）；对话框 96vw；snackbar 抬到底栏之上（bottom 走官方 `--mobile-bottom-bar-*` 变量链 + 8px 呼吸距，默认 88px，Android 导航栏 1:1 避让）；面包屑弹性上限 min(240px,42vw)；抽屉展开/折叠箭头补足 44×44；隐藏移动端标题左侧图标；隐藏桌面顶栏文字、数据库字号 90% |
 | **(hover: none)** | 关闭所有 hover 底色，改为 `:active` 即时反馈（两者均需 `!important`，因触控点击同时命中 `:hover` 与 `:active`）；集市卡片只复位底色不复位描边（卡片层级只靠 surface + 1px 描边）；块标常显；关闭 tooltip 伪元素 |
 | **(prefers-reduced-motion: reduce)** | 动效近零**且 `animation:none`**：保存呼吸改静态半透明、印章圆点静止、双链落点线常显（原来只压 duration，`fill:both` + 1.5s delay 会让线在 2.2s 后消失；标题/列表等 `background-image` 实现同理，只压 duration 会瞬间给到 `alpha:0`） |
+| **(prefers-contrast: more)** | 高对比 opt-in：`--b3-border-color` 提至对纸/砚 ≥3:1（浅 `#827C6C` / 深 `#847F76`，文件末尾媒体查询块）；未 opt-in 时零变化（深色对 `surface-lighter` 2.94 为已知残留） |
 
 > 断点说明：官方桌面端唯一样式断点是 `max-width: 750px`（`app/src/assets/scss/util/_responsive.scss:1`），
 > 移动端是独立结构。任务要求 1280 / 1024 / 768 三档，因此行长切换点在 **1200px**、
@@ -299,7 +349,7 @@ callout / 表格 / 数据库 / 嵌入 / 引述 / 父块。
 |---|---|
 | `theme.json` | 主题清单：`name`（须与文件夹名一致）、`author`、`url`、`version`、`minAppVersion`、`frontends`、`modes`、`displayName`、`description`、`readme`、`icon`、`preview`、`keywords` |
 | `theme.css` | 浅色 `:root` 全套变量 + 全部组件/状态/动效/断点；首行 `@import` 深色文件 |
-| `theme-dark.css` | `:root[data-theme-mode="dark"]` 深色独立色板 + 对应组件覆盖（含独立的行长度量规则）；文件顶部另有裸 `:root`（`--b3-font-family*`，与模式无关）与 `:lang()` 分语言变体 |
+| `theme-dark.css` | `:root[data-theme-mode="dark"]` 深色独立色板 + 对应组件覆盖（含独立的行长度量规则）；文件顶部另有裸 `:root`（`--b3-font-family*` 与 `--b3-loading-color`，与模式无关）与 `:lang()` 分语言变体 |
 | `icon.png` / `preview.png` | 集市展示资产（图标 160×160、预览 1024×768，尺寸对齐官方 theme-sample），仅集市页使用，运行不需要；由 `tools/gen_market_assets.py` 从预览源图生成 |
 | `README.md` / `README.en.md` | 中文 / 英文说明（`theme.json` 的 `readme.zh-CN` / `readme.default`） |
 
@@ -321,10 +371,15 @@ python tools/package.py             # 按白名单产出 dist/package.zip（文�
 - `package.py` 自检：`theme.css` 首行 `@import` 目标必须在包内、`theme.json` 的
   `icon`/`preview`/`readme` 必须指向包内文件、`icon.png`/`preview.png` 的 sha256 必须
   等于 `tools/market-assets.json`（即最近一次生成脚本的输出）。
-- 发布流程：把 `dist/package.zip` 作为 Release 资产上传，再向
-  [siyuan-note/bazaar](https://github.com/siyuan-note/bazaar) 提 PR。
-  `theme.json` 的 `url` 必须填**公开仓库地址**；本仓库尚无公开地址，因此该字段暂为空，
-  集市 PR 前必须补上（不能编造）。
+- 发布状态（2026-11-11 核对）：公开仓库 `github.com/Lucian-YJun/YanJian` 已建立，
+  `theme.json` 的 `url` 已填该地址（`theme.json:4`）；v1.0.0–v1.0.2 均已发布 GitHub Release
+  并附带 `package.zip`（`gh release list` / `gh release view v1.0.2 --json assets` 实测）。
+  向 [siyuan-note/bazaar](https://github.com/siyuan-note/bazaar) 提交集市 PR 一项，本环境未能核实
+  是否已提交——若未提交，属对外动作，由仓库属主执行（不代办、不编造状态）。
+- 公开仓库 `master` 只含 8 个分发文件（与 `package.zip` 白名单一致；zip 内的
+  `README.md`/`README.en.md` 即 `theme/README.md`/`theme/README.en.md`，`package.py` 按
+  同名从 `theme/` 取源）。`docs/`、`tools/`、`reports/`、`design/`、`preview/` 仅存在于
+  本开发仓库——面向集市读者的文档（`theme/README*.md`）不得链接这些路径。
 
 ---
 
@@ -339,3 +394,41 @@ MIT，见仓库根 `LICENSE`。主题为纯 CSS：不执行脚本、不写配置
 `设置` → `外观` → 切换回 `daylight` / `midnight`，然后删除
 `{工作空间}/conf/appearance/themes/YanJian/` 整个目录即可。
 主题不写入任何配置、不执行脚本，删除后无残留。
+
+---
+
+## 十二、架构演进方向（未排期）
+
+以下为建议裁决中明确**延后**的演进项，登记备查。本轮（3.8.10 适配 + 文档修订轮）不执行；
+执行前需重开一轮带渲染/门控验证的专项工作流。
+
+### @layer 级联层重构（SUG-02，deferred）
+
+- **来源**：`reports/deep-code-review.md` §5.4 [SUG-02]。裁决状态据本轮建议裁决：
+  SUG-03（高对比边框）/ SUG-04（配色收敛 + 对比度门禁）已于本轮落地，
+  SUG-01（`theme.json` 多语言键名 BCP 47 化）已于 R4 上架评审轮落地
+  （`theme.json` 现仅存 `zh-CN`，无 `zh_CN`），SUG-02 延后。
+- **建议内容**：深色模式整表选择器前缀化导致特异性系统性偏高；未来引入
+  `@layer siyuan-base, yanjian-theme, yanjian-overrides;`，统一组件样式，
+  仅通过 `:root` 与 `:root[data-theme-mode="dark"]` 下的语义变量驱动，消除镜像维护成本。
+- **本次不执行的原因**：
+  1. 层叠层会整体改变特异性胜负关系——现行实现与本轮多处适配修复（G01 移动块
+     `:where()` 归零、R3/R4/R7/R8/R12 的「深色前缀抬权 + 后置胜出官方」）都依赖
+     既有的特异性序；引入 `@layer` 后须逐条重验层间胜负，并重拍全部门控基线
+     （verify-r3 / runtime-verify / shots 像素审计）。
+  2. 与 D13 字体契约存在冲突风险：`--b3-font-family*` 必须留在裸 `:root`（0,1,0），
+     以维持与思源注入的用户字体 `:root:root`（0,2,0）的同权后置关系；未分层规则
+     胜过分层规则的层叠语义，需在思源注入顺序（baseStyle → themeDefaultStyle →
+     themeStyle）下另行验证。
+  3. 属架构级重构，改动面覆盖两份样式表全文与全部验收快照，与集市已发布的
+     v1.0.2 形态差异过大，超出本轮范围——未排期。
+- **说明**：验证员未随本轮任务下达独立文案，本节文案由文档修订轮依据上述来源撰写。
+
+### 可复用 AI 表面类 `.yj-ai-surface`（L5 备选，未采纳）
+
+- **来源**：`reports/compat-3.8.10-review.md` §3.2 L5「建议修复方向」的备选方案——
+  把「铅笔稿」规则抽成可复用类，避免每新增一个 AI 面板都要手工补选择器。
+- **本次不执行的原因**：本轮按工单口径做最小选择器扩展（R9 直接把
+  `.memory-manager__content` 并入两文件的铅笔稿规则组），已满足当前需求；
+  抽类会同时改动两文件的既有选择器组并需重验「铅笔稿」契约的完整命中面，
+  防漏配收益不抵本轮验证成本，留作下个重构窗口的候选。
